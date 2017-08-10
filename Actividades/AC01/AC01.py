@@ -152,25 +152,39 @@ class Medidor:
     def agregar_consumo(self, consumo):
         a = 0
 
-cliente1 = Cliente("Max", "123-k")
-cliente2 = Cliente("Alex", "124-k")
-casa1 = Casa("San joaquin", cliente1)
-casa1.electro_dependiente = True
-print(casa1._electro_dependiente)
-edificio1 = Edificio("Benito Rebolledo", "Angelini")
-departamento1 = Departamento("55", cliente2)
-edificio1.departamentos.append(departamento1)
-departamento1.electro_dependiente = True
-comuna1 = Comuna("Macul")
-comuna1.agregar_vivienda(casa1)
-comuna1.agregar_vivienda(cliente1)  ## error
-comuna1.agregar_vivienda(edificio1)
-casa1.agregar_consumo(1000)
-casa1.agregar_consumo(10000)  ## error
-edificio1.agregar_consumo(5000)
-ciudad1 = Ciudad("Santiago")
-ciudad1.comunas.append(comuna1)
+if __name__ == "__main__":
+    cliente1 = Cliente("Max", "123-k")
+    cliente2 = Cliente("Alex", "124-k")
+    casa1 = Casa("San joaquin", cliente1)
+    casa1.electro_dependiente = True
+    print(casa1._electro_dependiente)
+    edificio1 = Edificio("Benito Rebolledo", "Angelini")
+    departamento1 = Departamento("55", cliente2)
+    edificio1.departamentos.append(departamento1)
+    departamento1.electro_dependiente = True
+    comuna1 = Comuna("Macul")
+    comuna1.agregar_vivienda(casa1)
+    comuna1.agregar_vivienda(cliente1)  ## error
+    comuna1.agregar_vivienda(edificio1)
+    casa1.agregar_consumo(1000)
+    casa1.agregar_consumo(10000)  ## error
+    edificio1.agregar_consumo(5000)
+
+    cliente3 = Cliente("Carlos", "111-2")
+    cliente4 = Cliente("Cristobal", "222-3")
+    casa2 = Casa("Tienda", cliente3)
+    casa2.agregar_consumo(1500)
+    departamento2 = Departamento("34", cliente4)
+    edificio2 = Edificio("Vicuna", "I Griega")
+    edificio2.departamentos.append(departamento2)
+    edificio2.agregar_consumo(2300)
+    comuna2 = Comuna("Cerrillos")
+    comuna2.agregar_vivienda(casa2)
+    comuna2.agregar_vivienda(edificio2)
+    ciudad1 = Ciudad("Santiago")
+    ciudad1.comunas.append(comuna1)
+    ciudad1.comunas.append(comuna2)
 
 
-
-print(comuna1)
+    print(comuna1)
+    print(comuna2)
