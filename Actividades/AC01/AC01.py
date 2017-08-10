@@ -156,8 +156,8 @@ if __name__ == "__main__":
     cliente1 = Cliente("Max", "123-k")
     cliente2 = Cliente("Alex", "124-k")
     casa1 = Casa("San joaquin", cliente1)
+    casa1.electro_dependiente = 6  ## error
     casa1.electro_dependiente = True
-    print(casa1._electro_dependiente)
     edificio1 = Edificio("Benito Rebolledo", "Angelini")
     departamento1 = Departamento("55", cliente2)
     edificio1.departamentos.append(departamento1)
@@ -187,4 +187,7 @@ if __name__ == "__main__":
 
 
     print(comuna1)
+    print(casa1)
+
     print(comuna2)
+    print(casa2)
