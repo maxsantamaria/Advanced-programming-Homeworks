@@ -63,7 +63,7 @@ class Casa:
     def __repr__(self):
         ultimo_consumo = len(self.medidor) - 1
         consumo = self.medidor[ultimo_consumo]
-        return ("El ultimo consumo de la casa del cliente " + str(self.cliente) + " fue de " + str(consumo) + "."
+        return ("El ultimo consumo de la casa del cliente " + str(self.cliente.rut) + " fue de " + str(consumo) + "."
                 + " Electrodependiente: " + str(self._electro_dependiente))
 
 
@@ -90,9 +90,9 @@ class Edificio:
 
     def __repr__(self):
         ultimo = len(self.medidor) - 1
-        ultimo_consumo = self.medidor(ultimo)
+        ultimo_consumo = self.medidor[ultimo]
         consumo_total = 0
-        for consumo in medidor:
+        for consumo in self.medidor:
             consumo_total += consumo
         contador_electro = 0
         for departamento in self.departamentos:
@@ -188,6 +188,8 @@ if __name__ == "__main__":
 
     print(comuna1)
     print(casa1)
+    print(edificio1)
 
     print(comuna2)
     print(casa2)
+    print(edificio2)
