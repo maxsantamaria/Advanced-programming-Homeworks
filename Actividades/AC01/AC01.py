@@ -21,7 +21,7 @@ class Comuna:
         contador_electro = 0
         contador_consumo = 0
         for vivienda in self.casas_edificios:
-            if vivienda._electro_dependiente == True:
+            if vivienda.electro_dependiente == True:
                 contador_electro += 1
             ultimo_consumo = len(vivienda.medidor) - 1
             contador_consumo += vivienda.medidor[ultimo_consumo]
@@ -43,7 +43,12 @@ class Casa:
         else:
             print("Consumo no válido.")
 
-    def _set_electro_dependiente(self, boolean):
+    @property
+    def electro_dependiente(self):
+        return self._electro_dependiente
+
+    @electro_dependiente.setter
+    def electro_dependiente(self, boolean):
         if type(boolean) == int:
             if boolean == 1:
                 self._electro_dependiente = True
@@ -52,9 +57,8 @@ class Casa:
             else:
                 print("Valor invalido electrodependiente.")
         elif type(boolean) == bool:
-            self._electro_dependiente = bool
+            self._electro_dependiente = boolean
 
-    electro_dependiente = property(_set_electro_dependiente)
 
     def __repr__(self):
         ultimo_consumo = len(self.medidor) - 1
@@ -70,12 +74,19 @@ class Edificio:
         self.nombre = nombre
         self.medidor = []
         self.departamentos = []
+        self._electro_dependiente = 0  ## cantidad de electrodependientes en el edificio
 
     def agregar_consumo(self, consumo):
         if consumo >= 0 and consumo <= 10000:
             self.medidor.append(consumo)
         else:
             print("Consumo no válido.")
+
+    @property
+    def electro_dependiente(self):
+        for departamento in self.departamentos:
+            if departamento._electro_dependiente == True:
+                self._electro_dependiente += 1
 
     def __repr__(self):
         ultimo = len(self.medidor) - 1
@@ -97,7 +108,6 @@ class Departamento:
         self.numero = numero
         self._electro_dependiente = False
         self.cliente = cliente
-        self.medidor = []
 
     def agregar_consumo(self, consumo):
         if consumo >= 0 and consumo <= 4000:
@@ -105,7 +115,12 @@ class Departamento:
         else:
             print("Consumo no válido.")
 
-    def _set_electro_dependiente(self, boolean):
+    @property
+    def electro_dependiente(self):
+        return self._electro_dependiente
+    @electro_dependiente.setter
+
+    def electro_dependiente(self, boolean):
         if type(boolean) == int:
             if boolean == 1:
                 self._electro_dependiente = True
@@ -114,9 +129,8 @@ class Departamento:
             else:
                 print("Valor invalido electrodependiente.")
         elif type(boolean) == bool:
-            self._electro_dependiente = bool
+            self._electro_dependiente = boolean
 
-    electro_dependiente = property(_set_electro_dependiente)
 
     def __repr__(self):
         ultimo_consumo = len(self.medidor) - 1
@@ -141,13 +155,16 @@ class Medidor:
 cliente1 = Cliente("Max", "123-k")
 cliente2 = Cliente("Alex", "124-k")
 casa1 = Casa("San joaquin", cliente1)
+casa1.electro_dependiente = True
+print(casa1._electro_dependiente)
 edificio1 = Edificio("Benito Rebolledo", "Angelini")
 departamento1 = Departamento("55", cliente2)
 edificio1.departamentos.append(departamento1)
+departamento1.electro_dependiente = True
 comuna1 = Comuna("Macul")
 comuna1.agregar_vivienda(casa1)
 comuna1.agregar_vivienda(cliente1)  ## error
-#comuna1.agregar_vivienda(edificio1)
+comuna1.agregar_vivienda(edificio1)
 casa1.agregar_consumo(1000)
 casa1.agregar_consumo(10000)  ## error
 edificio1.agregar_consumo(5000)
