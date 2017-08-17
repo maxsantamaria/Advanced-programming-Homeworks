@@ -71,12 +71,11 @@ class Vestuario(Producto):
         self.categoria = categoria
 
 
-
-
 class Especial(Comida, Vestuario):
-    def __init__(self, *args):
-        Comida.__init__(self )
-        Vestuario.__init__(self)
+    def __init__(self, nombre, SKU, precio, calorias, proteinas, carbohidratos, grasa, fecha_vencimiento,
+                 talla, categoria):
+        Comida.__init__(self, nombre, SKU, precio, calorias, proteinas, carbohidratos, grasa, fecha_vencimiento)
+        Vestuario.__init__(self, talla, categoria, nombre, SKU, precio)
 
 
 
@@ -208,5 +207,6 @@ if __name__ == "__main__":
 
     vegetariano.agregar_producto(carne)
 
-    #pantalon_de_queso = Especial("pantalon de queso", "9129394949", "5000", "300", "10", "100", "10", "2019-10-05",
-    #                             "10", 35, "niño")
+    pantalon_de_queso = Lacteo("pantalon de queso", "9129394949", "5000", "300", "10," "100", "10", "10",
+                               "2019-10-05", "10")
+    pantalon_de_queso2 = Vestuario(35, "niño", "pantalon de queso", "9129394949", "5000")
