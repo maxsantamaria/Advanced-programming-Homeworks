@@ -33,11 +33,10 @@ class Lacteo(Comida):
         self.calcio = calcio
 
     def __str__(self):
-        imprimir2 = ("\nCalorias" + " = " +
-                    self.calorias + " (kcal)\n" + "Proteinas" + " = " + self.proteinas + " (g)\n" + "Carbohidratos"
-                    + " = " + self.carbohidratos + " (g)\n" + "Grasa" + " = " + self.grasa + " (g)\n" + "Calcio"
+        imprimir1 = super().__str__()
+        imprimir2 = ("\n" + "Calcio"
                     + " = " + self.calcio + " (mg)")
-        return imprimir2
+        return imprimir1 + imprimir2
 
 class Verdura(Comida):
     def __init__(self, nombre, SKU, precio, calorias, proteinas, carbohidratos, grasa, fecha_vencimiento, vitamina):
@@ -61,7 +60,7 @@ class Carne(Comida):
     def __str__(self):
         imprimir = ("Calorias" + " = " +
                     self.calorias + " (kcal)\n" + "Proteinas" + " = " + self.proteinas + " (g)\n" + "Carbohidratos"
-                    + " = " + self.carbohidratos + " (g)\n" + "Grasa" + " = " + self.grasa + " (g)" + "Tipo = "
+                    + " = " + self.carbohidratos + " (g)\n" + "Grasa" + " = " + self.grasa + " (g)\n" + "Tipo = "
                     + self.tipo)
         return imprimir
 
@@ -109,7 +108,7 @@ class Cliente(Persona):  # come todo
         self.tercera_edad = False
 
     def saludo(self):
-        return "Hola."
+        return print("Hola.")
 
     def agregar_producto(self, producto):
         self.carro.append(producto)
@@ -150,9 +149,12 @@ class Cajero(Persona):
         self.caja = []
 
     def saludo(self):
-        return "Bienvenido estimado."
+
+        return print("Bienvenido estimado.")
 
     def calcular_compra(self, carro, cliente):
+        self.saludo()
+        cliente.saludo()
         total_a_pagar = 0
         for objeto in carro:
             if cliente.frecuente:  # Aca aplicamos el descuento correspondiente
@@ -169,11 +171,11 @@ class Cajero(Persona):
             else:
                 total_a_pagar += int(objeto.precio)
         if total_a_pagar > cliente.monto_dinero:
-            return "No tienes dinero suficiente."
+            return print("No tienes dinero suficiente.")
         else:
             cliente.monto_dinero -= total_a_pagar
 
-        return "El total a pagar es " + str(total_a_pagar) + ". Que disfrute su dia."
+        return print("El total a pagar es " + str(total_a_pagar) + ". Que disfrute su dia.")
 
 
 if __name__ == "__main__":
@@ -183,7 +185,7 @@ if __name__ == "__main__":
     cliente2.determinar_tercera_edad()
     lacteo = Lacteo("yoghurt", "9129394949", "5000", "300", "10", "100", "10", "2019-10-05", "10")
     verdura = Verdura("brocoli", "9129394948", "3000", "300", "10", "100", "10", "2019-10-05", "10")
-    carne = Carne("filete", "9129394947", "5000", "300", "100", "10", "10", "2019-10-05", "vacuno")
+    carne = Carne("filete", "9129394947", "6000", "300", "100", "10", "10", "2019-10-05", "vacuno")
     prenda1 = Vestuario(46, "hombre", "pantalon", "9129394946", "2000")
     prenda2 = Vestuario(16, "mujer", "polera", "9129394945", "2000")
     prenda3 = Vestuario(35, "niño", "calcetin", "9129394944", "2000")
@@ -191,6 +193,9 @@ if __name__ == "__main__":
 
     print(cliente2.tercera_edad)
     print(cliente1.fecha_nacimiento)
-    print(comida)
     #  Compra de prueba
     cliente1.agregar_producto(lacteo)
+    cajero1.calcular_compra(cliente1.carro, cliente1)
+    print(cliente1.monto_dinero)
+    cliente1.agregar_producto(carne)
+    cajero1.calcular_compra(cliente1.carro, cliente1)
