@@ -74,8 +74,11 @@ class Vestuario(Producto):
 
 
 class Especial(Comida, Vestuario):
-    def __init__(self, nombre, SKU, precio):
-        pass
+    def __init__(self, *args):
+        Comida.__init__(self )
+        Vestuario.__init__(self)
+
+
 
 
 class Persona(metaclass = ABCMeta):
@@ -183,6 +186,7 @@ if __name__ == "__main__":
     cliente1 = Cliente("Max", "1996-10-24", 10000)
     cliente2 = Cliente("Lucas Valenzuela", "1950-05-25", 50000)
     cliente2.determinar_tercera_edad()
+    vegetariano = Vegetariano("Alex", "1995-06-30", 12000)
     lacteo = Lacteo("yoghurt", "9129394949", "5000", "300", "10", "100", "10", "2019-10-05", "10")
     verdura = Verdura("brocoli", "9129394948", "3000", "300", "10", "100", "10", "2019-10-05", "10")
     carne = Carne("filete", "9129394947", "6000", "300", "100", "10", "10", "2019-10-05", "vacuno")
@@ -193,9 +197,16 @@ if __name__ == "__main__":
 
     print(cliente2.tercera_edad)
     print(cliente1.fecha_nacimiento)
-    #  Compra de prueba
+
+    #  Compra de prueba cliente 1
     cliente1.agregar_producto(lacteo)
     cajero1.calcular_compra(cliente1.carro, cliente1)
     print(cliente1.monto_dinero)
     cliente1.agregar_producto(carne)
     cajero1.calcular_compra(cliente1.carro, cliente1)
+
+
+    vegetariano.agregar_producto(carne)
+
+    #pantalon_de_queso = Especial("pantalon de queso", "9129394949", "5000", "300", "10", "100", "10", "2019-10-05",
+    #                             "10", 35, "niño")
