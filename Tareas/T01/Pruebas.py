@@ -42,3 +42,14 @@ for opcion in mejores_opciones:
 
 print(5 + d("5"))
 print(5 != d("5"))
+a = d("5")
+a = str(a)
+print(type(a))
+
+
+lista1 = [2, 3, 4, 5]
+
+for elem in lista1:
+    print(elem)
+    if 3 in lista1:
+        lista1.remove(3)

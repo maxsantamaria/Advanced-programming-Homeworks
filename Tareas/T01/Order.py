@@ -126,3 +126,6 @@ class Match:
         self.ask = ask
         self.bid = bid
         self.tiempo = tiempo
+        self.año = tiempo[0:4]
+        self.mes = tiempo[5:7]
+        self.dia = tiempo[8:]

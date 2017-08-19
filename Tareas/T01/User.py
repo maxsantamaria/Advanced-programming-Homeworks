@@ -14,6 +14,14 @@ class Usuario:  # de aca se heredan 3 tipos de usuarios
 
     def agregar_mercado(self, mercado):
         self.mercados.append(mercado)
+        if mercado.divisa_compraventa not in self.balance_currencies.keys():
+            self.balance_currencies.update({mercado.divisa_compraventa : d("50000")})  # se agregan los 50.000 respectivos
+        else:
+            self.balance_currencies[mercado.divisa_compraventa] += d("50000")
+        if mercado.moneda_de_cambio not in self.balance_currencies.keys():
+            self.balance_currencies.update({mercado.moneda_de_cambio : d("50000")})
+        else:
+            self.balance_currencies[mercado.moneda_de_cambio] += d("50000")
 
     def generar_balance(self):
         for mercado in self.mercados:
@@ -51,7 +59,8 @@ class Usuario:  # de aca se heredan 3 tipos de usuarios
 class Underaged(Usuario):
     def __init__(self, username, nombre, apellido, nacimiento):
         Usuario.__init__(self, username, nombre, apellido, nacimiento)
-
+    def agregar_mercado(self, mercado):
+        self.mercados.append(mercado)
 
 class Trader(Usuario):
     def __init__(self, username, nombre, apellido, nacimiento):
@@ -109,9 +118,6 @@ def identificarse(lista_usuarios):
                     usuario_actual = usuario
             if not valido:
                 print("El usuario no está registrado.")
-        print("Sus orders realizadas hasta el momento son las siguientes:")
-        for order in usuario_actual.orders_realizadas:  # HACER LAS ORDERS COMO OBJETOS NO ID
-            print("ID:", order)
         print("Su saldo es el siguiente:")
         for symbol, saldo in usuario_actual.balance_currencies.items():
             print(symbol, saldo)
@@ -136,5 +142,6 @@ def agregar_usuario(lista_usuarios):
     else:
         del nuevo_usuario
         nuevo_usuario = Trader(nuevo_username, nuevo_nombre, nuevo_apellido, nuevo_nacimiento)
+        nuevo_usuario.balance_currencies["DCC"] = d("100000")
     lista_usuarios.append(nuevo_usuario)
     return nuevo_usuario

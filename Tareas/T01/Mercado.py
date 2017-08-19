@@ -21,21 +21,33 @@ class Mercado:
             lista_precios_venta.append(float(venta.moneda_de_cambio))
         for compra in self.bids_activos:
             lista_precios_compra.append(float(compra.moneda_de_cambio))
-        spread = min(lista_precios_venta) - max(lista_precios_compra)
+        if len(lista_precios_venta) == 0 or len(lista_precios_compra) == 0:
+            spread = 0
+            print("No hay suficientes compras y ventas para calcular un spread.")
+        else:
+            spread = min(lista_precios_venta) - max(lista_precios_compra)
         return spread
 
     def ask_best(self):
         lista_precios_venta = []
         for venta in self.asks_activos:
             lista_precios_venta.append(float(venta.moneda_de_cambio))
-        ask_best = min(lista_precios_venta)
+        if len(lista_precios_venta) == 0:
+            ask_best = 0
+            print("No hay asks en el mercado para calcular un best.")
+        else:
+            ask_best = min(lista_precios_venta)
         return ask_best
 
     def bid_best(self):
         lista_precios_compra = []
         for compra in self.bids_activos:
             lista_precios_compra.append(float(compra.moneda_de_cambio))
-        bid_best = max(lista_precios_compra)
+        if len(lista_precios_compra) == 0:
+            bid_best = 0
+            print("No hay bids en el mercado para calcular un best.")
+        else:
+            bid_best = max(lista_precios_compra)
         return bid_best
 
     def volumen_acumulado_asks(self):
@@ -64,12 +76,13 @@ class Mercado:
         print("Bid best: ", self.bid_best())
 
 
-
-
 class Moneda:
     def __init__(self, simbolo, nombre):
         self.simbolo = simbolo
         self.nombre = nombre
+    def __str__(self):
+        imprimir = "Simbolo moneda: " + self.simbolo + " | " + "Nombre moneda: " + self.nombre
+        return imprimir
 
 
 
