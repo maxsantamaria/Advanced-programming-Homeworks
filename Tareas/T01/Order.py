@@ -68,7 +68,13 @@ class Ask(Order):
         imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 + " a cambio de " +
                      str(self.moneda_de_cambio) + simbolo2)
         if imprimir1 != "":
-            print(imprimir1 + imprimir2)
+            print(imprimir1 + imprimir2, end = " ")
+            if self.ejecutada:
+                print("| Tuvo match el dia", self.match_time)
+            else:
+                print("| Aun no tiene match")
+            return True  # para comprobar que se imprimio algo
+        return False  # para comprobar que no se imprimio nada
 
     def desplegar_order_por_mercado(self, mercado_especifico):
         imprimir1 = super().desplegar_order_por_mercado(mercado_especifico)
@@ -78,7 +84,14 @@ class Ask(Order):
                      str(self.moneda_de_cambio) + simbolo2)
 
         if imprimir1 != "":
-            print(imprimir1 + imprimir2)
+            print(imprimir1 + imprimir2, end = " ")
+            if self.ejecutada:
+                print("| Tuvo match el dia", self.match_time)
+            else:
+                print("| Aun no tiene match")
+
+            return True
+        return False
 
     def __str__(self):
         imprimir1 = super().__str__()
@@ -101,7 +114,13 @@ class Bid(Order):
         imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 + " a cambio de " +
                      str(self.moneda_de_cambio) + simbolo2)
         if imprimir1 != "":
-            print(imprimir1 + imprimir2)
+            print(imprimir1 + imprimir2, end = " ")
+            if self.ejecutada:
+                print("| Tuvo match el dia", self.match_time)
+            else:
+                print("| Aun no tiene match")
+            return True
+        return False
 
     def desplegar_order_por_mercado(self, mercado):
         imprimir1 = super().desplegar_order_por_mercado(mercado)
@@ -110,7 +129,13 @@ class Bid(Order):
         imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 + " a cambio de " +
                      str(self.moneda_de_cambio) + simbolo2)
         if imprimir1 != "":
-            print(imprimir1 + imprimir2)
+            print(imprimir1 + imprimir2, end = " ")
+            if self.ejecutada:
+                print("| Tuvo match el dia", self.match_time)
+            else:
+                print("| Aun no tiene match")
+            return True
+        return False
 
     def __str__(self):
         imprimir1 = super().__str__()

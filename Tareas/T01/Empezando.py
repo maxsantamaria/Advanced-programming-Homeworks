@@ -10,8 +10,12 @@ def poblar_sistema(archivo, lista_usuarios, lista_mercados):
     if archivo == "users.csv":
         lista_info_usuarios = read(archivo)
         for info_usuario in lista_info_usuarios:
+            if "birthday" not in lista_info_usuarios[0].keys():  # no esta claro si sera birthday o birthdate
+                cumpleaños = "birthdate"
+            else:
+                cumpleaños = "birthday"
             usuario = Usuario(info_usuario["username"], info_usuario["name"], info_usuario["lastname"],
-                              info_usuario["birthday"])
+                              info_usuario[cumpleaños])
             if usuario.determinar_edad() < 18:
                 del usuario
                 usuario = Underaged(info_usuario["username"], info_usuario["name"], info_usuario["lastname"],
@@ -23,7 +27,7 @@ def poblar_sistema(archivo, lista_usuarios, lista_mercados):
             usuario.orders_realizadas = info_usuario["orders"]
             lista_usuarios.append(usuario)
         return lista_usuarios
-    elif archivo == "Currencies.csv":
+    elif archivo == "Currencies.csv" or archivo == "currencies.csv":  # no esta claro si sera con miniscula o no
         lista_info_monedas = read(archivo)
         lista_monedas = []
         for info_moneda in lista_info_monedas:
@@ -174,4 +178,7 @@ for mercado in lista_mercados:
         print(ask.id)
     for bid in mercado.bids_activos:
         print(bid.id)
+
+for match in sistema.lista_match:
+    print("ask:", match.ask.id,"bid:", match.bid.id, match.ask.divisa_venta, match.bid.divisa_compra, match.ask.moneda_de_cambio)
 

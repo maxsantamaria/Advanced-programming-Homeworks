@@ -45,6 +45,8 @@ print(5 != d("5"))
 a = d("5")
 a = str(a)
 print(type(a))
+a = "   hola como estas "
+print(a.strip())
 
 
 lista1 = [2, 3, 4, 5]
@@ -53,3 +55,21 @@ for elem in lista1:
     print(elem)
     if 3 in lista1:
         lista1.remove(3)
+
+if True:
+    print("hola")
+    pass
+    print("chao")
+
+fecha1 = Fecha(2000, 10, 5)
+fecha2 = Fecha(3000, 10, 3)
+fecha3 = Fecha(3000, 5, 3)
+myList = [fecha1, fecha2, fecha3]
+nueva_lista = list(filter(lambda x: x.año == 3000, myList))
+for elem in nueva_lista:
+    print(elem.mes)
+
+print(len(nueva_lista))
+
+
+print("hola" != False)

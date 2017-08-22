@@ -8,9 +8,10 @@ class Usuario:  # de aca se heredan 3 tipos de usuarios
         self.nombre = nombre
         self.apellido = apellido
         self.nacimiento = nacimiento  #YYYY-MM-DD
-        self.balance_currencies = {"DCC" : d("0")}  # o un diccionario
+        self.balance_currencies = {"DCC" : d("300000")}  # o un diccionario
         self.mercados = []
         self.orders_realizadas = []
+
 
     def agregar_mercado(self, mercado):
         self.mercados.append(mercado)
@@ -88,7 +89,10 @@ class Trader(Usuario):
 
     def transferir_dinero(self, cantidad, usuario_destino, mercado):
         divisa = mercado.ticker[0:3]
-        self.balance_currencies[divisa] = int(self.balance_currencies[divisa]) - d(cantidad)
+        if d(self.balance_currencies[divisa]) - d(cantidad) < 0:
+            print("No tienes dinero suficiente para realizar la transferencia.")
+            return
+        self.balance_currencies[divisa] = d(self.balance_currencies[divisa]) - d(cantidad)
         if divisa not in usuario_destino.balance_currencies.keys():
             usuario_destino.balance_currencies.update({divisa : d("0")})
 
@@ -97,21 +101,28 @@ class Trader(Usuario):
         mercado.comisiones[divisa] = int(mercado.comisiones[divisa]) + d(cantidad) * d("0.05")
 
 
-
-
 class Investor(Trader):
     def __init__(self, username, nombre, apellido, nacimiento):
         Trader.__init__(self, username, nombre, apellido, nacimiento)
 
 def identificarse(lista_usuarios):
-    registro = input("Ingrese\n1 si ya tiene una cuenta registrada\n2 si quiere registrar una nueva cuenta\n")
+    while True:  # manejo de errores
+        registro = input("Ingrese\n1 si ya tiene una cuenta registrada\n2 si quiere registrar una nueva cuenta\n")
+        if registro != "1" and registro != "2":
+            print("Opcion invalida")
+        else:
+            break
+
     if registro == str(2):
         usuario_actual = agregar_usuario(lista_usuarios)
         return usuario_actual
     elif registro == str(1):
         valido = False
         while not valido:
-            usuario_ingreso = input("Ingrese su nombre de usuario registrado: ")
+            usuario_ingreso = input("Ingrese su nombre de usuario registrado (0 para registrarse): ")
+            if usuario_ingreso == "0":
+                usuario_actual = identificarse(lista_usuarios)
+                return usuario_actual
             for usuario in lista_usuarios:
                 if usuario.username == usuario_ingreso:
                     valido = True
@@ -135,6 +146,7 @@ def agregar_usuario(lista_usuarios):
     nuevo_nombre = input("Ingresa tu nombre: ")
     nuevo_apellido = input("Ingresa tu apellido: ")
     nuevo_nacimiento = input("Ingresa tu fecha de nacimiento (Formato 1990-10-24): ")
+
     nuevo_usuario = Usuario(nuevo_username, nuevo_nombre, nuevo_apellido, nuevo_nacimiento)
     if nuevo_usuario.determinar_edad() < 18:
         del nuevo_usuario
