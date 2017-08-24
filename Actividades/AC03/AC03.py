@@ -143,6 +143,8 @@ with open("unidades.txt", "r") as archivo_unidades:
         linea = linea.strip()
         u_academica, controla = linea.split(",")
         unidad = UnidadAcademica(u_academica, controla)
+        unidad.controla = controla
+        print()
         diccionario.update({u_academica : unidad})
 
 with open("alumnos.txt", "r") as archivo_alumnos:
