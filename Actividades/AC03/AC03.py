@@ -181,9 +181,7 @@ sistema.asignar_curso2()
 sistema.botar_ramos()
 
 for usuario in sistema.alumnos.values():
-    print(usuario.unidad_academica.nombre)
-    for cupo in usuario.cupo.values():
-        print(cupo.horario, cupo.sigla)
+
 
     sistema.alumno_en_curso(usuario.numero, "ICS4948")
 
