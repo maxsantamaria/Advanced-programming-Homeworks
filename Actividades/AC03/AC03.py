@@ -3,7 +3,7 @@ from random import sample, shuffle
 
 class PrograBanner:
     def __init__(self):
-        self.oferta_cursos = ()  # lista
+        self.oferta_cursos = () # tupla
         self.alumnos = {}  # diccionario
 
     def orden_de_llegada(self):
@@ -14,13 +14,13 @@ class PrograBanner:
         return lista_alumnos
 
     def asignar_curso1(self):
-        lista_cursos_con_cupos = []
         lista_alumnos = self.orden_de_llegada()
         for alumno_asignar in lista_alumnos:
+            lista_cursos_con_cupos = []
             for curso in self.oferta_cursos:
-                curso.cupos.sort(key=lambda x : x.numero)
                 if len(curso.cupos) > 0:
                     lista_cursos_con_cupos.append(curso)
+            #print(len(lista_cursos_con_cupos))
             curso_asignado = sample(lista_cursos_con_cupos, 3)
 
             for curso in curso_asignado:
@@ -31,22 +31,21 @@ class PrograBanner:
         for curso in self.oferta_cursos:
             for cupo in curso.cupos_extra:
                 curso.cupos.append(cupo)
-        curso.cupos_extra.clear()
+            curso.cupos_extra.clear()
 
 
     def asignar_curso2(self):
-        lista_cursos_con_cupos = []
         lista_alumnos = self.orden_de_llegada()
         for alumno_asignar in lista_alumnos:
+            lista_cursos_con_cupos = []
             for curso in self.oferta_cursos:
-                curso.cupos.sort(key=lambda x: x.numero)
                 if len(curso.cupos) > 0:
                     lista_cursos_con_cupos.append(curso)
             while len(alumno_asignar.cupo) < 5:
                 curso_asignado = sample(lista_cursos_con_cupos, 1)
-                if curso_asignado.sigla not in alumno_asignar.cupo:
-                    cupo = curso_asignado.cupos.popleft()
-                    alumno_asignar.cupo.update({curso_asignado.sigla : cupo})
+                if curso_asignado[0].sigla not in alumno_asignar.cupo:
+                    cupo = curso_asignado[0].cupos.popleft()
+                    alumno_asignar.cupo.update({curso_asignado[0].sigla : cupo})
 
     def botar_ramos(self):
         for alumno in self.alumnos.values():
@@ -90,7 +89,7 @@ class Curso:
     def __init__(self, sigla, horario):
         self.sigla = sigla
         self.horario = horario
-        self.cupos = []
+        self.cupos = deque()
         self.cupos_extra = []
 
     def __eq__(self, otro_curso):
@@ -137,19 +136,43 @@ sistema = PrograBanner()
 with open("unidades.txt", "r") as archivo_unidades:
     diccionario = {}
     for linea in archivo_unidades:
-        linea.strip()
+        linea = linea.strip()
         u_academica, controla = linea.split(",")
         unidad = UnidadAcademica(u_academica, controla)
         diccionario.update({u_academica : unidad})
 
 with open("alumnos.txt", "r") as archivo_alumnos:
     for linea in archivo_alumnos:
+        linea = linea.strip()
         num_alumno, u_academica = linea.split(",")
         alumno = Alumno(num_alumno, diccionario[u_academica])
         sistema.alumnos.update({num_alumno : alumno})
 
 with open("cursos.txt", "r") as archivo_cursos:
+    lista = []
     for linea in archivo_cursos:
-        linea.strip()
-        sigla, cupos, cupo_extra, horario = linea.split()
-        curso = 
+        linea = linea.strip()
+        sigla, cupos, cupo_extra, horario = linea.split(",")
+        curso = Curso(sigla, horario)
+        for i in range(1, int(cupos) + int(cupo_extra) + 1):
+            cupo = Cupo(i, horario, sigla)
+            if i <= int(cupos):
+                curso.cupos.append(cupo)
+            elif i > int(cupos):
+                curso.cupos_extra.append(cupo)
+
+        lista.append(curso)
+    cursos = tuple(lista)
+    sistema.oferta_cursos = cursos
+
+
+sistema.asignar_curso1()
+
+sistema.ajuste()
+
+sistema.asignar_curso2()
+
+for usuario in sistema.alumnos.values():
+    print(usuario.unidad_academica.nombre)
+    for cupo in usuario.cupo.values():
+        print(cupo.horario, cupo.sigla)
