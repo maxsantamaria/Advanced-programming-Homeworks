@@ -72,7 +72,7 @@ class PrograBanner:
         lista_alumno_en_curso = []
         for alumno in self.alumnos.values():
             if sigla in alumno.cupo:
-                lista_alumno_en_curso.append(alumno.numero, alumno.cupo[sigla].numero)
+                lista_alumno_en_curso.append((alumno.numero, alumno.cupo[sigla].numero))
         print("Alumnos inscritos en", sigla)
         for elem in lista_alumno_en_curso:
             print(elem[0], elem[1], sep=" - ")
@@ -184,3 +184,10 @@ for usuario in sistema.alumnos.values():
     print(usuario.unidad_academica.nombre)
     for cupo in usuario.cupo.values():
         print(cupo.horario, cupo.sigla)
+
+    sistema.alumno_en_curso(usuario.numero, "ICS4948")
+
+sistema.alumnos_en_curso("ICS4948")
+
+
+sistema.cursos_comunes("13631277", "13201645")
