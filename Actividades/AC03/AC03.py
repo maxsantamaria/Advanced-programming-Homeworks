@@ -48,13 +48,17 @@ class PrograBanner:
                     alumno_asignar.cupo.update({curso_asignado[0].sigla : cupo})
 
     def botar_ramos(self):
+
         for alumno in self.alumnos.values():
+            llaves = set()
             if alumno.unidad_academica.controla:
-                for llave1, cupo1 in alumno.cupos.items():
-                    for llave2, cupo2 in alumno.cupos.items():
+                for llave1, cupo1 in alumno.cupo.items():
+                    for llave2, cupo2 in alumno.cupo.items():
                         if cupo1.horario == cupo2.horario and llave1 != llave2:
-                            del alumno.cupo[llave1]
-                            del alumno.cupo[llave2]
+                            llaves.add(llave1)
+                            llaves.add(llave2)
+            for llave in llaves:
+                del alumno.cupo[llave]
 
     def alumno_en_curso(self, num_alumno, sigla):
         alumno = self.alumnos[num_alumno]
@@ -171,6 +175,8 @@ sistema.asignar_curso1()
 sistema.ajuste()
 
 sistema.asignar_curso2()
+
+sistema.botar_ramos()
 
 for usuario in sistema.alumnos.values():
     print(usuario.unidad_academica.nombre)
