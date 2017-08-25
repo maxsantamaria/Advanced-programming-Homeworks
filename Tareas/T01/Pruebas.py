@@ -1,6 +1,9 @@
 from time import strftime, gmtime
 from Order import *
 from decimal import Decimal as d
+from User import *
+import datetime as DT
+
 print(strftime("%Y-%m-%d ", gmtime()))
 
 lista = [5, 1, 3]
@@ -71,5 +74,17 @@ for elem in nueva_lista:
 
 print(len(nueva_lista))
 
+usuario1 = Usuario("maxam", "max", "santa", "")
+#while usuario1.nacimiento == "":
+#    nac = input("Nac: ")
+#    usuario1.nacimiento = nac
 
-print("hola" != False)
+today = DT.date.today()
+week_ago = today - DT.timedelta(days=7)
+
+print(today, week_ago)
+
+a = (1, 2)
+b = (3, 4)
+
+print(a+b)

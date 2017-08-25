@@ -1,0 +1,8 @@
+Hora, username, order_id, mercado, amount, price, tipo, ejecutada
+21:32, ofvera, 3, BANNEC, 285.5, 283.1, ask, True
+21:32, ofvera, 4, BANNEC, 285.5, 283.1, bid, True
+21:32, ofvera, 16, BANNEC, 115.1, 248.4, ask, False
+21:32, ofvera, 40, BANNEC, 268.8, 275.1, ask, False
+21:32, ofvera, 80, BANNEC, 201.3, 18.9, ask, True
+21:32, ofvera, 96, BANNEC, 201.3, 18.9, bid, True
+21:32, ofvera, 100, BANNEC, 71.2, 18.9, ask, False

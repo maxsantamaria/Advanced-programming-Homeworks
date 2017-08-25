@@ -3,6 +3,7 @@ from csv_reader import read, write_ordenado
 from Order import *
 from Mercado import Mercado, Moneda
 from decimal import Decimal as d
+import datetime as DT
 
 class Sistema:
     def __init__(self, lista_usuarios, lista_mercados, lista_orders, lista_monedas, lista_match):
@@ -11,6 +12,13 @@ class Sistema:
         self.lista_orders = lista_orders
         self.lista_monedas = lista_monedas
         self.lista_match = lista_match
+        # registros de comportamiento de los usuarios
+        self.consulta_saldo = []  # lista de diccionarios
+        self.consulta_orders_propias = []
+        self.consulta_orders_activas = []
+        self.consulta_orders_historicas = []
+        self.realiza_order = []
+        self.realiza_match = []
 
     def start(self):
         usuario_actual = identificarse(self.lista_usuarios)
@@ -64,10 +72,28 @@ class Sistema:
                     if mercado.asks_activos != [] or mercado.bids_activos != []:
                         print("MERCADO:", mercado.ticker)
                     for order in mercado.asks_activos:
+                        self.consulta_orders_activas.append({"username" : usuario_actual.username,
+                                                             "order_id" : order.id,
+                                                             "price"    : order.moneda_de_cambio,
+                                                             "mercado"  : mercado.ticker,
+                                                             "ejecutada": order.ejecutada,
+                                                             "Hora"     : strftime("%H:%M")})
+
+                        self.consulta_orders_activas[-1].update({"tipo"   : "ask",
+                                                                 "amount" : order.divisa_venta})
                         print(order)
                     for order in mercado.bids_activos:
+                        self.consulta_orders_activas.append({"username"  : usuario_actual.username,
+                                                             "order_id"  : order.id,
+                                                             "price"     : order.moneda_de_cambio,
+                                                             "mercado"   : mercado.ticker,
+                                                             "ejecutada" : order.ejecutada,
+                                                             "Hora"      : strftime("%H:%M")})
+                        self.consulta_orders_activas[-1].update({"tipo"   : "bid",
+                                                                    "amount" : order.divisa_compra})
                         print(order)
             elif opcion == "6":
+                self.consulta_saldo.append({"username" : usuario_actual.username, "Hora" : strftime("%H:%M")})
                 print("Su saldo es el siguiente:")
                 for symbol, saldo in usuario_actual.balance_currencies.items():
                     print(symbol, saldo)
@@ -153,12 +179,18 @@ class Sistema:
                 while True:
                     opcion_desplegar_orders = input("Ingrese una de las opciones (1, 2 o 3): ")
                     if opcion_desplegar_orders != "1" and opcion_desplegar_orders != "2" \
-                       and opcion_desplegar_orders != "3":
+                            and opcion_desplegar_orders != "3":
                         print("Opcion invalida")  # manejo de errores
                     else:
                         break
                 if opcion_desplegar_orders == "1":
-                    fecha1 = input("Ingrese la fecha especifica (YYYY-MM-DD): ")
+                    valido = False
+                    while not valido:
+                        fecha1 = input("Ingrese la fecha especifica (YYYY-MM-DD): ")
+                        valido = self.fecha_limite(fecha1, usuario_actual)
+                        if not valido:
+                            print("No puedes ver registro de orders antes de los últimos 7 días. "
+                                  "Para hacerlo debes ser Investor")
                     fecha2 = ""
                     impresiones = []
                     for order in self.lista_orders:
@@ -167,8 +199,15 @@ class Sistema:
                     if True not in impresiones:
                         print("No hay orders en la fecha indicada.")
                 elif opcion_desplegar_orders == "2":
-                    fecha1 = input("Ingrese la fecha de inicio (YYYY-MM-DD): ")
-                    fecha2 = input("Ingrese la fecha final (YYYY-MM-DD): ")
+                    valido1 = False
+                    valido2 = False
+                    while not valido1 or not valido2:
+                        fecha1 = input("Ingrese la fecha de inicio (YYYY-MM-DD): ")
+                        fecha2 = input("Ingrese la fecha final (YYYY-MM-DD): ")
+                        valido1 = self.fecha_limite(fecha1, usuario_actual)
+                        valido2 = self.fecha_limite(fecha2, usuario_actual)
+                        if not valido1 or not valido2:
+                            print("No cumple los requisitos. Ingresa otra vez.")
                     impresiones = []
                     for order in self.lista_orders:
                         imprimio = order.desplegar_order_por_fecha(fecha1, fecha2)
@@ -183,10 +222,26 @@ class Sistema:
                             break
                     impresiones = []
                     for order in self.lista_orders:
-                        imprimio = order.desplegar_order_por_mercado(mercado_a_desplegar)
-                        impresiones.append(imprimio)
+                        valido = self.fecha_limite(order.tiempo, usuario_actual)
+                        if valido:
+                            imprimio = order.desplegar_order_por_mercado(mercado_a_desplegar)
+                            if imprimio:
+                                self.consulta_orders_historicas.append({"username": usuario_actual.username,
+                                                                        "order_id": order.id,
+                                                                        "price": order.moneda_de_cambio,
+                                                                        "mercado": mercado_a_desplegar.ticker,
+                                                                        "ejecutada": order.ejecutada,
+                                                                        "Hora" : strftime("%H:%M")})
+                                if isinstance(order, Ask):
+                                    self.consulta_orders_historicas[-1].update({"tipo": "ask",
+                                                                                "amount": order.divisa_venta})
+                                elif isinstance(order, Bid):
+                                    self.consulta_orders_historicas[-1].update({"tipo": "bid",
+                                                                                "amount": order.divisa_compra})
+                            impresiones.append(imprimio)
                     if True not in impresiones:  # manejo de errores
                         print("No hay orders en el mercado indicado.")
+
             elif opcion == "11":
                 while True:
                     usuario_destino = input("Ingresa el nombre de usuario del destinatario: ")
@@ -195,8 +250,11 @@ class Sistema:
                         if usuario.username == usuario_destino and usuario.username != usuario_actual.username:
                             usuario_destino = usuario
                             break
-                    if isinstance(usuario_destino, Usuario):
+
+                    if isinstance(usuario_destino, Trader):
                         break
+                    elif isinstance(usuario_destino, Underaged):
+                        print("No puedes transferirle a un usuario Underaged")
                     else:
                         print("Usuario no valido.")
                 print(usuario_destino.balance_currencies)
@@ -296,7 +354,7 @@ class Sistema:
                                     elif isinstance(order, Bid):
                                         balance_real -= d(order.divisa_compra) * d(order.moneda_de_cambio)
                                 elif (order.mercado.moneda_de_cambio == mercado_actual.moneda_de_cambio and
-                                            order.ejecutada == False and order.usuario == usuario_actual):
+                                              order.ejecutada == False and order.usuario == usuario_actual):
                                     if isinstance(order, Ask):
                                         balance_real -= d(order.divisa_venta)
                                     elif isinstance(order, Bid):
@@ -316,6 +374,13 @@ class Sistema:
                                                             moneda_de_cambio)
                     maximo = self.maximo_id()
                     nuevo_bid.id = str(maximo + 1)
+                    self.realiza_order.append({"username" : usuario_actual.username,
+                                               "order_id" : nuevo_bid.id,
+                                               "mercado"  : mercado_actual.ticker,
+                                               "tipo"     : "bid",
+                                               "amount"   : nuevo_bid.divisa_compra,
+                                               "price"    : nuevo_bid.moneda_de_cambio,
+                                               "Hora"     : strftime("%H:%M")})
                     self.lista_orders.append(nuevo_bid)
                     self.determinar_match(usuario_actual, nuevo_bid)
                     print(usuario_actual.balance_currencies)
@@ -383,7 +448,7 @@ class Sistema:
                                     elif isinstance(order, Bid):
                                         balance_real -= d(order.divisa_compra) * d(order.moneda_de_cambio)
                                 elif (order.mercado.moneda_de_cambio == mercado_actual.moneda_de_cambio and
-                                            order.ejecutada == False and order.usuario == usuario_actual):
+                                              order.ejecutada == False and order.usuario == usuario_actual):
                                     if isinstance(order, Ask):
                                         balance_real -= d(order.divisa_venta)
                                     elif isinstance(order, Bid):
@@ -402,6 +467,13 @@ class Sistema:
                                                             moneda_de_cambio)
                     maximo = self.maximo_id()
                     nuevo_ask.id = str(maximo + 1)
+                    self.realiza_order.append({"username" : usuario_actual.username,
+                                               "order_id" : nuevo_ask.id,
+                                               "mercado"  : mercado_actual.ticker,
+                                               "tipo"     : "ask",
+                                               "amount"   : nuevo_ask.divisa_venta,
+                                               "price"    : nuevo_ask.moneda_de_cambio,
+                                               "Hora"     : strftime("%H:%M")})
                     self.lista_orders.append(nuevo_ask)
                     self.determinar_match(usuario_actual, nuevo_ask)
                     print(usuario_actual.balance_currencies)
@@ -410,8 +482,10 @@ class Sistema:
                 if cantidad_match_antes < cantidad_match_despues:
                     print("Felicidades! Tu order ha hecho match! Se ha actualizado el saldo con la nueva informacion.")
             elif opcion == "14":  # upgrade
-                self.upgrade(usuario_actual)
+                usuario_actual = self.upgrade(usuario_actual)
+
             elif opcion == "15":
+                self.consulta_orders_propias.append({"username" : usuario_actual.username, "Hora" : strftime("%H:%M")})
                 self.estado_orders(usuario_actual)
             elif opcion == "16":
                 while True:
@@ -445,15 +519,33 @@ class Sistema:
                 else:
                     print("Esta order no te pertenece")
 
-
             input("Presiona enter para continuar  ")
+
+    def fecha_limite(self, fecha_indicada, usuario_actual):  # para determinar si la fecha esta en el rango
+        try:
+            año_indicado = int(fecha_indicada[0:4])
+            mes_indicado = int(fecha_indicada[5:7])
+            dia_indicado = int(fecha_indicada[8:])
+            if fecha_indicada > strftime("%Y-%m-%d") or mes_indicado > 12 or dia_indicado > 31:
+                print("Fecha invalida")  # manejo de errores
+                return False
+            week_ago = str(DT.date.today() - DT.timedelta(days=7))
+            if isinstance(usuario_actual, Investor):  # investor no tienen restriccion
+                return True
+            if fecha_indicada > week_ago:
+                return True
+            return False
+        except:
+            print("Formato no valido")
+            return False
+
     def upgrade(self, usuario_actual):
         if isinstance(usuario_actual, Investor):
             print("Ya eres Investor")
-            return
+            return usuario_actual
         if usuario_actual.balance_currencies["DCC"] < d("300000"):
             print("No tienes dinero suficiente para hacer un upgrade a Investor.")
-            return
+            return usuario_actual
         while True:  # manejo de errores
             seguro = input("Estas seguro de que quieres pasar a ser Investor (si/no): ")
             if seguro == "si":
@@ -468,12 +560,15 @@ class Sistema:
                 self.lista_usuarios.remove(usuario_actual)
                 del usuario_actual
                 self.lista_usuarios.append(nuevo_usuario)
+                return nuevo_usuario
                 break
             elif seguro == "no":
+                return usuario_actual
                 break
             else:
                 print("Opcion invalida")  # manejo de errores
-                pass
+
+
 
 
     def maximo_id(self):
@@ -530,6 +625,7 @@ class Sistema:
             print("MERCADOS REGISTRADOS:")
             for mercado in usuario_actual.mercados:
                 print("->" + mercado.ticker)
+            print("")  # salto de linea
 
     def se_hizo_despues(self, order_realizada, otra_order):  # se usa para ver si la order realizada se hizo despues (T)
         if int(order_realizada.año) > int(otra_order.año):  # o antes (F) que la otra order
@@ -553,7 +649,7 @@ class Sistema:
         bids = []
         for order in self.lista_orders:
             if (order.mercado == mercado and order != order_realizada and order.ejecutada == False and
-                    order.usuario != usuario_actual):
+                        order.usuario != usuario_actual):
                 valido = self.se_hizo_despues(order_realizada, order)
                 print(valido, "order ingresada", order_realizada.id, "order comparacion", order.id)
                 if isinstance(order, Ask) and valido:
@@ -566,7 +662,7 @@ class Sistema:
         if isinstance(order_realizada, Ask):  # en caso de que se ponga un Ask
             opciones_bids = []  # bids que le convienen a la compra
             for bid in bids:
-                if bid.moneda_de_cambio >= order_realizada.moneda_de_cambio:
+                if d(bid.moneda_de_cambio) >= d(order_realizada.moneda_de_cambio):
                     opciones_bids.append(bid)
             if len(opciones_bids) == 0:  # no hay match
                 return
@@ -601,7 +697,7 @@ class Sistema:
                 mejor_opcion.usuario.balance_currencies[mercado.divisa_compraventa] += d(order_realizada.divisa_venta)
                 print(mejor_opcion.moneda_de_cambio)
                 mejor_opcion.usuario.balance_currencies[mercado.moneda_de_cambio] -= (d(order_realizada.divisa_venta)
-                                                                                     * d(mejor_opcion.moneda_de_cambio))
+                                                                                      * d(mejor_opcion.moneda_de_cambio))
                 order_realizada.moneda_de_cambio = mejor_opcion.moneda_de_cambio
                 mercado.asks_activos.remove(order_realizada)
                 mercado.bids_activos.remove(mejor_opcion)
@@ -613,6 +709,13 @@ class Sistema:
                                   mejor_opcion.tiempo)
                     maximo = self.maximo_id()
                     new_bid.id = str(maximo + 1)
+                    self.realiza_order.append({"username" : usuario_actual.username,
+                                               "order_id" : new_bid.id,
+                                               "mercado"  : mercado.ticker,
+                                               "tipo"     : "bid",
+                                               "amount"   : new_bid.divisa_compra,
+                                               "price"    : new_bid.moneda_de_cambio,
+                                               "Hora"     : strftime("%H:%M")})
                     self.lista_orders.append(new_bid)
                     mercado.bids_activos.append(new_bid)
                     mercado.orders.append(new_bid)  # quitamos el resto de la order
@@ -621,10 +724,10 @@ class Sistema:
             elif d(order_realizada.divisa_venta) > d(mejor_opcion.divisa_compra):
                 usuario_actual.balance_currencies[mercado.divisa_compraventa] -= d(mejor_opcion.divisa_compra)
                 usuario_actual.balance_currencies[mercado.moneda_de_cambio] += (d(mejor_opcion.divisa_compra) *
-                                                                                 d(mejor_opcion.moneda_de_cambio))
+                                                                                d(mejor_opcion.moneda_de_cambio))
                 mejor_opcion.usuario.balance_currencies[mercado.divisa_compraventa] += d(mejor_opcion.divisa_compra)
                 mejor_opcion.usuario.balance_currencies[mercado.moneda_de_cambio] -= (d(mejor_opcion.divisa_compra)
-                                                                                     * d(mejor_opcion.moneda_de_cambio))
+                                                                                      * d(mejor_opcion.moneda_de_cambio))
                 resto = d(order_realizada.divisa_venta) - d(mejor_opcion.divisa_compra)
                 mercado.asks_activos.remove(order_realizada)
                 mercado.bids_activos.remove(mejor_opcion)
@@ -644,13 +747,19 @@ class Sistema:
             mejor_opcion.match_time = strftime("%Y-%m-%d", gmtime())
             order_realizada.match_time = strftime("%Y-%m-%d", gmtime())
             new_match = Match(order_realizada, mejor_opcion, order_realizada.tiempo)
+            self.realiza_match.append({"ask_id" : new_match.ask.id, "bid_id" : new_match.bid.id,
+                                       "amount" : new_match.ask.divisa_venta, "price" : new_match.bid.moneda_de_cambio,
+                                       "Hora" : strftime("%H:%M"), "mercado" : new_match.ask.mercado.ticker})
             self.lista_match.append(new_match)
             return
         elif isinstance(order_realizada, Bid):  # en caso de que se ponga un Bid
-            opciones_asks = []  # bids que le convienen a la compra
+            opciones_asks = []  # asks que le convienen a la compra
             for ask in asks:
-                if ask.moneda_de_cambio <= order_realizada.moneda_de_cambio:
+                if d(ask.moneda_de_cambio) <= d(order_realizada.moneda_de_cambio):
                     opciones_asks.append(ask)
+            if usuario_actual.username == "ofvera":
+                for opcion in opciones_asks:
+                    print(opcion.id)
             if len(opciones_asks) == 0:  # no hay match
                 return
             opciones_asks.sort(key=lambda elem: float(elem.moneda_de_cambio), reverse = False)
@@ -682,7 +791,7 @@ class Sistema:
                 usuario_actual.balance_currencies[moneda_de_cambio] -= (d(order_realizada.divisa_compra)
                                                                         * d(mejor_opcion.moneda_de_cambio))
                 mejor_opcion.usuario.balance_currencies[moneda_de_cambio] += (d(order_realizada.divisa_compra)
-                                                                                * d(mejor_opcion.moneda_de_cambio))
+                                                                              * d(mejor_opcion.moneda_de_cambio))
                 mejor_opcion.usuario.balance_currencies[divisa_compraventa] -= d(order_realizada.divisa_compra)
                 order_realizada.moneda_de_cambio = mejor_opcion.moneda_de_cambio
                 mercado.asks_activos.remove(mejor_opcion)
@@ -695,6 +804,13 @@ class Sistema:
                                   mejor_opcion.tiempo)
                     maximo = self.maximo_id()
                     new_ask.id = str(maximo + 1)
+                    self.realiza_order.append({"username" : usuario_actual.username,
+                                               "order_id" : new_ask.id,
+                                               "mercado"  : mercado.ticker,
+                                               "tipo"     : "bid",
+                                               "amount"   : new_ask.divisa_venta,
+                                               "price"    : new_ask.moneda_de_cambio,
+                                               "Hora"     : strftime("%H:%M")})
                     self.lista_orders.append(new_ask)
                     mercado.orders.append(new_ask)
                     mercado.asks_activos.append(new_ask)
@@ -728,6 +844,9 @@ class Sistema:
             mejor_opcion.match_time = strftime("%Y-%m-%d", gmtime())
             order_realizada.match_time = strftime("%Y-%m-%d", gmtime())
             new_match = Match(mejor_opcion, order_realizada, order_realizada.tiempo)
+            self.realiza_match.append({"ask_id": new_match.ask.id, "bid_id": new_match.bid.id,
+                                       "amount": new_match.ask.divisa_venta, "price": new_match.bid.moneda_de_cambio,
+                                       "Hora": strftime("%H:%M"), "mercado": new_match.ask.mercado.ticker})
             self.lista_match.append(new_match)
             return
 
@@ -739,10 +858,11 @@ class Sistema:
                 self.determinar_match(order.usuario, order)
 
     def estado_orders(self, usuario_actual):
-        print("Sus orders realizadas hasta el momento son las siguientes:\n")
+        print("Sus orders realizadas hasta el momento son las siguientes:")
         for order in self.lista_orders:
             if order.usuario == usuario_actual:
                 if order.ejecutada:
                     print(order, "| Tuvo match el dia", order.match_time)
                 else:
                     print(order, "| Aun no tiene match")
+        print("")  # salto de linea

@@ -37,7 +37,7 @@ class Order:
             elif año == año_comienzo:
                 if mes > mes_comienzo:
                     cumple_condicion = True
-                elif mes == mes_comienzo and dia > dia_comienzo:
+                elif mes == mes_comienzo and dia >= dia_comienzo:
                     cumple_condicion = True
         if cumple_condicion:
             return imprimir

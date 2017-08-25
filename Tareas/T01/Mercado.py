@@ -34,7 +34,7 @@ class Mercado:
             lista_precios_venta.append(float(venta.moneda_de_cambio))
         if len(lista_precios_venta) == 0:
             ask_best = 0
-            print("No hay asks en el mercado para calcular un best.")
+            print("No hay asks activos en el mercado para calcular un best.")
         else:
             ask_best = min(lista_precios_venta)
         return ask_best
@@ -45,7 +45,7 @@ class Mercado:
             lista_precios_compra.append(float(compra.moneda_de_cambio))
         if len(lista_precios_compra) == 0:
             bid_best = 0
-            print("No hay bids en el mercado para calcular un best.")
+            print("No hay bids activos en el mercado para calcular un best.")
         else:
             bid_best = max(lista_precios_compra)
         return bid_best
@@ -73,7 +73,7 @@ class Mercado:
         print("Volumen acumulado de asks: ", self.volumen_acumulado_asks())
         print("Volumen acumulado de bids: ", self.volumen_acumulado_bids())
         print("Ask best: ", self.ask_best())
-        print("Bid best: ", self.bid_best())
+        print("Bid best: ", self.bid_best(), "\n")
 
 
 class Moneda:

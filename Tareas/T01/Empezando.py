@@ -1,14 +1,16 @@
 from User import *
-from csv_reader import read, write_ordenado
+from csv_reader import *
 from Order import *
 from Mercado import Mercado, Moneda
 from decimal import Decimal as d
 from sistema import Sistema
+from os.path import exists
 
 
 def poblar_sistema(archivo, lista_usuarios, lista_mercados):
     if archivo == "users.csv":
         lista_info_usuarios = read(archivo)
+        write_ordenado_users(lista_info_usuarios)
         for info_usuario in lista_info_usuarios:
             if "birthday" not in lista_info_usuarios[0].keys():  # no esta claro si sera birthday o birthdate
                 cumpleaños = "birthdate"
@@ -27,7 +29,7 @@ def poblar_sistema(archivo, lista_usuarios, lista_mercados):
             usuario.orders_realizadas = info_usuario["orders"]
             lista_usuarios.append(usuario)
         return lista_usuarios
-    elif archivo == "Currencies.csv" or archivo == "currencies.csv":  # no esta claro si sera con miniscula o no
+    elif archivo == "Currencies.csv" or archivo == "currencies.csv":  # no esta claro si sera con minuscula o no
         lista_info_monedas = read(archivo)
         lista_monedas = []
         for info_moneda in lista_info_monedas:
@@ -173,12 +175,125 @@ for mercado in lista_mercados:
 sistema.determinar_match_parciales_csv()
 sistema.start()
 
-for mercado in lista_mercados:
-    for ask in mercado.asks_activos:
-        print(ask.id)
-    for bid in mercado.bids_activos:
-        print(bid.id)
+#for mercado in lista_mercados:
+#    for ask in mercado.asks_activos:
+#        print(ask.id)
+#    for bid in mercado.bids_activos:
+#        print(bid.id)
 
-for match in sistema.lista_match:
-    print("ask:", match.ask.id,"bid:", match.bid.id, match.ask.divisa_venta, match.bid.divisa_compra, match.ask.moneda_de_cambio)
+#for match in sistema.lista_match:
+#    print("ask:", match.ask.id,"bid:", match.bid.id, match.ask.divisa_venta, match.bid.divisa_compra, match.ask.moneda_de_cambio)
 
+if not exists("Registros/consultas_saldo.csv"):
+    escribir = ["Hora", "username\n"]
+    escribir = ", ".join(escribir)
+else:
+    escribir = ""
+with open("Registros/consultas_saldo.csv", "a") as data:
+    data.write(escribir)
+    for consulta in sistema.consulta_saldo:
+        #print(consulta)
+        escribir = [consulta["Hora"], consulta["username"]+"\n"]
+        escribir = ", ".join(escribir)
+        data.write(escribir)
+
+
+if not exists("Registros/consultas_orders_activas.csv"):
+    escribir = ["Hora", "username", "order_id", "mercado", "amount", "price", "tipo\n"]
+    escribir = ", ".join(escribir)
+else:
+    escribir = ""
+with open("Registros/consultas_orders_activas.csv", "a") as data:
+    data.write(escribir)
+    for consulta in sistema.consulta_orders_activas:
+        #print(consulta)
+        escribir = [consulta["Hora"], consulta["username"], consulta["order_id"], consulta["mercado"],
+                    str(consulta["amount"]), str(consulta["price"]), consulta["tipo"] + "\n"]
+        escribir = ", ".join(escribir)
+        data.write(escribir)
+print("\n")
+
+if not exists("Registros/consultas_orders_historicas.csv"):
+    escribir = ["Hora", "username", "order_id", "mercado", "amount", "price", "tipo", "ejecutada\n"]
+    escribir = ", ".join(escribir)
+else:
+    escribir = ""
+with open("Registros/consultas_orders_historicas.csv", "a") as data:
+    data.write(escribir)
+    for consulta in sistema.consulta_orders_historicas:
+        #print(consulta)
+        escribir = [consulta["Hora"], consulta["username"], consulta["order_id"], consulta["mercado"],
+                    str(consulta["amount"]), str(consulta["price"]), consulta["tipo"], str(consulta["ejecutada"]) + "\n"]
+        escribir = ", ".join(escribir)
+        data.write(escribir)
+
+print("\n")
+
+if not exists("Registros/consultas_orders_propias.csv"):
+    escribir = ["Hora", "username\n"]
+    escribir = ", ".join(escribir)
+else:
+    escribir = ""
+with open("Registros/consultas_orders_propias.csv", "a") as data:
+    data.write(escribir)
+    for consulta in sistema.consulta_orders_propias:
+        #print(consulta)
+        escribir = [consulta["Hora"], consulta["username"]+"\n"]
+        escribir = ", ".join(escribir)
+        data.write(escribir)
+
+print("\n")
+
+if not exists("Registros/orders_realizadas.csv"):
+    escribir = ["Hora", "username", "order_id", "mercado", "amount", "price", "tipo\n"]
+    escribir = ", ".join(escribir)
+else:
+    escribir = ""
+with open("Registros/orders_realizadas.csv", "a") as data:
+    data.write(escribir)
+    for consulta in sistema.realiza_order:
+        #print(consulta)
+        escribir = [consulta["Hora"], consulta["username"], consulta["order_id"], consulta["mercado"],
+                    str(consulta["amount"]), str(consulta["price"]), consulta["tipo"] + "\n"]
+        escribir = ", ".join(escribir)
+        data.write(escribir)
+print("\n")
+
+if not exists("Registros/match_realizados.csv"):
+    escribir = ["Hora", "ask_id", "bid_id", "mercado", "amount", "price\n"]
+    escribir = ", ".join(escribir)
+else:
+    escribir = ""
+with open("Registros/match_realizados.csv", "a") as data:
+    data.write(escribir)
+    for consulta in sistema.realiza_match:
+        #print(consulta)
+        escribir = [consulta["Hora"], consulta["ask_id"], consulta["bid_id"], consulta["mercado"],
+                    str(consulta["amount"]), str(consulta["price"]) + "\n"]
+        escribir = ", ".join(escribir)
+        data.write(escribir)
+print("\n")
+
+for usuario in sistema.lista_usuarios:
+    usuario.orders_realizadas = set(usuario.orders_realizadas)
+    for order in sistema.lista_orders:
+        if order.usuario == usuario:
+            usuario.orders_realizadas.add(order.id)
+
+# Escribir bases de datos
+
+
+with open("users_ordenados.csv", "w") as data:
+    data.write("username: string;name: string;lastname: string;birthday: string;orders: list\n")
+    for usuario in sistema.lista_usuarios:
+        orders = ":".join(usuario.orders_realizadas)
+        escribir = (usuario.username, usuario.nombre, usuario.apellido, usuario.nacimiento, orders + "\n")
+        escribir = ";".join(escribir)
+        data.write(escribir)
+
+with open("orders_ordenadas.csv", "w") as data:
+    data.write("order_id: int;ticker: string;amount: float;price: float;type: string;"
+               "date_created: string;date_match: string")
+    for order in sistema.lista_orders:
+        escribir = (order.id, order.mercado.ticker)
+        
