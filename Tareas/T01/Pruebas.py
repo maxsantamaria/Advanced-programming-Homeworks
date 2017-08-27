@@ -3,6 +3,7 @@ from Order import *
 from decimal import Decimal as d
 from User import *
 import datetime as DT
+from csv_reader import *
 
 print(strftime("%Y-%m-%d ", gmtime()))
 
@@ -88,3 +89,17 @@ a = (1, 2)
 b = (3, 4)
 
 print(a+b)
+
+diccio = {1 : "max", 2 : "mex"}
+string = str(diccio)
+print(string)
+
+balance = "DCC : 50000, BAN : 30000"
+print(dict(e.split(" : ") for e in balance.split(",") ))
+
+a = set()
+a.add(5)
+a.add(6)
+b = list(a)
+print(b, a)
+

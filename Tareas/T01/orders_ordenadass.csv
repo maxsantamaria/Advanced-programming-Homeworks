@@ -56,7 +56,7 @@ order_id: int;ticker: string;amount: float;price: float;type: string;date_create
 54;SIMWUB;110.4;169.0;ask;2006-09-28;
 55;RUPBAN;38.8;272.3;ask;2006-08-17;2008-06-10
 56;RUPBAN;38.8;272.3;bid;2006-08-17;2008-06-10
-57;SIMKAM;299.6;90.5;ask;2006-09-27;
+57;SIMKAM;103.5;90.5;ask;2006-09-27;2017-08-27
 58;KAMBAN;9.5;275.1;ask;2007-03-23;
 59;RINKAM;18.7;230.6;bid;2007-01-21;2016-10-18
 60;RINKAM;18.7;230.6;ask;2007-01-21;2016-10-18
@@ -82,7 +82,7 @@ order_id: int;ticker: string;amount: float;price: float;type: string;date_create
 80;WUBBAN;75.8;254.2;bid;2008-12-21;2014-10-28
 81;RINRUP;245.6;21.7;ask;2009-04-25;2014-05-06
 82;RINRUP;245.6;21.7;bid;2009-04-25;2014-05-06
-83;SIMKAM;103.5;282.5;bid;2009-09-20;
+83;SIMKAM;103.5;90.5;bid;2009-09-20;2017-08-27
 84;NECKAM;182.3;231.9;ask;2009-08-07;
 85;KAMSIM;186.0;295.4;ask;2009-09-03;2012-11-12
 86;KAMSIM;186.0;295.4;bid;2009-09-03;2012-11-12
@@ -99,3 +99,4 @@ order_id: int;ticker: string;amount: float;price: float;type: string;date_create
 97;RINWUB;137.1;207.2;ask;2010-08-26;
 98;BANSIM;183.4;98.0;ask;2010-08-17;
 99;SIMRUP;215.7;296.0;ask;2010-11-05;
+100;SIMKAM;196.1;90.5;ask;2006-09-27;

@@ -6,3 +6,11 @@ Hora, username, order_id, mercado, amount, price, tipo, ejecutada
 21:32, ofvera, 80, BANNEC, 201.3, 18.9, ask, True
 21:32, ofvera, 96, BANNEC, 201.3, 18.9, bid, True
 21:32, ofvera, 100, BANNEC, 71.2, 18.9, ask, False
+14:33, vgori, 101, RUPBAN, 71.9, 179.1, ask, True
+14:33, vgori, 102, RUPBAN, 9928.1, 179, ask, False
+10:29, ofvera, 80, WUBBAN, 75.8, 254.2, bid, True
+10:29, ofvera, 79, WUBBAN, 75.8, 254.2, ask, True
+10:36, ofvera, 80, WUBBAN, 75.8, 254.2, bid, True
+10:36, ofvera, 79, WUBBAN, 75.8, 254.2, ask, True
+10:43, ofvera, 80, WUBBAN, 75.8, 254.2, bid, True
+10:43, ofvera, 79, WUBBAN, 75.8, 254.2, ask, True

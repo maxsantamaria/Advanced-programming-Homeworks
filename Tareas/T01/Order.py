@@ -11,7 +11,8 @@ class Order:
         self.dia = tiempo[8:]
 
     def desplegar_order_por_fecha(self, fecha1, fecha2):
-        imprimir = ("Order ID: " + self.id + " | " + self.tiempo + " | En mercado " + self.mercado.ticker
+        imprimir = ("Order ID: " + self.id + " | " + self.tiempo +
+                    " | En mercado " + self.mercado.ticker
                     + " | Usuario: " + self.usuario.username)
         cumple_condicion = False
         if fecha2 == "":
@@ -32,7 +33,8 @@ class Order:
                     cumple_condicion = True
                 elif año == año_final and mes < mes_final:
                     cumple_condicion = True
-                elif año == año_final and mes == mes_final and dia <= dia_final:
+                elif año == año_final and mes == mes_final and \
+                                dia <= dia_final:
                     cumple_condicion = True
             elif año == año_comienzo:
                 if mes > mes_comienzo:
@@ -43,20 +45,26 @@ class Order:
             return imprimir
         else:
             return ""
+
     def desplegar_order_por_mercado(self, mercado):
-        imprimir = ("Order ID: " + self.id + " | " + self.tiempo + " | En mercado " + self.mercado.ticker
+        imprimir = ("Order ID: " + self.id + " | " + self.tiempo +
+                    " | En mercado " + self.mercado.ticker
                     + " | Usuario: " + self.usuario.username)
         if self.mercado.ticker == mercado.ticker:
             return imprimir
         else:
             return ""
+
     def __str__(self):
-        imprimir = ("Order ID: " + self.id + " | " + self.tiempo + " | En mercado " + self.mercado.ticker
+        imprimir = ("Order ID: " + self.id + " | " + self.tiempo +
+                    " | En mercado " + self.mercado.ticker
                     + " | Usuario: " + self.usuario.username)
         return imprimir
 
+
 class Ask(Order):
-    def __init__(self, usuario, mercado, divisa_venta, moneda_de_cambio, tiempo):
+    def __init__(self, usuario, mercado, divisa_venta, moneda_de_cambio,
+                 tiempo):
         Order.__init__(self, usuario, mercado, tiempo)
         self.divisa_venta = divisa_venta  # son cantidades
         self.moneda_de_cambio = moneda_de_cambio  # son cantidades
@@ -65,10 +73,11 @@ class Ask(Order):
         imprimir1 = super().desplegar_order_por_fecha(fecha1, fecha2)
         simbolo1 = self.mercado.ticker[0:3]
         simbolo2 = self.mercado.ticker[3:]
-        imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 + " a cambio de " +
+        imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 +
+                     " a cambio de " +
                      str(self.moneda_de_cambio) + simbolo2)
         if imprimir1 != "":
-            print(imprimir1 + imprimir2, end = " ")
+            print(imprimir1 + imprimir2, end=" ")
             if self.ejecutada:
                 print("| Tuvo match el dia", self.match_time)
             else:
@@ -80,11 +89,12 @@ class Ask(Order):
         imprimir1 = super().desplegar_order_por_mercado(mercado_especifico)
         simbolo1 = self.mercado.ticker[0:3]
         simbolo2 = self.mercado.ticker[3:]
-        imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 + " a cambio de " +
+        imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 +
+                     " a cambio de " +
                      str(self.moneda_de_cambio) + simbolo2)
 
         if imprimir1 != "":
-            print(imprimir1 + imprimir2, end = " ")
+            print(imprimir1 + imprimir2, end=" ")
             if self.ejecutada:
                 print("| Tuvo match el dia", self.match_time)
             else:
@@ -97,12 +107,14 @@ class Ask(Order):
         imprimir1 = super().__str__()
         simbolo1 = self.mercado.ticker[0:3]
         simbolo2 = self.mercado.ticker[3:]
-        imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 + " a cambio de " +
-                     str(self.moneda_de_cambio) + simbolo2)
+        imprimir2 = (" | " + "ASK de " + str(self.divisa_venta) + simbolo1 +
+                     " a cambio de " + str(self.moneda_de_cambio) + simbolo2)
         return imprimir1 + imprimir2
 
+
 class Bid(Order):
-    def __init__(self, usuario, mercado, divisa_compra, moneda_de_cambio, tiempo):
+    def __init__(self, usuario, mercado, divisa_compra, moneda_de_cambio,
+                 tiempo):
         Order.__init__(self, usuario, mercado, tiempo)
         self.divisa_compra = divisa_compra  # son cantidades
         self.moneda_de_cambio = moneda_de_cambio  # son cantidades
@@ -111,10 +123,10 @@ class Bid(Order):
         imprimir1 = super().desplegar_order_por_fecha(fecha1, fecha2)
         simbolo1 = self.mercado.ticker[0:3]
         simbolo2 = self.mercado.ticker[3:]
-        imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 + " a cambio de " +
-                     str(self.moneda_de_cambio) + simbolo2)
+        imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 +
+                     " a cambio de " + str(self.moneda_de_cambio) + simbolo2)
         if imprimir1 != "":
-            print(imprimir1 + imprimir2, end = " ")
+            print(imprimir1 + imprimir2, end=" ")
             if self.ejecutada:
                 print("| Tuvo match el dia", self.match_time)
             else:
@@ -126,10 +138,10 @@ class Bid(Order):
         imprimir1 = super().desplegar_order_por_mercado(mercado)
         simbolo1 = self.mercado.ticker[0:3]
         simbolo2 = self.mercado.ticker[3:]
-        imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 + " a cambio de " +
-                     str(self.moneda_de_cambio) + simbolo2)
+        imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1
+                     + " a cambio de " + str(self.moneda_de_cambio) + simbolo2)
         if imprimir1 != "":
-            print(imprimir1 + imprimir2, end = " ")
+            print(imprimir1 + imprimir2, end=" ")
             if self.ejecutada:
                 print("| Tuvo match el dia", self.match_time)
             else:
@@ -141,8 +153,8 @@ class Bid(Order):
         imprimir1 = super().__str__()
         simbolo1 = self.mercado.ticker[0:3]
         simbolo2 = self.mercado.ticker[3:]
-        imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 + " a cambio de " +
-                     str(self.moneda_de_cambio) + simbolo2)
+        imprimir2 = (" | " + "BID de " + str(self.divisa_compra) + simbolo1 +
+                     " a cambio de " + str(self.moneda_de_cambio) + simbolo2)
         return imprimir1 + imprimir2
 
 
