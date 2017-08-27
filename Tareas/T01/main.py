@@ -191,11 +191,12 @@ for usuario in lista_usuarios:
     if isinstance(usuario, Trader):
         usuario.generar_balance()
 
-if not exists("matches.csv"):
-    poblar_balances(lista_mercados)
+users = read("users.csv")
+if not exists("matches.csv") or "balance" not in users[0].keys():
+    poblar_balances(lista_mercados)  # primera vez
 
-if not exists("matches.csv"):
-    lista_match = determinar_match_bases(lista_mercados)
+if not exists("matches.csv") or "balance" not in users[0].keys():
+    lista_match = determinar_match_bases(lista_mercados)  # primera vez
 else:
     lista_match = []
     lista_diccionarios_match = read("matches.csv")
@@ -357,7 +358,7 @@ with open("users.csv", "w", encoding='utf-8') as data:
         escribir = ":".join(escribir)
         data.write(escribir + "\n")
 
-with open("orders_ordenadass.csv", "w", encoding='utf-8') as data:
+with open("orders.csv", "w", encoding='utf-8') as data:
     data.write("order_id: int;ticker: string;amount: float;price: float;"
                "type: string;"
                "date_created: string;date_match: string\n")

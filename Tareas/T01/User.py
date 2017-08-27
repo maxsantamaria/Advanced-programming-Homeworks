@@ -99,7 +99,7 @@ class Trader(Usuario):
     def __init__(self, username, nombre, apellido, nacimiento):
         Usuario.__init__(self, username, nombre, apellido, nacimiento)
         self.balance_currencies = {"DCC": d("300000")}
-        self.orders_realizadas = []
+        self.orders_realizadas = []  # lista de ids
 
     def generar_balance(self):  # agregar al diccionario de balances a
                                 #  partir de los mercados registrados
@@ -141,7 +141,7 @@ class Trader(Usuario):
             print("No tienes dinero suficiente para realizar la transferencia.")
             return
         self.balance_currencies[divisa] = d(self.balance_currencies[divisa]) -\
-                                          d(cantidad)
+                                          d(str(cantidad))
         if divisa not in usuario_destino.balance_currencies.keys():
             usuario_destino.balance_currencies.update({divisa: d("0")})
 
@@ -207,7 +207,7 @@ def identificarse(lista_usuarios):
                     usuario_actual = usuario
             if not valido:
                 print("El usuario no está registrado.")
-        print("Su saldo es el siguiente:")
+        print("\nSu saldo es el siguiente:")
         if isinstance(usuario_actual, Trader):
             for symbol, saldo in usuario_actual.balance_currencies.items():
                 print(symbol, saldo)

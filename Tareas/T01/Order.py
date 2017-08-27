@@ -6,7 +6,7 @@ class Order:
         self.match_time = ""
         self.id = ""
         self.tiempo = tiempo
-        self.año = tiempo[0:4]
+        self.año = tiempo[0:4]  # acceso rapido
         self.mes = tiempo[5:7]
         self.dia = tiempo[8:]
 

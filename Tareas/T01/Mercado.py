@@ -13,7 +13,7 @@ class Mercado:
         self.asks_activos = []
         self.bids_activos = []
         self.tasa = d("0.1")
-        self.resto_tasa = d("1") - d("0.1")
+        self.resto_tasa = d("1") - d("0.1")  # acceso rapido
         self.comisiones = {self.divisa_compraventa: "0",
                            self.moneda_de_cambio: "0"}
 

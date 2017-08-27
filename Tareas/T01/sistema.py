@@ -214,7 +214,7 @@ class Sistema:
                 diccionario = {"username": usuario_actual.username,
                                "Hora": strftime("%H:%M")}
                 self.consulta_saldo.append(diccionario)
-                print("Su saldo es el siguiente:")
+                print("\nSu saldo es el siguiente:")
                 saldo_en_dcc = d("0")
                 for symbol, saldo in usuario_actual.balance_currencies.items():
                     print(symbol, saldo)
@@ -363,7 +363,6 @@ class Sistema:
                         print("No puedes transferirle a un usuario Underaged")
                     else:
                         print("Usuario no valido.")
-                print(usuario_destino.balance_currencies)
                 simbolo_invalido = True  # manejo de errores
                 cantidad_invalido = True  # manejo de errores
                 while cantidad_invalido or simbolo_invalido:
@@ -399,7 +398,6 @@ class Sistema:
                         break
                 usuario_actual.transferir_dinero(cantidad, usuario_destino,
                                                  mercado_comision)
-                print(usuario_destino.balance_currencies)
             elif opcion == "12":
                 volver = False  # para volver al menu
                 cantidad_match_antes = len(self.lista_match)
@@ -407,15 +405,21 @@ class Sistema:
                             # break despues y que no corra el if completo
                     while True:  # manejo de errores
                         mercado_actual = input("Ingrese el ticker del mercado"
-                                               " para hacer un bid: ")
+                                               " para hacer un bid "
+                                               "(o 0 para volver al menu): ")
                         for mercado in self.lista_mercados:
                             if mercado.ticker == mercado_actual:
                                 mercado_actual = mercado
                                 break
                         if isinstance(mercado_actual, Mercado):
                             break
+                        elif mercado_actual == "0":
+                            volver = True
+                            break
                         else:
                             print("Mercado invalido")
+                    if volver:
+                        break
                     if mercado_actual not in usuario_actual.mercados:
                         print("No estas registrado en ese mercado. Debes "
                               "hacer eso primero")
@@ -516,7 +520,6 @@ class Sistema:
                            "Hora": strftime("%H:%M")})
                     self.lista_orders.append(nuevo_bid)
                     self.determinar_match(usuario_actual, nuevo_bid)
-                    print(usuario_actual.balance_currencies)
                     break
                 cantidad_match_despues = len(self.lista_match)
                 if cantidad_match_antes < cantidad_match_despues:
@@ -535,8 +538,13 @@ class Sistema:
                                 break
                         if isinstance(mercado_actual, Mercado):
                             break
+                        elif mercado_actual == "0":
+                            volver = True
+                            break
                         else:
                             print("Mercado invalido")
+                    if volver:
+                         break
                     if mercado_actual not in usuario_actual.mercados:
                         print("No estas registrado en ese mercado. Debes hacer"
                               " eso primero")
@@ -634,7 +642,6 @@ class Sistema:
                            "Hora": strftime("%H:%M")})
                     self.lista_orders.append(nuevo_ask)
                     self.determinar_match(usuario_actual, nuevo_ask)
-                    print(usuario_actual.balance_currencies)
                     break
                 cantidad_match_despues = len(self.lista_match)
                 if cantidad_match_antes < cantidad_match_despues:
@@ -750,8 +757,8 @@ class Sistema:
 
     def desplegar_menu(self, usuario_actual):
         invalido = True
-        print("-" * 10 + " MENU " + str(usuario_actual.username) + " " +
-              "-" * 10)
+        print("-" * 14 + " MENU " + str(usuario_actual.username) + " " +
+              "-" * 14)
         print("1 :  Lista de mercados disponibles")
         print("2 :  Lista de mercados registrados")
         print("3 :  Registrarse en un mercado especifico")
@@ -910,7 +917,7 @@ class Sistema:
                     maximo = self.maximo_id()
                     new_bid.id = str(maximo + 1)
                     self.realiza_order.append\
-                         ({"username": usuario_actual.username,
+                         ({"username": new_bid.usuario.username,
                            "order_id": new_bid.id,
                            "mercado": mercado.ticker,
                            "tipo": "bid",
@@ -1043,7 +1050,7 @@ class Sistema:
                     maximo = self.maximo_id()
                     new_ask.id = str(maximo + 1)
                     self.realiza_order.append\
-                        ({"username": usuario_actual.username,
+                        ({"username": new_ask.usuario.username,
                           "order_id": new_ask.id,
                           "mercado": mercado.ticker,
                           "tipo": "bid",
@@ -1113,7 +1120,8 @@ class Sistema:
                                                          int(elem.dia)),
                                        reverse = False)
         for order in lista_orders_ordenada:
-            if not order.ejecutada :
+            if not order.ejecutada:
+                print(order.id, order.ejecutada)
                 self.determinar_match(order.usuario, order)
 
     def estado_orders(self, usuario_actual):
