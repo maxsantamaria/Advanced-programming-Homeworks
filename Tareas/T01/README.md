@@ -40,7 +40,7 @@
 
 # Otras consideraciones:
 
-- Cuando hay un match parcial y la order no se agota	por completo, se considera equivalente a que el usuario hizo 2 orders, es decir la primera que contiene la parte que hizo match y la segunda que es lo que faltó por hacer match y que permanece activo en el mercado. Esto aplicará para la restricción de hacer máximo 15 orders diarias (match parcial puede significar haber hecho más de una order)
+- Cuando hay un match parcial y la order no se agota por completo, se considera equivalente a que el usuario hizo 2 orders, es decir la primera que contiene la parte que hizo match y la segunda que es lo que faltó por hacer match y que permanece activo en el mercado. Esto aplicará para la restricción de hacer máximo 15 orders diarias (match parcial puede significar haber hecho más de una order). Además, la parte que sí hizo match se le cambia el precio y la cantidad para igualarla con la order que se emparejó. De esta forma todos los match quedan con orders a precio y cantidad igual. A la nueva order generada (parte aun sin match) se la resta la cantidad ya transada y mantiene el precio que el usuario le dio (la fecha de creación también), pero tiene distinto ID.
 - Para la prioridad de match se ordenó primero las orders según mejor precio de compra o venta y luego si había empate según fecha de creación. Para la creación se usó solo la fecha y no la hora, ya que la base de datos inicial no contenía lo segundo.
 - Para el registro de match donde hay que guardar la hora, no se consideraron los match de la base de datos inicial, ya que no contenían la información de la hora.
 - Hay match parciales al comienzo de la base de datos, se consideró la fecha de match como la actual, ya que el sistema los emparejó recién ahí.
