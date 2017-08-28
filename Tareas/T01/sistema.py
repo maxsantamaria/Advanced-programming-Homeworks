@@ -1121,7 +1121,6 @@ class Sistema:
                                        reverse = False)
         for order in lista_orders_ordenada:
             if not order.ejecutada:
-                print(order.id, order.ejecutada)
                 self.determinar_match(order.usuario, order)
 
     def estado_orders(self, usuario_actual):
