@@ -48,4 +48,7 @@
 - Todos los mercados tienen una tasa de comisión fija igual a 0.10
 - El saldo inicial de los usuarios se calcula viendo sus orders activas (tienen que tener lo que ofrecen) y los match realizados. Luego se usa la columna de balance en users.csv
 - Underaged no tienen saldo ni orders realizadas.
+- En el caso de ser Trader y consultar por orders activas, se desplegaran los mercados registrados que tengan orders activas, pero si estas orders están fuera del rango de los 7 días, no se mostrarán. Va a aparecer el nombre del mercado solo y abajo el siguiente mercado. Esto sirve como pequeña ayuda al usuario para saber que hay orders activas en tal mercado, pero no saber ningún tipo de información sobre ellas.
+- No estaba claro si la restricción de los 7 días de los Trader aplicaba para los match también, por lo que se decidió omitir. Así, un Trader al revisar el historial de matches puede ver todos los realizados hasta la fecha.
+- Si en alguna parte no se despliega la información que se solicito, es porque no se cuenta aún con la información suficiente para calcularla (normalmente el sistema avisa cuando falta información, pero en algunos casos imprime vacio, lo que significa que no hay nada todavía)
 
