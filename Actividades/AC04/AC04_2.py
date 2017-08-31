@@ -138,7 +138,7 @@ class ContactTrie:
         self.numero = 0
         self.contacto = ""
         recorrer(self.nodo_raiz, nombre)
-        if self.numero > 0:
+        if int(self.numero) > 0:
             tupla = ({nombre}, {self.numero})
             print(tupla)
 
@@ -209,6 +209,7 @@ print(lista)
 
 # empiezan las pruebas del sistema
 sistema.ask_for_contact("max")
+sistema.ask_for_contact("asdasdas")
 sistema.get_all_contacts()
 sistema.change_contact_number("max", 666)
 sistema.ask_for_contact("max")   # vemos que cambio el numero
@@ -221,3 +222,9 @@ sistema2 = ContactTrie(raiz2)
 sistema2.add_contact("jorge", "321")
 sistema2.add_contact("carla", "456")
 sistema2.add_contact("roberto", "567")
+sistema2.get_all_contacts()
+
+
+
+sistema.merge_tries(sistema2)
+sistema.get_all_contacts()
