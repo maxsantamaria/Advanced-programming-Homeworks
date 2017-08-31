@@ -165,6 +165,9 @@ class ContactTrie:
                     if letra == nuevo_contacto[-1]:
                         nodo_anterior.numero = nuevo_numero
 
+    def __add__(self, other):
+        pass
+
 
     def __repr__(self):
 
