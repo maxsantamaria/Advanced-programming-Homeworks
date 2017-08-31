@@ -91,6 +91,25 @@ class ContactTrie:
         if nombre not in self.obtener_cadenas():
             print("Contacto inexistente")
             return
+        def recorrer2(nodo_padre, contacto_buscado):
+            for nodo_inicial in nodo_padre.hijos.values():
+                self.contacto += nodo_inicial.letra
+                if len(nodo_inicial.hijos.items()) > 1:
+                    self.aux = self.contacto
+                recorrer2(nodo_inicial, contacto_buscado)
+                if self.aux != "":
+                    self.contacto = self.aux
+
+            if nodo_padre.numero != 0 and self.contacto != "":
+                if self.contacto == contacto_buscado:
+                    nodo_padre.numero = nuevo_numero
+                self.contacto = ""
+                return
+            return
+        self.contacto = ""
+        self.numero = 0
+        recorrer2(self.nodo_raiz, nombre)
+
 
     def ask_for_contact(self, nombre):
         if not nombre.isalpha():
@@ -183,11 +202,17 @@ sistema.add_contact("cata", 124)
 sistema.add_contact("alejandro", 125)
 print(sistema)
 
+# imprime todos los contactos
 lista = sistema.obtener_cadenas()
 print(lista)
 
+
+# empiezan las pruebas del sistema
 sistema.ask_for_contact("max")
 sistema.get_all_contacts()
+sistema.change_contact_number("max", 666)
+sistema.ask_for_contact("max")   # vemos que cambio el numero
+
 
 
 raiz2 = Nodo("")
