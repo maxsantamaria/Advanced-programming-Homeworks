@@ -123,6 +123,30 @@ class ContactTrie:
             tupla = ({nombre}, {self.numero})
             print(tupla)
 
+    def get_all_contacts(self):
+        lista_contactos = self.obtener_cadenas()
+        for contacto in lista_contactos:
+            self.contacto = ""
+            self.numero = 0
+            self.ask_for_contact(contacto)
+
+    def merge_tries(self, otro_trie):
+        if not isinstance(otro_trie, ContactTrie):
+            print("Debe ser un contactrie")
+            return
+        contactos = otro_trie.obtener_cadenas()
+        nueva_lista = set()
+        contactos_actuales = self.obtener_cadenas()
+        for nuevo_contacto in contactos:
+            if nuevo_contacto not in contactos_actuales:
+                nuevo_numero = otro_trie.ask_for_contact(nuevo_contacto)
+                nodo_anterior = self.nodo_raiz
+                for letra in nuevo_contacto:
+                    nodo_anterior = self.agregar_nodo(letra, nodo_anterior)
+                    if letra == nuevo_contacto[-1]:
+                        nodo_anterior.numero = nuevo_numero
+        
+
     def __repr__(self):
 
         def recorrer_arbol(raiz):
@@ -162,3 +186,4 @@ lista = sistema.obtener_cadenas()
 print(lista)
 
 sistema.ask_for_contact("max")
+sistema.get_all_contacts()
