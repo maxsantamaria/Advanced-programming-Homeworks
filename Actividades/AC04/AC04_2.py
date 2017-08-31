@@ -145,7 +145,7 @@ class ContactTrie:
                     nodo_anterior = self.agregar_nodo(letra, nodo_anterior)
                     if letra == nuevo_contacto[-1]:
                         nodo_anterior.numero = nuevo_numero
-        
+
 
     def __repr__(self):
 
@@ -180,6 +180,7 @@ print(lista)
 
 sistema.add_contact("max", 123)
 sistema.add_contact("cata", 124)
+sistema.add_contact("alejandro", 125)
 print(sistema)
 
 lista = sistema.obtener_cadenas()
@@ -187,3 +188,11 @@ print(lista)
 
 sistema.ask_for_contact("max")
 sistema.get_all_contacts()
+
+
+raiz2 = Nodo("")
+sistema2 = ContactTrie(raiz2)
+
+sistema2.add_contact("jorge", "321")
+sistema2.add_contact("carla", "456")
+sistema2.add_contact("roberto", "567")
