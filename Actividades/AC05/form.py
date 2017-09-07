@@ -45,6 +45,7 @@ class FormRegister:
             rest = "k"
         else:
             rest = str(rest)
+
         return rest == checker
 
     def add_course(self, course, section):
@@ -80,3 +81,4 @@ class FormRegister:
 #form.check_rut("19 324-9")
 #form.add_course("ASDASDAS", 5)
 #form.add_course("ADD 567", 5)
+#print(form.check_rut("19246885-AA"))

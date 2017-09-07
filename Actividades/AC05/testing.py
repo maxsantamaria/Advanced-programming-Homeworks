@@ -6,7 +6,8 @@ class Chequear(unittest.TestCase):
         self.form = form.FormRegister()
 
     def test_digito_rut(self):
-        self.assertFalse(self.form.check_rut("19246885-9"))
+        prueba = self.form.check_rut("19246885-A")
+        self.assertFalse(prueba)
 
     def test_formato_rut(self):
         self.assertRaises(TypeError, self.form.check_rut,("19.239.399-2"))
