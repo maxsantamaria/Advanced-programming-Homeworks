@@ -1,19 +1,34 @@
 import unittest
-
+import form
 
 class Chequear(unittest.TestCase):
+    def setUp(self):
+        self.form = form.FormRegister()
 
     def test_digito_rut(self):
-        self.assertFalse(check_rut(rut))
+        self.assertFalse(self.form.check_rut("19246885-9"))
 
     def test_formato_rut(self):
-        self.assertRaises(Exception, check_rut(rut_incorrecto))
-        self.assertTrue(check_rut(rut_correcto))
+        self.assertRaises(TypeError, self.form.check_rut,("19.239.399-2"))
+        self.assertTrue(self.form.check_rut,("19246885-6"))  # rut correcto
+
 
     def test_archivo_salida(self):
-        pass
+        with open("result.txt", "r") as file:
+            lineas = file.readlines()
+            self.assertIn("Student", lineas[0])
+            self.assertIn("Gender", lineas[1])
+            self.assertIn("Comment", lineas[2])
+            self.assertIn("#####", lineas[3])
 
     def test_info_personas(self):
-        pass
+        name = "Hugo Navarrete"
+        gender = "Error 404-Not found"
+        comment = "Dicen que es mejor que avanzada o.o"
+        self.form.register_people_info(name, gender, comment)
+        self.assertIn(name, self.form.register_list[-1])
+        self.assertIn(gender, self.form.register_list[-1])
+        self.assertIn(comment, self.form.register_list[-1])
 
-    
+if __name__ == "__main__":
+     unittest.main()

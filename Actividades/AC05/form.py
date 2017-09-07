@@ -45,7 +45,6 @@ class FormRegister:
             rest = "k"
         else:
             rest = str(rest)
-
         return rest == checker
 
     def add_course(self, course, section):
