@@ -31,5 +31,9 @@ class Chequear(unittest.TestCase):
         self.assertIn(gender, self.form.register_list[-1])
         self.assertIn(comment, self.form.register_list[-1])
 
+    def tearDown(self):
+        #file.close()
+        pass  # se podria usar para cerrar el archivo pero al usar contexto
+              # con with, no es necesario cerrarlo
 if __name__ == "__main__":
      unittest.main()
