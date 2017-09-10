@@ -19,4 +19,9 @@
 	- Se va a implementar principalmente para las posiciones dentro del tablero ya que serán tuplas (posiciónx, posicióny) y cada posición dentro del tablero no cambiará
 	- Es iterable con __iter__ y __next__
 	- Se va a poder crear entregandole una secuencia de elementos. Para eso se usa *args en __init__
-	
+
+
+Se asume que si una ciudad esta en el borde del tablero y tiene un camino conectado que sigue por el borde del tablero, entonces si se le asignan los puntos correspondientes a que el camino lo unio a la grilla
+Ejemplo:
+![alt text](https://github.com/IIC2233/mesantamaria-iic2233-2017-2/tree/master/Tareas/T02/images/camino_grilla.png)
+Lo anterior es válido para tener puntos de uníon entre ciudad y grilla gracias a un camino.
