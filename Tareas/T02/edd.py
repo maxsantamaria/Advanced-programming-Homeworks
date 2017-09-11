@@ -70,18 +70,20 @@ class ListaLigada:
         return value
 
     def __getitem__(self, posicion):
-        if posicion < 0:
-            posicion = len(self) + posicion
-        nodo = self.cabeza
+        if not isinstance(posicion, slice):
+            if posicion < 0:
+                posicion = len(self) + posicion
+            nodo = self.cabeza
 
-        for i in range(posicion):
-            if nodo:
-                nodo = nodo.siguiente
-        if not nodo:
-            return "posicion no encontrada"
+            for i in range(posicion):
+                if nodo:
+                    nodo = nodo.siguiente
+            if not nodo:
+                return "posicion no encontrada"
+            else:
+                return nodo.valor
         else:
-            return nodo.valor
-
+            pass
     def __delitem__(self, key):
         if key < 0:
             key = len(self) + key

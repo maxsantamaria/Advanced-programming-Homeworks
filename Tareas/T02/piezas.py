@@ -15,9 +15,14 @@ class Pieza:
             bordes == ""):
             self.muralla = True
         self.grilla = False
-        self.ciudad_separada = False  # para las piezas son 2 ciudades
+        self.ciudad_separada = False
+        if self.id == "CGGCGG" or self.id == "CRCCRC" or self.id == "CGGGCC":
+            self.ciudad_separada = True  # para las piezas son 2 ciudades
         self.cerrada = False
         self.posicion = None  # Tupla
+        self.bifurcacion = False
+        if self.id == "GGPGPP" or self.id == "PPGPPG":
+            self.bifurcacion = True
 
     def rotar_derecha(self):
         self.bordes = self.bordes[-1] + self.bordes[:5]

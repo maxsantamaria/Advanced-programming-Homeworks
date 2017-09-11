@@ -17,6 +17,7 @@ a = get_next_number()
 
 class MyInterface(gui.GameInterface):
     def __init__(self):
+        self.a = 0
         self.piezas = ListaLigada()
         self.cantidad_piezas = cantidad_piezas # key = Pieza(str)
         #  value = cantidad (int)
@@ -29,6 +30,7 @@ class MyInterface(gui.GameInterface):
         self.tablero_objeto = Tablero()
         self.tablero = self.tablero_objeto.elementos
         self.entidades = ListaLigada()
+        self.mejor_posicion = None
         self.jugadores = Tupla(Jugador(1, "red"), Jugador(2, "blue"))
         self.jugador_actual = self.jugadores[0]  # jugador inicial
         primera = self.obtener_pieza_random()
@@ -43,6 +45,13 @@ class MyInterface(gui.GameInterface):
         # la primera pieza se asume como del jugador 1
         self.pieza_actual = self.obtener_pieza_random()
         gui.nueva_pieza("red", self.pieza_actual.bordes)  # para poner la segunda pieza
+        # variables para el historial
+        self.hist_tableros = ListaLigada()
+        self.hist_entidades = ListaLigada()
+        self.hist_jugadores = ListaLigada()
+        self.hist_piezas = ListaLigada()
+        self.hist_turno_actual = ListaLigada()  # elem = (Jugador, pieza)
+
 
     def obtener_pieza_random(self):
         piezas_disponibles = ListaLigada()
@@ -51,7 +60,7 @@ class MyInterface(gui.GameInterface):
                 piezas_disponibles.append(pieza)
         if len(piezas_disponibles) > 0:
             pieza_elegida = choice(self.piezas)
-            pieza_elegida = self.piezas[30]  #####################
+            pieza_elegida = self.piezas[30]  # 30 para hacer ciudades chicas con caminos, 82 ciudades largas, 113 caminos
             self.piezas.remove(pieza_elegida)
             self.cantidad_piezas[pieza_elegida.bordes] -= 1  # una pieza menos
         else:
@@ -91,7 +100,13 @@ class MyInterface(gui.GameInterface):
         for entidad in self.entidades:
             if entidad.tipo == tipo and pieza_anterior in entidad.piezas:
                 if self.pieza_actual not in entidad.piezas and \
-                        not pieza_anterior.ciudad_separada:
+                        not pieza_anterior.ciudad_separada and \
+                        not pieza_anterior.bifurcacion:
+                    # este if de tantas condiciones es por lo siguiente:
+                    # primero queremos que la pieza anterior este dentro de
+                    # alguna entidad existente. Luego la pieza anterior no
+                    # puede ser una de los 2 tipos especificados, porque ahí
+                    # su función es "cortar" la entidad, no continuarla.
                     existe = True
                     otro_jugador = self.otro_jugador()
                     if entidad not in self.jugador_actual.entidades and \
@@ -109,19 +124,22 @@ class MyInterface(gui.GameInterface):
                             if pieza.cerrada:
                                 entidad.completa = True
                             else:
-                                entidad.completa = True
+                                entidad.completa = False
                                 break
                         if entidad.completa:
-                            for pieza in entidad:
+                            for pieza in entidad.piezas:
                                 if pieza not in self.jugador_actual.piezas:
                                     self.cambiar_color(pieza)
-                        if entidad not in self.jugador_actual.entidadades:
+                        if entidad not in self.jugador_actual.entidades:
                             self.jugador_actual.entidades.append(entidad)
                             otro_jugador.entidades.remove(entidad)
                     entidad.piezas.append(self.pieza_actual)
                     break
 
                 elif pieza_anterior.ciudad_separada:
+                    existe = False
+                    break
+                elif pieza_anterior.bifurcacion:
                     existe = False
                     break
 
@@ -152,7 +170,7 @@ class MyInterface(gui.GameInterface):
                 if up in self.jugador_actual.movimientos:
                     # para saber si la pieza se une a otra del mismo jugador
                     self.conectar_piezas(conect, conect.borde4)
-                elif conect.borde4 == "P" or conect.borde4 == "R":
+                elif conect.borde4 != "G":
                     self.conectar_piezas(conect, conect.borde4)
 
         except KeyError:
@@ -324,6 +342,7 @@ class MyInterface(gui.GameInterface):
             for jugador in self.jugadores:
                 if city in jugador.entidades:
                     jugador_actual = jugador
+            actual_city = Entidad("C")
             for pieza in city.piezas:
                 self.pieza_cerrada(pieza, jugador_actual, False)
                 print(pieza.bordes, pieza.cerrada)
@@ -379,9 +398,6 @@ class MyInterface(gui.GameInterface):
                 elif path.tipo == "R":
                     jugador_actual.puntaje += 45 * ciudades
 
-
-
-
     def colocar_pieza(self, i, j):
         print("Presionaste", (i, j))
         #print(self.pieza_actual.bordes)
@@ -402,6 +418,10 @@ class MyInterface(gui.GameInterface):
                 self.jugador_actual.piezas.append(self.pieza_actual)
                 self.pieza_actual = self.obtener_pieza_random()
                 self.cambiar_jugador()
+                if self.mejor_posicion is not None:
+                    if self.tablero[self.mejor_posicion] is None:
+                        gui.pop_piece(self.mejor_posicion[0],
+                                      self.mejor_posicion[1])
                 gui.nueva_pieza(self.jugador_actual.color,
                                 self.pieza_actual.bordes) #Ojo con esto si no utilizan una nueva pieza obtendran un error
             else:
@@ -436,7 +456,32 @@ class MyInterface(gui.GameInterface):
         gui.set_points(self.jugadores[1].numero, self.jugadores[1].puntaje)
         print("Presionaste terminar juego")
 
+    def mejor_jugada(self):
+        mejor_puntaje = 0
+        for posicion in self.tablero:
+            self.guardar_juego()
+            i = posicion[0]
+            j = posicion[1]
+            if self.posicion_correcta(i, j):
+                if self.tablero[posicion] is None:
+                    up, down, upright, upleft, dright, dleft = self.vecinos(i,
+                                                                            j)
+                    self.pieza_actual.posicion = posicion
+                    self.tablero[posicion] = self.pieza_actual
+                    self.conectar_piezas2(up, down, upright, upleft, dright,
+                                          dleft)
+                    self.jugador_actual.movimientos.append(Tupla(i, j))
+                    self.jugador_actual.piezas.append(self.pieza_actual)
+                    self.determinar_puntaje()
+                    if self.jugador_actual.puntaje > mejor_puntaje:
+                        mejor_puntaje = self.jugador_actual.puntaje
+                        mejor_posicion = posicion
+            self.click_number(self.a)
+        return mejor_posicion
+
     def hint_asked(self):
+        self.mejor_posicion = self.mejor_jugada()
+        gui.add_hint(self.mejor_posicion[0], self.mejor_posicion[1])
         for jugador in self.jugadores:
             print("JUGADOR: ", jugador.numero)
             for entidad in jugador.entidades:
@@ -445,11 +490,129 @@ class MyInterface(gui.GameInterface):
                     print(pieza.posicion)
         print("Me pediste una pista y no te la dare :P")
 
+    def actualizar_tablero(self, nuevo_tablero):
+        for posicion, pieza in self.tablero.items():
+            if pieza is not None:
+                i = posicion[0]
+                j = posicion[1]
+                gui.pop_piece(i, j)
+
+        for posicion, pieza in nuevo_tablero.elementos.items():
+            if pieza is not None:
+                if pieza in self.jugadores[0].piezas:
+                    jugador = self.jugadores[0]
+                else:
+                    jugador = self.jugadores[1]
+                gui.nueva_pieza(jugador.color, pieza.id)
+                i = posicion[0]
+                j = posicion[1]
+                aux = pieza.id
+                while aux != pieza.bordes:
+                    gui.rotate_piece()
+                    aux = aux[-1] + aux[0:5]
+                    self.pieza_actual.rotar_izquierda()
+                gui.add_piece(i, j)
+        self.tablero_objeto = nuevo_tablero
+        self.tablero = nuevo_tablero.elementos
+        gui.nueva_pieza(self.jugador_actual.color, self.pieza_actual.id)
+        aux = self.pieza_actual.id
+        while aux != self.pieza_actual.bordes:
+            gui.rotate_piece()
+            aux = aux[-1] + aux[0:5]
+            self.pieza_actual.rotar_izquierda()
+
     def click_number(self, number):
         print(number)
+        indice = int(number) - 1
+        self.jugadores = self.hist_jugadores[indice]
+        self.entidades = self.hist_entidades[indice]
+        self.piezas = self.hist_piezas[indice]
+        self.cantidad_piezas = Diccionario_Ligado()
+        for pieza in self.piezas:
+            if pieza.id in self.cantidad_piezas.keys():
+                self.cantidad_piezas[pieza.id] += 1
+            else:
+                self.cantidad_piezas.update(pieza.id, 1)
+        self.jugador_actual = self.hist_turno_actual[indice][0]
+        self.pieza_actual = self.hist_turno_actual[indice][1]
+        self.actualizar_tablero(self.hist_tableros[indice])
+        cantidad_historiales = len(self.hist_tableros)
+        print("HISTORIALES", cantidad_historiales)
+        # borramos todos los historiales siguientes al que elegimos
+        for i in range(indice, cantidad_historiales):
+            gui.pop_number()
+            self.hist_jugadores.pop(indice)
+            self.hist_entidades.pop(indice)
+            self.hist_piezas.pop(indice)
+            self.hist_tableros.pop(indice)
+            self.hist_turno_actual.pop(indice)
+            #self.a -= 1
+        self.a = indice
+        print("INDICE", indice, "HISTORIALES", len(self.hist_tableros))
+
 
     def guardar_juego(self):
-        gui.add_number(next(a), choice(["red", "blue"]))
+        self.a += 1
+        gui.add_number(self.a, self.jugador_actual.color)  # next(a)
+        tablero_guardado = Tablero()
+        jugador1_guardado = Jugador(1, "red")
+        jugador2_guardado = Jugador(2, "blue")
+        for movimiento in self.jugadores[0].movimientos:
+            jugador1_guardado.movimientos.append(movimiento)
+        for movimiento in self.jugadores[1].movimientos:
+            jugador2_guardado.movimientos.append(movimiento)
+        piezas_guardadas = ListaLigada()
+        for posicion, pieza in self.tablero.items():
+            if pieza is not None:
+                pieza_guardada = Pieza(pieza.bordes)
+                pieza_guardada.id = pieza.id
+                pieza_guardada.posicion = pieza.posicion
+                pieza_guardada.ciudad_separada = pieza.ciudad_separada
+                pieza_guardada.bifurcacion = pieza.bifurcacion
+                pieza_guardada.grilla = pieza.grilla
+                for pieza_jug in self.jugadores[0].piezas:
+                    if pieza_jug.posicion == posicion:
+                        jugador1_guardado.piezas.append(pieza_guardada)
+                for pieza_jug in self.jugadores[1].piezas:
+                    if pieza_jug.posicion == posicion:
+                        jugador2_guardado.piezas.append(pieza_guardada)
+                piezas_guardadas.append(pieza_guardada)
+            else:
+                pieza_guardada = None
+            tablero_guardado.elementos[posicion] = pieza_guardada
+        self.hist_tableros.append(tablero_guardado)
+        pieza_actual = Pieza(self.pieza_actual.id)
+        pieza_actual.bordes = self.pieza_actual.bordes
+        if self.jugador_actual.numero == 1:
+            self.hist_turno_actual.append(Tupla(jugador1_guardado,
+                                                pieza_actual))
+        elif self.jugador_actual.numero == 2:
+            self.hist_turno_actual.append(Tupla(jugador2_guardado,
+                                                pieza_actual))
+        entidades_guardadas = ListaLigada()
+        for entidad in self.entidades:
+            entidad_guardada = Entidad(entidad.tipo)
+            for pieza_guardada in piezas_guardadas:
+                for pieza in entidad.piezas:
+                    if pieza.posicion == pieza_guardada.posicion:
+                        entidad_guardada.piezas.append(pieza_guardada)
+            for jugador in self.jugadores:
+                if entidad in jugador.entidades:
+                    if jugador.numero == 1:
+                        jugador1_guardado.entidades.append(entidad_guardada)
+                    elif jugador.numero == 2:
+                        jugador2_guardado.entidades.append(entidad_guardada)
+            entidades_guardadas.append(entidad_guardada)
+        self.hist_entidades.append(entidades_guardadas)
+
+        piezas_guardadas = ListaLigada()
+        for pieza in self.piezas:
+            new_pieza = Pieza(pieza.bordes)
+            piezas_guardadas.append(new_pieza)
+        self.hist_piezas.append(piezas_guardadas)
+        self.hist_jugadores.append(Tupla(jugador1_guardado, jugador2_guardado))
+
+
         print("Presionaron guardar")
 
 
