@@ -11,7 +11,9 @@ class Tablero:
                 posicion = Tupla(i, j)
                 self.elementos.update(posicion, None)
 
-    def pieza_completada(self, pieza, jugador_actual, *args):
+    def pieza_completada(self, pieza, jugador_actual, simulacion, *args):
+        # cuando simulacion es True, da lo mismo que las piezas pertenezcan
+        # al mismo jugador
         up, down, upright, upleft, dright, dleft = args
         try:
             conect = self.elementos[up]
@@ -19,6 +21,8 @@ class Tablero:
                 if conect and conect.borde4 == pieza.borde1 and \
                                 up in jugador_actual.movimientos:
                         # para saber si la pieza se une a otra del mismo jugador
+                    pieza.cerrada = True
+                elif conect and conect.borde4 == pieza.borde1 and simulacion:
                     pieza.cerrada = True
                 else:
                     pieza.cerrada = False
@@ -32,6 +36,8 @@ class Tablero:
                                 upright in jugador_actual.movimientos:
                         # para saber si la pieza se une a otra del mismo jugador
                     pieza.cerrada = True
+                elif conect and conect.borde5 == pieza.borde2 and simulacion:
+                    pieza.cerrada = True
                 else:
                     pieza.cerrada = False
                     return
@@ -43,6 +49,8 @@ class Tablero:
                 if conect and conect.borde6 == pieza.borde3 and \
                                 dright in jugador_actual.movimientos:
                         # para saber si la pieza se une a otra del mismo jugador
+                    pieza.cerrada = True
+                elif conect and conect.borde6 == pieza.borde3 and simulacion:
                     pieza.cerrada = True
                 else:
                     pieza.cerrada = False
@@ -56,6 +64,8 @@ class Tablero:
                                 down in jugador_actual.movimientos:
                         # para saber si la pieza se une a otra del mismo jugador
                     pieza.cerrada = True
+                elif conect and conect.borde1 == pieza.borde4 and simulacion:
+                    pieza.cerrada = True
                 else:
                     pieza.cerrada = False
                     return
@@ -68,6 +78,8 @@ class Tablero:
                                 dleft in jugador_actual.movimientos:
                         # para saber si la pieza se une a otra del mismo jugador
                     pieza.cerrada = True
+                elif conect and conect.borde2 == pieza.borde5 and simulacion:
+                    pieza.cerrada = True
                 else:
                     pieza.cerrada = False
                     return
@@ -79,6 +91,8 @@ class Tablero:
                 if conect and conect.borde3 == pieza.borde6 and \
                                 upleft in jugador_actual.movimientos:
                         # para saber si la pieza se une a otra del mismo jugador
+                    pieza.cerrada = True
+                elif conect and conect.borde3 == pieza.borde6 and simulacion:
                     pieza.cerrada = True
                 else:
                     pieza.cerrada = False

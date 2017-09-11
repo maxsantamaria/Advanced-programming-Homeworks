@@ -4,6 +4,7 @@ from edd import *
 class Pieza:
     def __init__(self, bordes):  # bordes es un string tipo 'GGGGGG'
         self.bordes = bordes
+        self.id = bordes  # no cambia
         self.borde1 = bordes[0]
         self.borde2 = bordes[1]
         self.borde3 = bordes[2]
@@ -16,9 +17,14 @@ class Pieza:
         self.grilla = False
         self.ciudad_separada = False  # para las piezas son 2 ciudades
         self.cerrada = False
+        self.posicion = None  # Tupla
 
     def rotar_derecha(self):
         self.bordes = self.bordes[-1] + self.bordes[:5]
+        self.actualizar_bordes()
+
+    def rotar_izquierda(self):
+        self.bordes = self.bordes[1:] + self.bordes[0]
         self.actualizar_bordes()
 
     def actualizar_bordes(self):
