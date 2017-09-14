@@ -1,5 +1,6 @@
 from collections import namedtuple
 import random
+from functools import reduce
 
 # 1 Ciudades por pais
 def ciudad_por_pais(nombre_pais, paises, ciudades):
@@ -9,11 +10,10 @@ def ciudad_por_pais(nombre_pais, paises, ciudades):
     :param ciudades: lista de Ciudades (instancias)
     :return: generador
     '''
-    for pais in paises:
-        if pais.nombre == nombre_pais:
-            sigla_pais = pais.sigla
-            break
-    generador = (ciudad for ciudad in ciudades if ciudad.sigla_pais == sigla_pais)
+    pais = list(pais.sigla for pais in paises if pais.nombre == nombre_pais)
+    sigla_pais = pais[0]
+    generador = (ciudad for ciudad in ciudades
+                 if ciudad.sigla_pais == sigla_pais)
     return generador
 
 
@@ -26,12 +26,12 @@ def personas_por_pais(nombre_pais, paises, ciudades, personas):
     :param personas: lista de Personas (instancias)
     :return: generador
     '''
-    for pais in paises:
-        if pais.nombre == nombre_pais:
-            sigla_pais = pais.sigla
-            break
-    ciudades2 = [ciudad.nombre for ciudad in ciudades if ciudad.sigla_pais == sigla_pais]
-    generador = (persona for persona in personas if persona.ciudad_residencia in ciudades2)
+    pais = list(pais.sigla for pais in paises if pais.nombre == nombre_pais)
+    sigla_pais = pais[0]
+    ciudades2 = [ciudad.nombre for ciudad in ciudades
+                 if ciudad.sigla_pais == sigla_pais]
+    generador = (persona for persona in personas
+                 if persona.ciudad_residencia in ciudades2)
     return generador
 
 
@@ -43,7 +43,8 @@ def personas_por_ciudad(nombre_ciudad, personas):
     :param personas: lista de Personas (instancias)
     :return: generador
     '''
-    generador = (persona for persona in personas if persona.ciudad_residencia == nombre_ciudad)
+    generador = (persona for persona in personas
+                 if persona.ciudad_residencia == nombre_ciudad)
     return generador
 
 
@@ -54,7 +55,8 @@ def personas_con_sueldo_mayor_a(personas, sueldo):
     :param sueldo: int
     :return: generador
     '''
-    generador = (persona for persona in personas if int(persona.sueldo) > sueldo)
+    generador = (persona for persona in personas
+                 if int(persona.sueldo) > sueldo)
     return generador
 
 
@@ -67,7 +69,8 @@ def personas_por_ciudad_sexo(nombre_ciudad, sexo, personas):
     :return: generador
     '''
     generador = (persona for persona in personas
-                 if persona.ciudad_residencia == nombre_ciudad and persona.sexo == sexo)
+                 if persona.ciudad_residencia == nombre_ciudad
+                 and persona.sexo == sexo)
     return generador
 
 
@@ -83,9 +86,11 @@ def personas_por_pais_sexo_profesion(nombre_pais, paises, sexo, profesion,
     :param personas: lista de Personas (instancias)
     :return: generador
     '''
-    personas_en_pais = personas_por_pais(nombre_pais, paises, ciudades, personas)
+    personas_en_pais = personas_por_pais(nombre_pais, paises, ciudades,
+                                         personas)
     generador = (persona for persona in personas_en_pais
-                 if persona.sexo == sexo and persona.area_de_trabajo == profesion)
+                 if persona.sexo == sexo and
+                 persona.area_de_trabajo == profesion)
     return generador
 
 
@@ -95,12 +100,10 @@ def sueldo_promedio(personas):
     :param personas: lista de Personas (lista de instancias)
     :return: promedio (int o float)
     '''
-    sueldo_total = 0
-    cantidad = 0
-    for persona in personas:
-        cantidad += 1
-        sueldo_total += int(persona.sueldo)
-    sueldo_promedio = sueldo_total / cantidad
+
+    sueldos = list(int(persona.sueldo) for persona in personas)
+    sueldo_total = reduce(lambda x, y: x + y, sueldos)
+    sueldo_promedio = sueldo_total / len(personas)
     return sueldo_promedio
 
 
@@ -112,7 +115,7 @@ def sueldo_ciudad(nombre_ciudad, personas):
     :return: promedio (int o float)
     '''
     personas_en_ciudad = personas_por_ciudad(nombre_ciudad, personas)
-    sueldo_ciudad = sueldo_promedio(personas_en_ciudad)
+    sueldo_ciudad = sueldo_promedio(list(personas_en_ciudad))
     return sueldo_ciudad
 
 
@@ -125,8 +128,9 @@ def sueldo_pais(nombre_pais, paises, ciudades, personas):
     :param personas: lista de Personas (instancias)
     :return: promedio (int o float)
     '''
-    personas_en_pais = personas_por_pais(nombre_pais, paises, ciudades, personas)
-    sueldo_pais = sueldo_promedio(personas_en_pais)
+    personas_en_pais = personas_por_pais(nombre_pais, paises, ciudades,
+                                         personas)
+    sueldo_pais = sueldo_promedio(list(personas_en_pais))
     return sueldo_pais
 
 # 10 Sueldo promedio de un pais y profesion x
@@ -139,9 +143,11 @@ def sueldo_pais_profesion(nombre_pais, paises, profesion, ciudades, personas):
     :param personas: lista de Personas (instancias)
     :return: promedio (int o float)
     '''
-    personas_en_pais = personas_por_pais(nombre_pais, paises, ciudades, personas)
-    personas_profesion = (persona for persona in personas_en_pais if persona.area_de_trabajo == profesion)
-    sueldo_pais_profesion = sueldo_promedio(personas_profesion)
+    personas_en_pais = personas_por_pais(nombre_pais, paises, ciudades,
+                                         personas)
+    personas_profesion = (persona for persona in personas_en_pais
+                          if persona.area_de_trabajo == profesion)
+    sueldo_pais_profesion = sueldo_promedio(list(personas_profesion))
     return sueldo_pais_profesion
 
 
@@ -157,7 +163,8 @@ if __name__ == '__main__':
         ciudades = [Ciudad(*parser(linea)) for linea in file1]
 
     Persona = namedtuple("Persona", ["nombre", "apellido", "edad", "sexo",
-                                     "ciudad_residencia", "area_de_trabajo", "sueldo"])
+                                     "ciudad_residencia", "area_de_trabajo",
+                                     "sueldo"])
     with open('Informacion_personas.txt', 'r', encoding='utf-8') as file2:
         personas = [Persona(*parser(linea)) for linea in file2]
 
