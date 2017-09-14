@@ -251,18 +251,11 @@ if __name__ == '__main__':
 
     # (12) Se pide seleccionar 10 personas al azar y generar tuplas con sus:
     # nombres, apellidos y sueldos.
-    personas_seleccionadas = []
-    posiciones = []
-
-    while True:
-        posicion = random.randint(0, 99999)
-        if posicion not in posiciones:
-            posiciones.append(posicion)
-            persona = personas[posicion]
-            personas_seleccionadas.append([persona.nombre, persona.apellido,
-                                           int(persona.sueldo)])
-        if len(posiciones) == 10:
-            break
+    random.shuffle(personas)  # mezclamos las posiciones de la lista
+    diez_personas = list(personas)[:10]
+    personas_seleccionadas = list([persona.nombre, persona.apellido,
+                                   int(persona.sueldo)]
+                                  for persona in diez_personas)
 
     zipped = zip(personas_seleccionadas[0], personas_seleccionadas[1],
                  personas_seleccionadas[2], personas_seleccionadas[3],
