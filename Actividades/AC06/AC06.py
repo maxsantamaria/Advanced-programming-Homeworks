@@ -257,11 +257,7 @@ if __name__ == '__main__':
                                    int(persona.sueldo)]
                                   for persona in diez_personas)
 
-    zipped = zip(personas_seleccionadas[0], personas_seleccionadas[1],
-                 personas_seleccionadas[2], personas_seleccionadas[3],
-                 personas_seleccionadas[4], personas_seleccionadas[5],
-                 personas_seleccionadas[6], personas_seleccionadas[7],
-                 personas_seleccionadas[8], personas_seleccionadas[9],)
+    zipped = zip(*personas_seleccionadas)
     zipped = list(zipped)
     print("Nombres: {}".format(zipped[0]))
     print("Apellidos: {}".format(zipped[1]))
