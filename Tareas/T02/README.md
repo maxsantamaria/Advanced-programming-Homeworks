@@ -21,9 +21,9 @@
 - Además, el cálculo de puntaje para la unión por un camino de 2 ciudades completas es similar al de 2 ciudades al menos una incompleta, ya que no estaba especificado.
 - El cambio más grande en relación a lo estipulado es el siguiente:
 	- Cuando 2 jugadores usan sus piezas para generar una misma ciudad, la ciudad que se va formando mientras no esté completa pertenece solo a uno de los jugadores y es al que puso la primera pieza de la ciudad. Ejemplo:
-![Image](images/camino_incompleta.png)
+![Image](images/ciudad_incompleta.png)
 	En este caso todas las piezas de ciudad "pertenecen" al Jugador 1 naranjo ya que él puso la primera pieza y hay que considerar eso para el puntaje también. Serían 40 puntos por una ciudad incompleta de 4 piezas para el Jugador 1 y 0 para el Jugador 2. La única forma de que el Jugador 2 recupere su pieza es haciendo plot twist al completar la ciudad:
-![Image](images/camino_completa.png)
+![Image](images/ciudad_completa.png)
 	- La razón para hacer esto es limitar a que los jugadores se "arriesguen" al intentar robarle una ciudad al otro, ya que mientras no la completen, todas las piezas que añadan o junten con esta ciudad, pasarán al puntaje del otro jugador. Aparte coincidía con la forma de modelar el problema, ya que la entidad debía tener esta conexión hacia "atrás" para después ir cambiando los colores :)
 - Además, para el caso de tener más de 2 ciudades conectadas, no estaba muy claro si los 40xn puntos se sumaban a los puntos de tener 2 ciudades conectadas o no. Por lo tanto se definió que al tener más de 2 ciudades conectadas solo se entregn los 40xn puntos, ya que sino sería demasiado puntaje sumado (hace el juego más justo). Ejemplo:
 ![Image](images/puntos_camino.png)
