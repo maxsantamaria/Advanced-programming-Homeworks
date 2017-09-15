@@ -11,6 +11,7 @@ class Tablero:
                 posicion = Tupla(i, j)
                 self.elementos.update(posicion, None)
 
+
     def pieza_completada(self, pieza, jugador_actual, simulacion, *args):
         # cuando simulacion es True, da lo mismo que las piezas pertenezcan
         # al mismo jugador
@@ -99,4 +100,5 @@ class Tablero:
                     return
         except KeyError:
             pieza.cerrada = True
+
 

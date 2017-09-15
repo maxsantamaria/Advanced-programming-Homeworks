@@ -9,3 +9,4 @@ class Jugador:
         self.puntaje = 0
         self.piezas = ListaLigada()
         self.entidades = ListaLigada()
+        self.snitch = False

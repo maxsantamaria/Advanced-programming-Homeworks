@@ -53,6 +53,7 @@ class ListaLigada:
             if nodo:
                 nodo = nodo.siguiente
         if not nodo:
+            raise IndexError
             return "posicion no encontrada"
         nodo_anterior = self.cabeza
         for i in range(key - 1):

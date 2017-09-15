@@ -26,3 +26,16 @@ Ejemplo:
 
  ![Image](images/camino_grilla.png)
 Lo anterior es válido para tener puntos de uníon entre ciudad y grilla gracias a un camino.
+
+Se asume que no pedirán un hint más de 1 vez por turno.
+
+Variable contador erroneas para ver cuando se termina el juego porque no hay mas posibilidades
+
+No estaba tan claro en el enunciado si era necesario añadir los puntos de ciudades unidas por river cuando el jugador lograba la snitch dorada
+
+Explicar plot twist en README, cambia el color al conectar un rio con otro (no necesariamente completo)
+
+Falta:
+	- Arreglar que ciudades cambien de color solo al cerrarse (Fixed)
+	- Hacer cierre de juego cuando no hayan mas movimientos
+	- Revisar puntajes

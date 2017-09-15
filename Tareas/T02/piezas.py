@@ -48,6 +48,7 @@ class Entidad:
         self.tipo = tipo
         self.adyacentes = MySet()
         # adyacentes son las entidades que comparten piezas con esta entidad
+        self.completa = False
 
 
 class Pasto(Entidad):
