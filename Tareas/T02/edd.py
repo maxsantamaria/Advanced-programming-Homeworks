@@ -17,7 +17,6 @@ class ListaLigada:
                 self.cola.siguiente = nuevo_nodo
                 self.cola = nuevo_nodo
 
-
     def append(self, valor):
         if not self.cabeza:
             self.cabeza = Nodo(valor)
@@ -34,7 +33,8 @@ class ListaLigada:
             else:
                 nodo_actual = nodo_actual.siguiente
         nodo_anterior = self.cabeza
-        while nodo_anterior.siguiente != nodo_actual and nodo_actual != self.cabeza:
+        while (nodo_anterior.siguiente != nodo_actual and
+               nodo_actual != self.cabeza):
             nodo_anterior = nodo_anterior.siguiente
         if self.cabeza == nodo_actual:
             self.cabeza = nodo_actual.siguiente
@@ -47,14 +47,13 @@ class ListaLigada:
 
     def pop(self, key):
         if key < 0:
-            key = len(self) + key
+            key = self.__len__() + key
         nodo = self.cabeza
         for i in range(key):
             if nodo:
                 nodo = nodo.siguiente
         if not nodo:
             raise IndexError
-            return "posicion no encontrada"
         nodo_anterior = self.cabeza
         for i in range(key - 1):
             if nodo_anterior:
@@ -73,18 +72,20 @@ class ListaLigada:
     def __getitem__(self, posicion):
         if not isinstance(posicion, slice):
             if posicion < 0:
-                posicion = len(self) + posicion
+                posicion = self.__len__() + posicion
             nodo = self.cabeza
 
             for i in range(posicion):
                 if nodo:
                     nodo = nodo.siguiente
             if not nodo:
-                return "posicion no encontrada"
+                raise IndexError
+
             else:
                 return nodo.valor
         else:
             pass
+
     def __delitem__(self, key):
         if key < 0:
             key = len(self) + key
@@ -93,7 +94,7 @@ class ListaLigada:
             if nodo:
                 nodo = nodo.siguiente
         if not nodo:
-            return "posicion no encontrada"
+            raise IndexError
         nodo_anterior = self.cabeza
         for i in range(key - 1):
             if nodo_anterior:
@@ -109,13 +110,13 @@ class ListaLigada:
 
     def __setitem__(self, key, value):  # key es el indice
         if key < 0:
-            key = len(self) + key
+            key = self.__len__() + key
         nodo = self.cabeza
         for i in range(key):
             if nodo:
                 nodo = nodo.siguiente
         if not nodo:
-            return "posicion no encontrada"
+            raise IndexError
         else:
             nodo.valor = value
 
@@ -129,14 +130,6 @@ class ListaLigada:
 
     def __iter__(self):
         self.pointer = 0  # para partir en __next__ del comienzo
-        #nodo_actual = self.cabeza
-        #if nodo_actual:
-            #yield nodo_actual.valor
-
-        #while nodo_actual:
-            #nodo_actual = nodo_actual.siguiente
-            #if nodo_actual:
-                #yield nodo_actual.valor
         return self
 
     def __next__(self):
@@ -148,6 +141,25 @@ class ListaLigada:
             raise StopIteration  # deja de iterar
         else:
             return self.pointer.valor
+
+    def sort(self, reverse=False):
+        new_list = ListaLigada()
+        aux = ListaLigada()
+        for elem in self:
+            aux.append(elem)
+        #aux.pop(0)
+        if reverse:
+            for elem1 in self:
+                maximo = max(aux)
+                aux.remove(maximo)
+                new_list.append(maximo)
+        elif not reverse:
+            for elem1 in self:
+                minimo = min(aux)
+                aux.remove(minimo)
+                new_list.append(minimo)
+        self = new_list
+        return self
 
     def __repr__(self):
         rep = '['
@@ -190,7 +202,6 @@ class Diccionario_Ligado:
                 break
         if not nodo:
             raise KeyError
-            return "posicion no encontrada"
         else:
             return nodo.valor
 
@@ -203,7 +214,6 @@ class Diccionario_Ligado:
                 break
         if not nodo:
             raise KeyError
-            return "posicion no encontrada"
         else:
             nodo.valor = value
 
@@ -214,8 +224,7 @@ class Diccionario_Ligado:
             if not nodo:
                 break
         if not nodo:
-            raise EnvironmentError
-            return "posicion no encontrada"
+            raise KeyError
         nodo_anterior = self.cabeza  # nodo anterior al que vamos a eliminar
         while nodo_anterior.siguiente != nodo and nodo != self.cabeza:
             nodo_anterior = nodo_anterior.siguiente
@@ -237,13 +246,6 @@ class Diccionario_Ligado:
         return contador
 
     def __iter__(self):
-        #nodo_actual = self.cabeza
-        #if nodo_actual:
-            #yield nodo_actual.key
-        #while nodo_actual:
-            #nodo_actual = nodo_actual.siguiente
-            #if nodo_actual:
-                #yield nodo_actual.key
         self.pointer = 0
         return self
 
@@ -257,18 +259,15 @@ class Diccionario_Ligado:
         else:
             return self.pointer.key
 
-
     def values(self):
         nodo_actual = self.cabeza
         iterable = ListaLigada()
         if nodo_actual:
-            #yield nodo_actual.valor
             iterable.append(nodo_actual.valor)
         while nodo_actual:
             nodo_actual = nodo_actual.siguiente
             if nodo_actual:
                 iterable.append(nodo_actual.valor)
-                #yield nodo_actual.valor
         return iterable
 
     def keys(self):
@@ -276,12 +275,10 @@ class Diccionario_Ligado:
         iterable = ListaLigada()
         if nodo_actual:
             iterable.append(nodo_actual.key)
-            #yield nodo_actual.key
         while nodo_actual:
             nodo_actual = nodo_actual.siguiente
             if nodo_actual:
                 iterable.append(nodo_actual.key)
-                #yield nodo_actual.key
         return iterable
 
     def items(self):
@@ -289,14 +286,11 @@ class Diccionario_Ligado:
         iterable = ListaLigada()
         if nodo_actual:
             iterable.append(Tupla(nodo_actual.key, nodo_actual.valor))
-            # yield nodo_actual.key
         while nodo_actual:
             nodo_actual = nodo_actual.siguiente
             if nodo_actual:
                 iterable.append(Tupla(nodo_actual.key, nodo_actual.valor))
-                # yield nodo_actual.key
         return iterable
-        pass
 
     def __repr__(self):
         rep = '{'
@@ -329,7 +323,7 @@ class Tupla:
             if nodo:
                 nodo = nodo.siguiente
         if not nodo:
-            return "posicion no encontrada"
+            raise IndexError
         else:
             return nodo.valor
 
@@ -369,7 +363,6 @@ class Tupla:
             contador += 1
         return contador
 
-
     def __repr__(self):
         rep = '('
         nodo_actual = self.cabeza
@@ -380,6 +373,7 @@ class Tupla:
             nodo_actual = nodo_actual.siguiente
         rep += ")"
         return rep
+
 
 class MySet:
     def __init__(self, *args):
@@ -410,7 +404,8 @@ class MySet:
             else:
                 nodo_actual = nodo_actual.siguiente
         nodo_anterior = self.cabeza
-        while nodo_anterior.siguiente != nodo_actual and nodo_actual != self.cabeza:
+        while (nodo_anterior.siguiente != nodo_actual and
+               nodo_actual != self.cabeza):
             nodo_anterior = nodo_anterior.siguiente
         if self.cabeza == nodo_actual:
             self.cabeza = nodo_actual.siguiente
@@ -460,16 +455,12 @@ if __name__ == "__main__":
     lista[1] = 10
     for elem in lista:
         print(elem)
-
     del lista[2]
     print(lista)
-
     a = lista.pop(0)
     print(lista, a)
-
     lista2 = ListaLigada(100, 200, 300)
     print(lista2)
-
     print("DICCIONARIO")
     diccionario = Diccionario_Ligado()
     diccionario.update("hola", 5)
@@ -477,28 +468,20 @@ if __name__ == "__main__":
     diccionario.update("volvi", 250)
     print(diccionario["chao"])
     print(diccionario)
-
-
     diccionario["hola"] = 0
     print(diccionario)
-
     del diccionario["chao"]
     print(diccionario)
     print(len(diccionario))
-
     for elem in diccionario:
         print(elem)
-
     print(250 in diccionario.values())
-
     print(diccionario.values())
-
     print(diccionario.keys())
     print("TUPLA")
     tupla = Tupla(1, 2, 3, 5)
     tupla = tupla + Tupla(6, 7)
     print(tupla)
-
     sett = MySet()
     sett.add(1)
     sett.add(2)
@@ -506,7 +489,6 @@ if __name__ == "__main__":
     print(sett)
     sett = MySet(1, 2, 3, 4, 3, 2, 1)
     print(sett)
-
     lista_mala = ListaLigada()
     lista_mala.append(1)
     for elem in lista_mala:

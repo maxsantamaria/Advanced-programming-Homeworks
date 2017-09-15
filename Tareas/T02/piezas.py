@@ -11,8 +11,7 @@ class Pieza:
         self.borde4 = bordes[3]
         self.borde5 = bordes[4]
         self.borde6 = bordes[5]
-        if (bordes == "CGGCGG" or
-            bordes == ""):
+        if bordes == "CGGCGG" or bordes == "":
             self.muralla = True
         self.grilla = False
         self.ciudad_separada = False
