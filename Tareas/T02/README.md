@@ -7,6 +7,7 @@
 	- Primero para el **Plot Twist**:
 		- Como no estaba especificado en el enunciado, se consideró que 
 			> El jugador que ponga la última pieza para unir tanto un camino como un río, se convierte en su dueño.
+		  
 		  Se refería a que un río o camino empezaba a ser entidad al estar unido a otro (es decir con mínimo 2 piezas) y por eso cada vez que un jugador conecta un río a otro del otro jugador, se hace plot twist y le roba la pieza (cambia el color). En una issue hace poco se explico que un río completo tenía ciertas especificaciones, pero no se alcanzó a cambiar por tiempo :/ y aparte en esta sección del enunciado no hacen mención a un "rio completo" sino que a una "unión".
 		- Las ciudades sí cumplen con la condición de esperar a que se complete para que todas las piezas cambien de color.
 	- Se puede retroceder la jugada, pero hay que tener ojo con el plot twist, ya que si tu última ficha cambió de color, ya no puedes revertir esa pieza, sino que reviertes la jugada de la pieza que pusiste antes a esa (la que cambió de color ya no te pertenece)
@@ -21,12 +22,15 @@
 - El cambio más grande en relación a lo estipulado es el siguiente:
 	- Cuando 2 jugadores usan sus piezas para generar una misma ciudad, la ciudad que se va formando mientras no esté completa pertenece solo a uno de los jugadores y es al que puso la primera pieza de la ciudad. Ejemplo:
 	![Image](images/camino_incompleta.png)
+
 	En este caso todas las piezas de ciudad "pertenecen" al Jugador 1 naranjo ya que él puso la primera pieza y hay que considerar eso para el puntaje también. Serían 40 puntos por una ciudad incompleta de 4 piezas para el Jugador 1 y 0 para el Jugador 2. La única forma de que el Jugador 2 recupere su pieza es haciendo plot twist al completar la ciudad:
 	![Image](images/camino_completa.png)
+
 	- La razón para hacer esto es limitar a que los jugadores se "arriesguen" al intentar robarle una ciudad al otro, ya que mientras no la completen, todas las piezas que añadan o junten con esta ciudad, pasarán al puntaje del otro jugador. Aparte coincidía con la forma de modelar el problema, ya que la entidad debía tener esta conexión hacia "atrás" para después ir cambiando los colores :)
-- Además, para el caso de tener más de 2 ciudades conectadas, no estaba muy claro si los 40*n puntos se sumaban a los puntos de tener 2 ciudades conectadas o no. Por lo tanto se definió que al tener más de 2 ciudades conectadas solo se entregn los 40*n puntos, ya que sino sería demasiado puntaje sumado (hace el juego más justo). Ejemplo:
+- Además, para el caso de tener más de 2 ciudades conectadas, no estaba muy claro si los 40xn puntos se sumaban a los puntos de tener 2 ciudades conectadas o no. Por lo tanto se definió que al tener más de 2 ciudades conectadas solo se entregn los 40xn puntos, ya que sino sería demasiado puntaje sumado (hace el juego más justo). Ejemplo:
 ![Image](images/puntos_camino.png)
-Esa combinación solo entregará los 40*3 puntos al Jugador 2, y no los puntos por tener 2 ciudades conectadas, ya que si uno se fija hay 3 combinaciones posibles de 2 ciudades conectadas lo que sumaría muchos puntos usando el mismo camino. Si existiera la regla de grilla, esta se añadiría también a estos 40*3 puntos.
+
+Esa combinación solo entregará los 40x3 puntos al Jugador 2, y no los puntos por tener 2 ciudades conectadas, ya que si uno se fija hay 3 combinaciones posibles de 2 ciudades conectadas lo que sumaría muchos puntos usando el mismo camino. Si existiera la regla de grilla, esta se añadiría también a estos 40*3 puntos.
 - No estaba tan claro en el enunciado si era necesario añadir los puntos de ciudades unidas por river cuando el jugador lograba la snitch dorada, ya que de igual forma el jugador ganará, por lo que estos no se añadieron.
 - A veces se refieren a conectar un rio o camino con "una ciudad" sin especificar si es completa o no, en esta tarea se consideró que no tenia que ser completa para que le dieran los puntos de borde u otro no especificado.
 - El resto funciona tal cual a lo que dice el enunciado.
@@ -36,6 +40,7 @@ Esa combinación solo entregará los 40*3 puntos al Jugador 2, y no los puntos p
 - En las issues habían distintas opiniones sobre el tema pero en esta tarea se consideró que las piezas que visualmente se veían como 2 ciudades separadas, lo eran.
 Ejemplo:
 ![Image](images/supuesto_ciudad.png)
+
 Lo anterior si se considera como una ciudad cerrada y 2 abiertas, ya que en ambas piezas hay 2 ciudades separadas y al juntarlas se crea la ciudad completa.
 - Se asume que no pedirán un hint más de 1 vez por turno (sería mucha ayuda) y además la pieza tiene que estar en la orientación deseada, el hint no va a rotar la pieza.
 
