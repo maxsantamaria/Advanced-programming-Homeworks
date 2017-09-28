@@ -38,7 +38,7 @@ class MetaChess(type):
     def __new__(cls, nombre, base_clases, diccionario):
         def recibir_pieza(func):
             def _recibir_pieza(*args):
-                print(args, "a")
+                func()
                 for arg in args:
                     diccionario["add_piece"](arg)
                 return func
@@ -55,65 +55,68 @@ class MetaChess(type):
 class MetaPiece(type):
     simbolos_piezas_j1 = []
     simbolos_piezas_j2 = []
+
     def __call__(cls, *args, **kwargs):
-        letra = args[0]
+        letra = cls.__name__
         if len(kwargs) == 0:
             jugador = True
         else:
             jugador = False
-        peon_j1 = MetaPiece.simbolos_piezas_j1.count("P")
-        rey_j1 = MetaPiece.simbolos_piezas_j1.count("R")
-        reina_j1 = MetaPiece.simbolos_piezas_j1.count("F")
-        alfil_j1 = MetaPiece.simbolos_piezas_j1.count("A")
-        torre_j1 = MetaPiece.simbolos_piezas_j1.count("T")
-        caballo_j1 = MetaPiece.simbolos_piezas_j1.count("C")
-        peon_j2 = MetaPiece.simbolos_piezas_j2.count("P")
-        rey_j2 = MetaPiece.simbolos_piezas_j2.count("R")
-        reina_j2 = MetaPiece.simbolos_piezas_j2.count("F")
-        alfil_j2 = MetaPiece.simbolos_piezas_j2.count("A")
-        torre_j2 = MetaPiece.simbolos_piezas_j2.count("T")
-        caballo_j2 = MetaPiece.simbolos_piezas_j2.count("C")
+        peon_j1 = MetaPiece.simbolos_piezas_j1.count("Peon")
+        rey_j1 = MetaPiece.simbolos_piezas_j1.count("Rey")
+        reina_j1 = MetaPiece.simbolos_piezas_j1.count("Reina")
+        alfil_j1 = MetaPiece.simbolos_piezas_j1.count("Alfil")
+        torre_j1 = MetaPiece.simbolos_piezas_j1.count("Torre")
+        caballo_j1 = MetaPiece.simbolos_piezas_j1.count("Caballo")
+        peon_j2 = MetaPiece.simbolos_piezas_j2.count("Peon")
+        rey_j2 = MetaPiece.simbolos_piezas_j2.count("Rey")
+        reina_j2 = MetaPiece.simbolos_piezas_j2.count("Reina")
+        alfil_j2 = MetaPiece.simbolos_piezas_j2.count("Alfil")
+        torre_j2 = MetaPiece.simbolos_piezas_j2.count("Torre")
+        caballo_j2 = MetaPiece.simbolos_piezas_j2.count("Caballo")
         if jugador:
-            if letra == "P" and peon_j1 >= 8:
+            if letra == "Peon" and peon_j1 >= 8:
                 return None
-            elif letra == "R" and rey_j1 >= 1:
+            elif letra == "Rey" and rey_j1 >= 1:
                 return None
-            elif letra == "F" and reina_j1 >= 1:
+            elif letra == "Reina" and reina_j1 >= 1:
                 return None
-            elif letra == "A" and alfil_j1 >= 2:
+            elif letra == "Alfil" and alfil_j1 >= 2:
                 return None
-            elif letra == "T" and torre_j1 >= 2:
+            elif letra == "Torre" and torre_j1 >= 2:
                 return None
-            elif letra == "C" and caballo_j1 >= 2:
+            elif letra == "Caballo" and caballo_j1 >= 2:
                 return None
+            MetaPiece.simbolos_piezas_j1.append(letra)
         elif not jugador:
-            if letra == "P" and peon_j2 >= 8:
+            if letra == "Peon" and peon_j2 >= 8:
                 return None
-            elif letra == "R" and rey_j2 >= 1:
+            elif letra == "Rey" and rey_j2 >= 1:
                 return None
-            elif letra == "F" and reina_j2 >= 1:
+            elif letra == "Reina" and reina_j2 >= 1:
                 return None
-            elif letra == "A" and alfil_j2 >= 2:
+            elif letra == "Alfil" and alfil_j2 >= 2:
                 return None
-            elif letra == "T" and torre_j2 >= 2:
+            elif letra == "Torre" and torre_j2 >= 2:
                 return None
-            elif letra == "C" and caballo_j2 >= 2:
+            elif letra == "Caballo" and caballo_j2 >= 2:
                 return None
-        return super.__call__(*args, **kwargs)
+            MetaPiece.simbolos_piezas_j2.append(letra)
+
+        return super().__call__(*args, **kwargs)
 
     def __new__(cls, nombre, base_clases, diccionario):
-        nombre = cls.__name__
-        if nombre == "Peon":
+        name = cls.__name__
+        if name == "Peon":
             diccionario["valid_move"] = peon_valid_move
-        elif nombre == "Caballo":
+        elif name == "Caballo":
             diccionario["valid_move"] = caballo_valid_move
-        elif nombre == "Torre":
+        elif name == "Torre":
             diccionario["valid_move"] = torre_valid_move
-        elif nombre == "Rey":
+        elif name == "Rey":
             diccionario["valid_move"] = rey_valid_move
-        elif nombre == "Alfil":
+        elif name == "Alfil":
             diccionario["valid_move"] = alfil_valid_move
-        elif nombre == "Reina":
+        elif name == "Reina":
             diccionario["valid_move"] = reina_valid_move
-
         return super().__new__(cls, nombre, base_clases, diccionario)
