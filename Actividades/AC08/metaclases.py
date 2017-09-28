@@ -1,31 +1,11 @@
 from functions import *
+from pieces import *
 
 class MetaChess(type):
     def __call__(cls, *args, **kw):
-        simbolos_piezas_j1 = []
-        simbolos_piezas_j2 = []
         for pieza in args:
-            if pieza.allied:
-                simbolos_piezas_j1.append(pieza.letter)
-            else:
-                simbolos_piezas_j2.append(pieza.letter)
-        peon_j1 = simbolos_piezas_j1.count("P")
-        rey_j1 = simbolos_piezas_j1.count("R")
-        reina_j1 = simbolos_piezas_j1.count("F")
-        alfil_j1 = simbolos_piezas_j1.count("A")
-        torre_j1 = simbolos_piezas_j1.count("T")
-        caballo_j1 = simbolos_piezas_j1.count("C")
-        peon_j2 = simbolos_piezas_j2.count("P")
-        rey_j2 = simbolos_piezas_j2.count("R")
-        reina_j2 = simbolos_piezas_j2.count("F")
-        alfil_j2 = simbolos_piezas_j2.count("A")
-        torre_j2 = simbolos_piezas_j2.count("T")
-        caballo_j2 = simbolos_piezas_j2.count("C")
-        if (peon_j1 != 8 or peon_j2 != 8 or rey_j1 != 1 or rey_j2 != 1
-                or reina_j1 != 1 or reina_j2 != 1 or alfil_j1 != 2 or
-                alfil_j2 != 2 or torre_j1 != 2 or torre_j2 != 2 or
-                caballo_j1 != 2 or caballo_j2 != 2):
-            return None
+            if not isinstance(pieza, PiezaAjedrez):
+                return None
 
 
         if not hasattr(cls, "instance"):
@@ -38,7 +18,7 @@ class MetaChess(type):
     def __new__(cls, nombre, base_clases, diccionario):
         def recibir_pieza(func):
             def _recibir_pieza(*args):
-                func()
+                func(*args)
                 for arg in args:
                     diccionario["add_piece"](arg)
                 return func
@@ -48,13 +28,12 @@ class MetaChess(type):
         return super().__new__(cls, nombre, base_clases, diccionario)
 
 
-    def __init__(cls, nombre, base_clases, diccionario):
-        pass
 
 
 class MetaPiece(type):
     simbolos_piezas_j1 = []
     simbolos_piezas_j2 = []
+    ultima_pieza = None
 
     def __call__(cls, *args, **kwargs):
         letra = cls.__name__
@@ -76,34 +55,35 @@ class MetaPiece(type):
         caballo_j2 = MetaPiece.simbolos_piezas_j2.count("Caballo")
         if jugador:
             if letra == "Peon" and peon_j1 >= 8:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Rey" and rey_j1 >= 1:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Reina" and reina_j1 >= 1:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Alfil" and alfil_j1 >= 2:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Torre" and torre_j1 >= 2:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Caballo" and caballo_j1 >= 2:
-                return None
+                return MetaPiece.ultima_pieza
             MetaPiece.simbolos_piezas_j1.append(letra)
         elif not jugador:
             if letra == "Peon" and peon_j2 >= 8:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Rey" and rey_j2 >= 1:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Reina" and reina_j2 >= 1:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Alfil" and alfil_j2 >= 2:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Torre" and torre_j2 >= 2:
-                return None
+                return MetaPiece.ultima_pieza
             elif letra == "Caballo" and caballo_j2 >= 2:
-                return None
+                return MetaPiece.ultima_pieza
             MetaPiece.simbolos_piezas_j2.append(letra)
-
-        return super().__call__(*args, **kwargs)
+        Pieza = super().__call__(*args, **kwargs)
+        MetaPiece.ultima_pieza = Pieza
+        return Pieza
 
     def __new__(cls, nombre, base_clases, diccionario):
         name = cls.__name__
