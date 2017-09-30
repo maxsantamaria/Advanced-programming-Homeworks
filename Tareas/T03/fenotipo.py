@@ -1,6 +1,3 @@
-from reader import *
-
-
 def obtener_genes(personas, tag_buscado):
     genes = (genes for persona in personas
              for tag, genes in persona.caracteristicas.items()
@@ -115,6 +112,7 @@ def determinar_vision(genes):
         pass
     return problemas_vision
 
+
 def determinar_grado_1(args): # namedtuple, list
     persona = args[0]
     resto_personas = args[1]
@@ -131,6 +129,18 @@ def determinar_grado_1(args): # namedtuple, list
     return parientes
 
 
+def determinar_diferencia_guata(guata1, guata2):
+    grados = ["modelo", "atleta", "dieta", "guaton"]
+    grado1 = grados.index(guata1)
+    grado2 = grados.index(guata2)
+    diferencia = abs(grado1 - grado2)
+    if diferencia <= 1:
+        return True
+    else:
+        return False
+
+
+
 def determinar_grado_n(args):
     persona = args[0]
     resto_personas = args[1]
@@ -138,7 +148,7 @@ def determinar_grado_n(args):
                  if abs(persona.altura - pariente.altura) <= 0.7 and
                  persona.piel == pariente.piel and
                  abs(persona.pie - pariente.pie) <= 6 and
-                 persona.guata == pariente.guata]
+                 determinar_diferencia_guata(persona.guata, pariente.guata)]
     return parientes
 
 
@@ -194,71 +204,3 @@ parser_tag_caract = {"AAG": "Altura",
                      "CGA": "Donde hay vello corporal",
                      "TGG": "Tamaño de la guata",
                      "TAG": "Problemas de visión"}
-
-
-deterministas = ("GTC", "GGA", "GTA")
-
-ojos = map(determinar_ojos, obtener_genes(personas, "GTC"))
-pelos = map(determinar_pelo, obtener_genes(personas, "GGA"))
-narices = map(determinar_nariz, obtener_genes(personas, "GTA"))
-
-alturas = map(determinar_altura, obtener_genes(personas, "AAG"))
-pies = map(determinar_pies, obtener_genes(personas, "CTC"))
-pieles = map(determinar_piel, obtener_genes(personas, "TCT"))
-guatas = map(determinar_guata, obtener_genes(personas, "TGG"))
-
-vellos = map(determinar_vello, obtener_genes(personas, "CGA"))
-visiones = map(determinar_vision, obtener_genes(personas, "TAG"))
-
-Persona_con_fenotipo = namedtuple("Persona", ["nombre", "apellido", "genoma",
-                                              "caracteristicas", "ojo", "pelo",
-                                              "nariz", "altura", "pie", "piel",
-                                              "guata", "vello", "vision"])
-
-#for args in zip(personas, ojos, pelos, narices, alturas, pies, pieles,
-#                guatas, vellos, visiones):
-    # ojo, pelo, nariz, altura, pie, piel, guata, vello, vision
-    #print(args)
-
-personas = [Persona_con_fenotipo(args[0].nombre, args[0].apellido,
-                                 args[0].genoma, args[0].caracteristicas,
-                                 *args[1:])
-            for args in zip(personas, ojos, pelos, narices, alturas, pies,
-                            pieles, guatas, vellos, visiones)]
-
-print("\nGrado 0")
-parientes_grado_1 = map(determinar_grado_1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado_1 = [parientes for lista in parientes_grado_1 for parientes in lista]
-for parientes in parientes_grado_1:
-    print(parientes)
-
-print("\nGrado n")
-parientes_gradon = map(determinar_grado_n, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_gradon = [parientes for lista in parientes_gradon for parientes in lista]
-for parientes in parientes_gradon:
-    print(parientes[0].nombre, parientes[1].nombre)
-
-print("\nGrado 0")
-parientes_grado0 = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado0 = [parientes for lista in parientes_grado0 for parientes in lista]
-for parientes in parientes_grado0:
-    print(parientes[0].nombre, parientes[1].nombre)
-
-print("\nGrado 1")
-parientes_grado1 = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado1 = [parientes for lista in parientes_grado1 for parientes in lista]
-for parientes in parientes_grado1:
-    print(parientes[0].nombre, parientes[1].nombre)
-
-print("\nGrado 2")
-parientes_grado2 = map(determinar_grado2, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado2 = [parientes for lista in parientes_grado2 for parientes in lista]
-for parientes in parientes_grado2:
-    print(parientes[0].nombre, parientes[1].nombre)
-
-#for persona in personas:  # para PRUEBAS
-#    if persona.nombre == "El" or persona.nombre == "Nicolás" or persona.nombre == "Rick":
-#        print(persona.nombre, persona.vision, persona.ojo, persona.pelo, persona.nariz, persona.piel, persona.pie, persona.altura)
-
-#parientes_grado_1 = map(determinar_grado_1, (persona for persona in personas), (pariente for pariente in personas))
-
