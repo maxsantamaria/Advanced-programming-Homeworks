@@ -91,7 +91,7 @@ class Person:
         self.pos_actual += dist
 
     def __repr__(self):
-        imprime = "Persona" + self.sex + str(self.id)
+        imprime = "Persona " + self.sex + " " + str(self.id)
         return imprime
 
 
@@ -125,19 +125,21 @@ class Zoo:
     def proxima_persona_escapa(self): # retorna una tupla
         for persona in self.personas:
             persona.tiempo_en_escapar()
-        print(self.personas)
+
         persona_cercana_a_escapar = sorted(self.personas,
                                            key=lambda x: x.tiempo_safe
                                            )[0]
 
 
-        return (persona_cercana_a_escapar, persona_cercana_a_escapar.tiempo_en_escapar)
+        return (persona_cercana_a_escapar, persona_cercana_a_escapar.tiempo_safe)
 
     def proximo_evento(self):
+        #print(self.personas, len(self.personas))
         tiempo1 = self.proximo_animal_aparece()
 
         tiempo2 = self.proximo_animal_ataca()
         tiempo3 = self.proxima_persona_escapa()
+        #print(tiempo3)
 
         tiempos2 = [tiempo1,
                    tiempo2,
@@ -149,7 +151,7 @@ class Zoo:
         tiempos = [tiempos2[0],
                    tiempos2[1][1],
                    tiempos2[2][1]]
-        print(tiempos)
+        #print(tiempos)
         tiempo_prox_evento = min(tiempos)
         if tiempo_prox_evento >= self.tiempo_maximo:
             print("fin")
@@ -182,9 +184,9 @@ class Zoo:
                           if animal.puede_atacar(persona)]
         for persona in personas_rango:
             ataca = randint(0, 101)
-            if persona.sexo == "F":
+            if persona.sex == "F":
                 prob_ataque = animal.prob_ataque * persona.B * 100
-            elif persona.sexo == "M":
+            elif persona.sex == "M":
                 prob_ataque = animal.prob_ataque * persona.B * 100 * \
                               randint(1, 3)
             if ataca <= prob_ataque:  # ataca
@@ -209,7 +211,7 @@ class Zoo:
 
     def persona_escapa(self, persona):
         self.tiempo_actual += persona.tiempo_safe
-        print("[SAFE]: Persona de sexo", persona.sexo, "se salvo.")
+        print("[SAFE]: Persona de sexo", persona.sex, "se salvo.")
         self.personas.remove(persona)
 
     def avance_personas(self, tiempo_anterior):
@@ -219,7 +221,8 @@ class Zoo:
             persona.move(distancia)
 
     def run(self):
-        while self.tiempo_actual <= self.tiempo_maximo or len(self.personas) == 0:
+        while self.tiempo_actual <= self.tiempo_maximo and len(self.personas) > 0:
+
             tiempo_anterior = self.tiempo_actual  # auxiliar
             objeto, evento = self.proximo_evento()
             if evento == "fin":
