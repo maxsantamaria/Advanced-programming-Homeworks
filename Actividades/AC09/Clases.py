@@ -83,6 +83,7 @@ class Person:
 
     def tiempo_en_escapar(self):
         self.tiempo_safe = (100 - self.pos_actual) / self.velocity
+        
         return self.tiempo_safe
 
 
@@ -151,7 +152,7 @@ class Zoo:
         tiempos = [tiempos2[0],
                    tiempos2[1][1],
                    tiempos2[2][1]]
-        #print(tiempos)
+
         tiempo_prox_evento = min(tiempos)
         if tiempo_prox_evento >= self.tiempo_maximo:
             print("fin")
@@ -179,7 +180,7 @@ class Zoo:
         self.animales.append(nuevo_animal)
 
     def animal_ataca(self, animal):
-        self.tiempo_actual += animal.siguiente_ataque
+        self.tiempo_actual = animal.siguiente_ataque
         personas_rango = [persona for persona in self.personas
                           if animal.puede_atacar(persona)]
         for persona in personas_rango:
