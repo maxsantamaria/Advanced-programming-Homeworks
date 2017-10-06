@@ -1,30 +1,88 @@
-from principal import (parientes_grado_1, parientes_grado0, parientes_grado1,
-                       parientes_grado2, parientes_gradon, personas)
+from principal import *
 from math import sqrt
-from functools import reduce
+from functools import reduce, wraps
+from itertools import count
 from collections import *
-import json
+from excepciones import *
+from inspect import signature
+
+# Decoradores
+def param_correctos(func):
+    @wraps(func)  # para que no le cambie el nombre
+    def _param_correctos(*args):
+        cantidad_requerida = len(signature(func).parameters)
+        if cantidad_requerida != len(args):
+            raise NotFound
+        parametros = map(parametro_correcto, args, signature(func).parameters)
+        # ese map revisa que el parametro sea correcto y que este en el orden
+        # correspondiente a la funcion
+        if False in parametros:
+            raise NotFound
+        return func(*args)
+    return _param_correctos
 
 
+def parametro_correcto(parametro_entregado, parametro_funcion):
+    # parametro puede ser persona, grado o caracteristica
+    grados = ["-1", "0", "1", "2", "n"]
+    nombres = (persona.nombre for persona in personas)
+    tags = ["AAG", "GTC", "GGA", "TCT", "GTA", "CTC", "CGA", "TGG", "TAG"]
+    if parametro_funcion == "grado":
+        if parametro_entregado not in grados:
+            return False
+    elif parametro_funcion == "persona":
+        if parametro_entregado not in nombres:
+            return False
+    else:
+        if parametro_entregado not in tags:
+            return False
+    #if parametro not in grados and parametro not in nombres and parametro not in tags:
+    #    return False
+    return True
+
+# Fin decoradores
+
+
+
+def obtener_parientes(grado):
+    if grado == "-1":
+        parientes = map(determinar_grado_1, (
+        (persona, filter(lambda x: x != persona, personas)) for persona in
+        personas))
+    elif grado == "0":
+        parientes = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+    elif grado == "1":
+        parientes = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+    elif grado == "2":
+        parientes = map(determinar_grado2, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+    elif grado == "n":
+        parientes = map(determinar_grado_n, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+    parientes = (parientes for iterador in parientes for parientes in iterador)
+    return parientes
+
+
+@param_correctos
 def pariente_de(grado, persona):
+    conjunto_parientes = obtener_parientes(grado)
     if grado == "-1":
         respuesta = tuple(parientes[1].nombre for parientes in
-                          parientes_grado_1 if parientes[0].nombre == persona)
+                          conjunto_parientes if parientes[0].nombre == persona)
     elif grado == "0":
         respuesta = tuple(parientes[1].nombre for parientes in
-                          parientes_grado0 if parientes[0].nombre == persona)
+                          conjunto_parientes if parientes[0].nombre == persona)
     elif grado == "1":
         respuesta = tuple(parientes[1].nombre for parientes in
-                          parientes_grado1 if parientes[0].nombre == persona)
+                          conjunto_parientes if parientes[0].nombre == persona)
     elif grado == "2":
         respuesta = tuple(parientes[1].nombre for parientes in
-                          parientes_grado2 if parientes[0].nombre == persona)
+                          conjunto_parientes if parientes[0].nombre == persona)
     elif grado == "n":
         respuesta = tuple(parientes[1].nombre for parientes in
-                          parientes_gradon if parientes[0].nombre == persona)
+                          conjunto_parientes if parientes[0].nombre == persona)
     return respuesta
 
 
+@param_correctos
 def ascendencia(persona):
     ascendencias = []
     #persona = list(perse for perse in personas if perse.nombre == persona)
@@ -44,6 +102,7 @@ def ascendencia(persona):
     return ascendencias
 
 
+@param_correctos
 def índice_de_tamaño(persona):
     personaa = filter(lambda x: x.nombre == persona, personas)
     persona = next(personaa)
@@ -70,10 +129,14 @@ def contador_por_caract(persona, otra_persona, caracteristica):
     genes_persona = Counter(persona.caracteristicas[caracteristica])
     genes_otra_persona = Counter(otra_persona.caracteristicas[caracteristica])
     contador_por_gen = (min(cantidad, genes_otra_persona[tag]) for tag, cantidad in genes_persona.items())
-    contador = reduce(lambda x, y: x + y, contador_por_gen)
+    try:
+        contador = reduce(lambda x, y: x + y, contador_por_gen)
+    except TypeError:
+        return 0
     return contador
 
 
+@param_correctos
 def gemelo_genético(persona):
     personaa = filter(lambda x: x.nombre == persona, personas)
     persona = next(personaa)
@@ -89,6 +152,7 @@ def gemelo_genético(persona):
     return nombre_gemelo
 
 
+@param_correctos
 def valor_característica(tag_identificador, persona):
     personaa = filter(lambda x: x.nombre == persona, personas)
     persona = next(personaa)
@@ -100,6 +164,7 @@ def valor_característica(tag_identificador, persona):
     return caracteristicas[indice]
 
 
+@param_correctos
 def min2(tag_caracteristica):
     if tag_caracteristica == "GTC" or tag_caracteristica == "GGA" \
             or tag_caracteristica == "TCT" or tag_caracteristica == "GTA":
@@ -112,6 +177,7 @@ def min2(tag_caracteristica):
         print("Esta caracteristica no es valida para esta consulta")
 
 
+@param_correctos
 def max2(tag_caracteristica):
     if tag_caracteristica == "GTC" or tag_caracteristica == "GGA" \
             or tag_caracteristica == "TCT" or tag_caracteristica == "GTA":
@@ -152,6 +218,7 @@ def caso2(tag_caracteristica, tipo):
         return max(frecuencias_particular)
 
 
+@param_correctos
 def prom(tag_caracteristica):
     if tag_caracteristica == "AAG" or tag_caracteristica == "CTC":
         tags = ["AAG", "GTC", "GGA", "TCT", "GTA", "CTC", "CGA", "TGG", "TAG"]
@@ -163,12 +230,18 @@ def prom(tag_caracteristica):
         return promedio
 
 
-print(pariente_de("2", "Stephanie Chau"))
+def num_consultas():
+    # se usará en main para llevar el conteo de las consultas
+    for i in count(1):
+        yield i
 
-print(ascendencia("Stephanie Chau"))
-print(ascendencia("Felipe Dominguez"))
-print(ascendencia("Rick Sánchez"))
-print(ascendencia("fringles inthestreet"))
+
+numeros = num_consultas()
+
+#print(pariente_de("2", "Stephanie Chau"))
+#print(pariente_de("0", "Hernán Valdivieso"))
+
+
 print("ASCENDENCIAS")
 for persona in personas:
     print(persona.nombre, ascendencia(persona.nombre))
@@ -184,7 +257,7 @@ print("")
 #listaa = set(lista) & set(lista2)
 #print(Counter(lista))
 
-print(gemelo_genético("Jesús De Nazaret"))
+#print(gemelo_genético("Jesús De Nazaret"))
 
 print(valor_característica("TGG", "Stephanie Chau"))
 print(min2("TCT"))
@@ -201,6 +274,7 @@ lista_consultas = [ascendencia, índice_de_tamaño, pariente_de, gemelo_genétic
 
 gen = (i for i in range(10))
 
-lista = [3, 2, 5]
-a = sorted(gen, key=lambda elem: elem)
-print(a)
+
+print(gemelo_genético("Nebil Kawas"))
+print(valor_característica("TAG", "Rick Sánchez"))
+

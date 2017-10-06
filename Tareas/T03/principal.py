@@ -1,5 +1,8 @@
 from reader import *
 from fenotipo import *
+from functools import reduce
+from itertools import groupby
+import sys
 
 
 parser1 = lambda line: line.strip().split(";")
@@ -21,23 +24,27 @@ with open("genomas.txt", "r", encoding="utf-8") as file1:
         apellido, lim_superior = obtener_nombre(line)
         nombre = nombre + " " + apellido
         line = line[lim_superior:]
-        letras = [char for char in line if char.isalpha()]
-        tags = "".join(letras[:9*3])
-        #print(tags)
+        letras = reduce(lambda x, y: x + y, (char for char in line if char.isalpha()))
+        #print("Tamaño", sys.getsizeof(letras))
+        tags = letras[:9*3]
         tags = [tags[i: i + 3] for i in range(len(tags)) if i % 3 == 0]
         #print(tags)
-        #caracteristicas = obtener_caracteristicas(line)
-        caracteristicas2 = obtener_caracteristicas_rec(line)
-        #print(caracteristicas)
+        #caracteristicas2 = obtener_caracteristicas_rec(line)
+        caracteristicas2 = obtener_caracteristicas(line)
         #print(caracteristicas2, "\n")
-        genoma = obtener_genoma(letras)
+        #print("empieza")
+        genoma = obtener_genoma(letras[9*3:])
+        #print("Tamaño", sys.getsizeof(genoma))
+        #print(genoma)
         #caracteristicas = {caracteristica:
         #                       conectar_genoma_listas(id, genoma, listas)
         #                   for caracteristica, id in caracteristicas.items()}
-        caracteristicas = {tupla[0]: conectar_genoma_listas(tupla[1], genoma, listas) for tupla in zip(tags, caracteristicas2)}
+        caracteristicas = {tupla[0]: conectar_genoma_listas(tupla[1], obtener_genoma(letras[9*3:]), listas) for tupla in zip(tags, caracteristicas2)}
+        #print("Tamaño", sys.getsizeof(caracteristicas))
         #print(caracteristicas, "a")
         #print(caracteristicas2, "b")
-        personas.append(Persona(nombre, apellido, genoma, caracteristicas))
+        personas.append(Persona(nombre, apellido, "", caracteristicas))
+        #print("termina")
 
 #print(personas)
 
@@ -97,35 +104,36 @@ personas = [Persona_con_fenotipo(args[0].nombre, args[0].apellido,
             for args in zip(personas, alturas, ojos, pelos, pieles, narices,
                             pies, vellos, guatas, visiones)]
 
-print("\nGrado -1")
+#print("\nGrado -1")
 parientes_grado_1 = map(determinar_grado_1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado_1 = [parientes for lista in parientes_grado_1 for parientes in lista]
-for parientes in parientes_grado_1:
-    print(parientes)
+#parientes_grado_1 = [parientes for lista in parientes_grado_1 for parientes in lista]
+#for parientes in parientes_grado_1:
+#    print(parientes)
 
-print("\nGrado n")
+#print("\nGrado n")
 parientes_gradon = map(determinar_grado_n, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_gradon = [parientes for lista in parientes_gradon for parientes in lista]
-for parientes in parientes_gradon:
-    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_gradon = [parientes for lista in parientes_gradon for parientes in lista]
+#for parientes in parientes_gradon:
+#    print(parientes[0].nombre, parientes[1].nombre)
 
-print("\nGrado 0")
+#print("\nGrado 0")
 parientes_grado0 = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado0 = [parientes for lista in parientes_grado0 for parientes in lista]
-for parientes in parientes_grado0:
-    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_grado0 = [parientes for lista in parientes_grado0 for parientes in lista]
 
-print("\nGrado 1")
+#for parientes in parientes_grado0:
+#    print(parientes[0].nombre, parientes[1].nombre)
+
+#print("\nGrado 1")
 parientes_grado1 = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado1 = [parientes for lista in parientes_grado1 for parientes in lista]
-for parientes in parientes_grado1:
-    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_grado1 = [parientes for lista in parientes_grado1 for parientes in lista]
+#for parientes in parientes_grado1:
+#    print(parientes[0].nombre, parientes[1].nombre)
 
-print("\nGrado 2")
+#print("\nGrado 2")
 parientes_grado2 = map(determinar_grado2, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-parientes_grado2 = [parientes for lista in parientes_grado2 for parientes in lista]
-for parientes in parientes_grado2:
-    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_grado2 = [parientes for lista in parientes_grado2 for parientes in lista]
+#for parientes in parientes_grado2:
+#    print(parientes[0].nombre, parientes[1].nombre)
 
 
 Persona_con_pariente = namedtuple("Persona", ["nombre", "apellido", "genoma",
@@ -137,5 +145,10 @@ Persona_con_pariente = namedtuple("Persona", ["nombre", "apellido", "genoma",
 
 
 
+a = ["".join(x) for _, x in groupby("dfsd98sd8f68as7df56", key=str.isdigit) if _ == True]
+print(a)
+for elem in groupby("hola2chao3", key=str.isdigit):
+    print("".join(elem[1]))
 
 
+#print("TAMAÑOOOO", sys.getsizeof(personas))

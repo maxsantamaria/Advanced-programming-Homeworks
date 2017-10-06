@@ -1,5 +1,5 @@
 from collections import namedtuple
-
+from itertools import groupby
 
 def obtener_nombre(linea):
     linea = linea.strip()
@@ -16,13 +16,9 @@ def obtener_nombre(linea):
 
 
 def obtener_caracteristicas(line):
-    caracteristicas = {line[i - 3:i]: line[i] for i in range(len(line))
-                       if line[i].isnumeric() and line[i + 1].isalpha()
-                       and line[i - 1].isalpha()}
-    # caracteristicas: dict key = Tag, value = id_lista
-    ids2 = {line[i - 3:i]: line[i:i + 2] for i in range(len(line))
-            if line[i].isnumeric() and line[i + 1].isnumeric()}
-    caracteristicas.update(ids2)
+    caracteristicas = ("".join(x) for numero, x in
+                       groupby(line, key=str.isdigit) if numero)
+    # numero es un booleano que dice si el elemento es o no un numero
     return caracteristicas
 
 
@@ -48,13 +44,23 @@ def obtener_caracteristicas_rec(line):
 
 
 def obtener_genoma(letras):
-    genoma = "".join(letras[9 * 3:])
-    genoma = [genoma[i - 3: i] for i in range(len(genoma)) if
-              i % 3 == 0 and i != 0]
+    #genoma = "".join(letras[9 * 3:])
+    #genomaa = letras[9 * 3:]
+    genoma = (letras[i - 3: i] for i in range(len(letras)) if
+              i % 3 == 0 and i != 0)
     return genoma
 
 
 def conectar_genoma_listas(id, genoma, listas):
     subindices = listas[id]
-    genes = [genoma[i] for i in range(len(genoma)) if str(i) in subindices]
+    #genes = [genoma[i] for i in range(len(genoma)) if str(i) in subindices]
+    genes = [gen for i, gen in enumerate(genoma) if str(i) in subindices]
+    return genes
+
+
+def conectar_genoma_listas2(id, genoma, listas):
+    # genoma es un string con todas las letras
+    subindices = listas[id]
+    #genes = [genoma[i] for i in range(len(genoma)) if str(i) in subindices]
+    genes = [genoma[i: i + 3] for i in range(0, len(genoma), 3) if str(i//3) in subindices]
     return genes

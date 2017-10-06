@@ -140,7 +140,6 @@ def determinar_diferencia_guata(guata1, guata2):
         return False
 
 
-
 def determinar_grado_n(args):
     persona = args[0]
     resto_personas = args[1]

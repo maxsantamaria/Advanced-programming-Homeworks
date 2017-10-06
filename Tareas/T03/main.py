@@ -2,6 +2,7 @@ from gui.Gui import MyWindow
 from PyQt5 import QtWidgets
 import sys
 import consultas
+from excepciones import *
 
 
 # DECORADORES
@@ -29,12 +30,13 @@ class T03Window(MyWindow):
     def process_query(self, query_array):
         # Agrega en pantalla la solucion. Muestra los graficos!!
         print(query_array)
-        for num_consulta, query in enumerate(query_array):
+        for query in query_array:
             print(query)
+            num_consulta = next(consultas.numeros)
             funcion = query[0]
             args = query[1:]
             respuesta = self.llamar_funcion(funcion, *args)
-            text = ("Probando funcion\nConsulta " + str(num_consulta + 1) +
+            text = ("Probando funcion\nConsulta " + str(num_consulta) +
                     "\n" + str(respuesta) + "\n")
             self.add_answer(text)
 
@@ -42,20 +44,24 @@ class T03Window(MyWindow):
     @modificar_nombre_funcion
     def llamar_funcion(self, funcion, *args):
         consulta_deseada = filter(lambda x: x.__name__ == funcion, consultas.lista_consultas)
-        funcion = next(consulta_deseada)
-        args = [str(arg) for arg in args]
-        respuesta = funcion(*args)
-        #if funcion == "pariente_de":
-        #    respuesta = consultas.pariente_de(str(args[0]), args[1])
-        #    return respuesta
-        #elif funcion == "ascendencia":
-        #    pass
+        try:
+            funcion = control_badrequest(consulta_deseada, args)
+            args = [str(arg) for arg in args]
+            respuesta = funcion(*args)
+            determinar_notacceptable(respuesta)
+        except NotFound as err1:
+            return err1
+        except NotAcceptable as err2:
+            return err2
+        except BadRequest as err3:
+            return err3
         return respuesta
 
 
     def save_file(self, query_array):
         # Crea un archivo con la solucion. NO muestra los graficos!!
         print(query_array)
+
 
 
 if __name__ == '__main__':
