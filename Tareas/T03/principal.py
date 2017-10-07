@@ -3,6 +3,7 @@ from fenotipo import *
 from functools import reduce
 from itertools import groupby
 import sys
+import time
 
 
 parser1 = lambda line: line.strip().split(";")
@@ -16,38 +17,50 @@ Persona = namedtuple("Persona", ["nombre", "apellido",
 # apellido: str
 # genoma: lista de genes
 # caracteristicas: list of dict key = Tag caracteristica, value = lista_genes
+
+def procesar_linea(line):
+    line.strip()
+    nombre, lim_superior = obtener_nombre(line)
+    line = line[lim_superior:]
+    apellido, lim_superior = obtener_nombre(line)
+    nombre = nombre + " " + apellido
+    line = line[lim_superior:]
+    #letras = reduce(lambda x, y: x + y,
+    #                (char for char in line if char.isalpha()))
+    #tags = letras[:9 * 3]
+    #tags = [tags[i: i + 3] for i in range(len(tags)) if i % 3 == 0]
+    caracteristicas2 = obtener_caracteristicas(line)
+    #print(list(caracteristicas2))
+    ultimo_numero = line.rfind(caracteristicas2[-1])
+    parte_caracteristicas = line[:ultimo_numero + len(caracteristicas2[-1])]
+    tags = ["".join(x) for letra, x in
+            groupby(parte_caracteristicas, key=str.isalpha) if letra]
+
+    # parte genoma:
+    line = line[ultimo_numero + len(caracteristicas2[-1]):]
+
+    #caracteristicas = {tupla[0]: conectar_genoma_listas(tupla[1],
+    #                                                    obtener_genoma
+    #                                                    (line),
+    #                                                    listas)
+    #                   for tupla in zip(tags, caracteristicas2)}
+
+    caracteristicas = {tupla[0]: conectar_genoma_listas2(tupla[1],
+                                                        line,
+                                                        listas)
+                       for tupla in zip(tags, caracteristicas2)}
+    return Persona(nombre, apellido, "", caracteristicas)
+
 with open("genomas.txt", "r", encoding="utf-8") as file1:
-    personas = []
-    for line in file1:
-        nombre, lim_superior = obtener_nombre(line)
-        line = line[lim_superior:]
-        apellido, lim_superior = obtener_nombre(line)
-        nombre = nombre + " " + apellido
-        line = line[lim_superior:]
-        letras = reduce(lambda x, y: x + y, (char for char in line if char.isalpha()))
-        #print("Tamaño", sys.getsizeof(letras))
-        tags = letras[:9*3]
-        tags = [tags[i: i + 3] for i in range(len(tags)) if i % 3 == 0]
-        #print(tags)
-        #caracteristicas2 = obtener_caracteristicas_rec(line)
-        caracteristicas2 = obtener_caracteristicas(line)
-        #print(caracteristicas2, "\n")
-        #print("empieza")
-        genoma = obtener_genoma(letras[9*3:])
-        #print("Tamaño", sys.getsizeof(genoma))
-        #print(genoma)
-        #caracteristicas = {caracteristica:
-        #                       conectar_genoma_listas(id, genoma, listas)
-        #                   for caracteristica, id in caracteristicas.items()}
-        caracteristicas = {tupla[0]: conectar_genoma_listas(tupla[1], obtener_genoma(letras[9*3:]), listas) for tupla in zip(tags, caracteristicas2)}
-        #print("Tamaño", sys.getsizeof(caracteristicas))
-        #print(caracteristicas, "a")
-        #print(caracteristicas2, "b")
-        personas.append(Persona(nombre, apellido, "", caracteristicas))
-        #print("termina")
+    print("empieza")
+    tiempo_empieza = time.time()
+    personas = list(map(procesar_linea, (line for line in file1)))
+    for linea in file1:
+        pass
+    print("termina", time.time() - tiempo_empieza)
 
-#print(personas)
-
+print(personas)
+#raise TypeError
 
 #conectar_genoma_listas(personas[1], listas)
 #print(personas[0].caracteristicas)
@@ -150,5 +163,6 @@ print(a)
 for elem in groupby("hola2chao3", key=str.isdigit):
     print("".join(elem[1]))
 
-
+for persona in personas:
+    print(persona)
 #print("TAMAÑOOOO", sys.getsizeof(personas))

@@ -1,5 +1,6 @@
-from collections import namedtuple
+from collections import namedtuple, Counter
 from itertools import groupby
+import sys
 
 def obtener_nombre(linea):
     linea = linea.strip()
@@ -16,8 +17,8 @@ def obtener_nombre(linea):
 
 
 def obtener_caracteristicas(line):
-    caracteristicas = ("".join(x) for numero, x in
-                       groupby(line, key=str.isdigit) if numero)
+    caracteristicas = ["".join(x) for numero, x in
+                       groupby(line, key=str.isdigit) if numero]
     # numero es un booleano que dice si el elemento es o no un numero
     return caracteristicas
 
@@ -54,7 +55,8 @@ def obtener_genoma(letras):
 def conectar_genoma_listas(id, genoma, listas):
     subindices = listas[id]
     #genes = [genoma[i] for i in range(len(genoma)) if str(i) in subindices]
-    genes = [gen for i, gen in enumerate(genoma) if str(i) in subindices]
+    genes = (gen for i, gen in enumerate(genoma) if str(i) in subindices)  # cambiar a GENERADOR
+    counter_genes = Counter(genes)
     return genes
 
 
@@ -62,5 +64,6 @@ def conectar_genoma_listas2(id, genoma, listas):
     # genoma es un string con todas las letras
     subindices = listas[id]
     #genes = [genoma[i] for i in range(len(genoma)) if str(i) in subindices]
-    genes = [genoma[i: i + 3] for i in range(0, len(genoma), 3) if str(i//3) in subindices]
+    genes = [genoma[int(i)*3: int(i)*3 + 3] for i in subindices if i != ""]
+    counter_genes = Counter(genes)
     return genes
