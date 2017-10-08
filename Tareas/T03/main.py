@@ -31,17 +31,17 @@ class T03Window(MyWindow):
     def process_query(self, query_array):
         # Agrega en pantalla la solucion. Muestra los graficos!!
         for query in query_array:
-            tiempo_inicio = time.time()
+            # tiempo_inicio = time.time()
             num_consulta = next(consultas.numeros)
             funcion = query[0]
             args = query[1:]
             respuesta = llamar_funcion(funcion, *args)
             if isinstance(respuesta, tuple) or isinstance(respuesta, list):
                 respuesta = "\n".join(respuesta)
-            text = ("-" * 20 + "Consulta " + str(num_consulta) + "-" * 20  +
+            text = ("-"*20 + "Consulta " + str(num_consulta) + "-"*20 +
                     "\n" + str(respuesta) + "\n")
             self.add_answer(text)
-            print("TIEMPO: ", time.time() - tiempo_inicio)
+            # print("TIEMPO: ", time.time() - tiempo_inicio)
 
     def save_file(self, query_array):
         # Crea un archivo con la solucion. NO muestra los graficos!!
@@ -61,8 +61,8 @@ class T03Window(MyWindow):
 
 @modificar_nombre_funcion
 def llamar_funcion(funcion, *args):
-    print(funcion)
-    consulta_deseada = filter(lambda x: x.__name__ == funcion, consultas.lista_consultas)
+    consulta_deseada = filter(lambda x: x.__name__ == funcion,
+                              consultas.lista_consultas)
     try:
         funcion = control_badrequest(consulta_deseada, args)
         args = [str(arg) for arg in args]
@@ -75,7 +75,6 @@ def llamar_funcion(funcion, *args):
     except BadRequest as err3:
         return err3
     return respuesta
-
 
 
 if __name__ == '__main__':

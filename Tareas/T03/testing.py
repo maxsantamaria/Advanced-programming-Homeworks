@@ -42,7 +42,6 @@ class TestExcepciones(unittest.TestCase):
         self.archivo_genomas1.close()
 
 
-
 class TestConsultas(unittest.TestCase):
     def setUp(self):
         self.archivo_genomas2 = open("testing/genomas_correcto.txt", "r",
@@ -56,7 +55,8 @@ class TestConsultas(unittest.TestCase):
                          tuple(["fringles inthestreet"]))
 
     def test_ascendencia(self):
-        self.assertEqual(consultas.ascendencia("Nicolás Balbontin"), ["albina"])
+        self.assertEqual(consultas.ascendencia("Nicolás Balbontin"),
+                         ["albina"])
 
     def test_indice_tamaño(self):
         self.assertEqual(consultas.índice_de_tamaño("Stephanie Chau"),
@@ -67,8 +67,8 @@ class TestConsultas(unittest.TestCase):
                          "Nicolás Balbontin")
 
     def test_valor_caracteristica(self):
-        #self.assertEqual(consultas.gemelo_genético("Felipe Dominguez"),
-        #                 "Nicolás Balbontin")
+        self.assertEqual(consultas.gemelo_genético("Felipe Dominguez"),
+                         "Nicolás Balbontin")
         self.assertEqual(consultas.valor_característica("GTA",
                                                         "Sterling Archer"),
                          "aguileña")

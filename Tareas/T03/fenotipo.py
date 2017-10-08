@@ -5,6 +5,7 @@ from functools import reduce
 from itertools import groupby
 import sys
 import time
+from collections import namedtuple
 
 
 # Decoradores
@@ -38,7 +39,8 @@ def obtener_genes(persons, tag_buscado):
 @determinar_errores_genoma
 def determinar_ojos(genes):
     # old genes: list de genes (3 letras cada uno) de una caracteristica
-    # new genes: dicc con key = Triplete, value = Cantidad que aparece en genoma
+    # new genes: dicc con key = Triplete, value = Cantidad que aparece
+    # en genoma
     if "CCT" in genes.keys():
         return "cafes"
     elif "AAT" in genes.keys():
@@ -71,9 +73,6 @@ def determinar_nariz(genes):
 
 @determinar_errores_genoma
 def determinar_altura(genes):
-    # genes: list de genes (3 letras cada uno) de una caracteristica
-    #alta = genes.count("AGT")
-    #baja = genes.count("ACT")
     alta = genes["AGT"]
     baja = genes["ACT"]
     porcentaje = alta / (alta + baja)
@@ -155,7 +154,7 @@ def determinar_vision(genes):
     return problemas_vision
 
 
-def determinar_grado_1(args): # namedtuple, list
+def determinar_grado_1(args):  # namedtuple, list
     persona = args[0]
     resto_personas = args[1]
     control_error_grado0()
@@ -296,33 +295,11 @@ def control_error_gradon():
             or None in pieles:
         raise GenomeError
 
-parser_tag_caract = {"AAG": "Altura",
-                     "GTC": "Color de ojos",
-                     "GGA": "Color de pelo",
-                     "TCT": "Tono de piel",
-                     "GTA": "Forma de la nariz",
-                     "CTC": "Tamaño de los pies",
-                     "CGA": "Donde hay vello corporal",
-                     "TGG": "Tamaño de la guata",
-                     "TAG": "Problemas de visión"}
-
-
-parser1 = lambda line: line.strip().split(";")
-parser2 = lambda string: string.strip().split(",")
-with open("listas.txt", "r", encoding="utf-8") as file2:
-    listas = {parser1(linea)[0]: parser2(parser1(linea)[1]) for linea in file2}
-
-Persona = namedtuple("Persona", ["nombre", "apellido",
-                                 "genoma", "caracteristicas"])
-# nombre: str
-# apellido: str
-# genoma: lista de genes
-# caracteristicas: list of dict key = Tag caracteristica, value = lista_genes
 
 def abrir_genomas(archivo):
     personas = list(map(procesar_linea, (line for line in archivo)))
     ojos, pelos, narices, alturas,\
-    pies, pieles, guatas, vellos, visiones = determinar_fenotipos(personas)
+        pies, pieles, guatas, vellos, visiones = determinar_fenotipos(personas)
     Persona_con_fenotipo = namedtuple("Persona",
                                       ["nombre", "apellido", "genoma",
                                        "caracteristicas", "altura",
@@ -350,7 +327,8 @@ def determinar_fenotipos(personas):
     vellos = map(determinar_vello, obtener_genes(personas, "CGA"))
     visiones = map(determinar_vision, obtener_genes(personas, "TAG"))
     return ojos, pelos, narices, alturas, pies, pieles, guatas, vellos, \
-           visiones
+        visiones
+
 
 def procesar_linea(line):
     line.strip()
@@ -368,35 +346,12 @@ def procesar_linea(line):
 
     # parte genoma:
     line = line[ultimo_numero + len(caracteristicas2[-1]):]
-
-    #caracteristicas = {tupla[0]: conectar_genoma_listas(tupla[1],
-    #                                                    obtener_genoma
-    #                                                    (line),
-    #                                                    listas)
-    #                   for tupla in zip(tags, caracteristicas2)}
-
     caracteristicas = {tupla[0]: conectar_genoma_listas2(tupla[1],
                                                         line,
                                                         listas)
                        for tupla in zip(tags, caracteristicas2)}
     return Persona(nombre, apellido, "", caracteristicas)
 
-
-
-with open("genoma.txt", "r", encoding="utf-8") as file1:
-    print("empieza")
-    tiempo_empieza = time.time()
-    personas = list(map(procesar_linea, (line for line in file1)))
-    print("termina", time.time() - tiempo_empieza)
-
-#print(personas)
-#raise TypeError
-
-#conectar_genoma_listas(personas[1], listas)
-#print(personas[0].caracteristicas)
-
-
-#### FENOTIPO
 
 parser_tag_caract = {"AAG": "Altura",
                      "GTC": "Color de ojos",
@@ -408,6 +363,27 @@ parser_tag_caract = {"AAG": "Altura",
                      "TGG": "Tamaño de la guata",
                      "TAG": "Problemas de visión"}
 
+
+parser1 = lambda line: line.strip().split(";")
+parser2 = lambda string: string.strip().split(",")
+with open("listas.txt", "r", encoding="utf-8") as file2:
+    listas = {parser1(linea)[0]: parser2(parser1(linea)[1]) for linea in file2}
+
+Persona = namedtuple("Persona", ["nombre", "apellido",
+                                 "genoma", "caracteristicas"])
+# nombre: str
+# apellido: str
+# genoma: lista de genes
+# caracteristicas: list of dict key = Tag caracteristica, value = lista_genes
+
+
+with open("genoma.txt", "r", encoding="utf-8") as file1:
+    print("empieza")
+    tiempo_empieza = time.time()
+    personas = list(map(procesar_linea, (line for line in file1)))
+    print("termina", time.time() - tiempo_empieza)
+
+# FENOTIPO
 
 deterministas = ("GTC", "GGA", "GTA")
 
@@ -426,46 +402,51 @@ visiones = map(determinar_vision, obtener_genes(personas, "TAG"))
 Persona_con_fenotipo = namedtuple("Persona", ["nombre", "apellido", "genoma",
                                               "caracteristicas", "altura",
                                               "ojo", "pelo", "piel", "nariz",
-                                              "pie", "vello","guata", "vision"
+                                              "pie", "vello", "guata", "vision"
                                               ])
 
-#with open("fenotipos_nuevos.txt", "w", encoding="utf-8") as file:
-#    file.write("Nombre, ojos, pelos, narices, altura, pie, piel, guatas, vellos, vision\n")
+# with open("fenotipos_nuevos.txt", "w", encoding="utf-8") as file:
+#    file.write("Nombre, ojos, pelos, narices, altura, pie, piel, guatas,
+#               vellos, vision\n")
 #    for args in zip(personas, ojos, pelos, narices, alturas, pies, pieles,
 #                guatas, vellos, visiones):
-    # ojo, pelo, nariz, altura, pie, piel, guata, vello, vision
-        #print(args)
+# ojo, pelo, nariz, altura, pie, piel, guata, vello, vision
+#        print(args)
 #        file.write(args[0].nombre + ", ")
 #        for arg in args[1:]:
 #            file.write(str(arg) + ", ")
 #        file.write("\n")
 
 
-#raise TypeError
+# raise TypeError
 personas = [Persona_con_fenotipo(args[0].nombre, args[0].apellido,
                                  args[0].genoma, args[0].caracteristicas,
                                  *args[1:])
             for args in zip(personas, alturas, ojos, pelos, pieles, narices,
                             pies, vellos, guatas, visiones)]
 
-#parientes_grado_1 = map(determinar_grado_1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+# parientes_grado_1 = map(determinar_grado_1, ((persona,
+#  filter(lambda x: x != persona, personas)) for persona in personas))
 
-#parientes_gradon = map(determinar_grado_n, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+# parientes_gradon = map(determinar_grado_n, ((persona,
+# filter(lambda x: x != persona, personas)) for persona in personas))
 
-#parientes_grado0 = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+# parientes_grado0 = map(determinar_grado0, ((persona,
+# filter(lambda x: x != persona, personas)) for persona in personas))
 
-#parientes_grado1 = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+# parientes_grado1 = map(determinar_grado1, ((persona,
+# filter(lambda x: x != persona, personas)) for persona in personas))
 
-#parientes_grado2 = map(determinar_grado2, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+# parientes_grado2 = map(determinar_grado2, ((persona,
+# filter(lambda x: x != persona, personas)) for persona in personas))
 
 
-
-
-#a = ["".join(x) for _, x in groupby("dfsd98sd8f68as7df56", key=str.isdigit) if _ == True]
-#print(a)
-#for elem in groupby("hola2chao3", key=str.isdigit):
+# a = ["".join(x) for _, x in groupby("dfsd98sd8f68as7df56",
+# key=str.isdigit) if _ == True]
+# print(a)
+# for elem in groupby("hola2chao3", key=str.isdigit):
 #    print("".join(elem[1]))
 
-#for persona in personas:
+# for persona in personas:
 #    print(persona)
-#print("TAMAÑOOOO", sys.getsizeof(personas))
+# print("TAMAÑOOOO", sys.getsizeof(personas))

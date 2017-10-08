@@ -11,7 +11,8 @@ class NotFound(Exception):
 
 class NotAcceptable(Exception):
     def __init__(self):
-        super().__init__("Error: Not Acceptable. Resultado de consulta es vacío.")
+        super().__init__("Error: Not Acceptable."
+                         " Resultado de consulta es vacío.")
 
 
 class GenomeError(Exception):
@@ -31,11 +32,3 @@ def control_badrequest(func, args):  # func es un generador, args de funcion
         raise BadRequest
     else:
         return funcion_real
-
-
-
-
-
-
-
-

@@ -2,21 +2,10 @@ from reader import *
 from fenotipo import *
 from functools import reduce
 from itertools import groupby
+from collections import namedtuple
 import sys
 import time
 
-
-parser1 = lambda line: line.strip().split(";")
-parser2 = lambda string: string.strip().split(",")
-with open("listas.txt", "r", encoding="utf-8") as file2:
-    listas = {parser1(linea)[0]: parser2(parser1(linea)[1]) for linea in file2}
-
-Persona = namedtuple("Persona", ["nombre", "apellido",
-                                 "genoma", "caracteristicas"])
-# nombre: str
-# apellido: str
-# genoma: lista de genes
-# caracteristicas: list of dict key = Tag caracteristica, value = lista_genes
 
 def procesar_linea(line):
     line.strip()
@@ -46,6 +35,20 @@ def procesar_linea(line):
                                                         listas)
                        for tupla in zip(tags, caracteristicas2)}
     return Persona(nombre, apellido, "", caracteristicas)
+
+parser1 = lambda line: line.strip().split(";")
+parser2 = lambda string: string.strip().split(",")
+with open("listas.txt", "r", encoding="utf-8") as file2:
+    listas = {linea.strip().split(";"): linea.strip().split()}
+    listas = {parser1(linea)[0]: parser2(parser1(linea)[1]) for linea in file2}
+
+Persona = namedtuple("Persona", ["nombre", "apellido",
+                                 "genoma", "caracteristicas"])
+# nombre: str
+# apellido: str
+# genoma: lista de genes
+# caracteristicas: list of dict key = Tag caracteristica, value = lista_genes
+
 
 with open("genomas.txt", "r", encoding="utf-8") as file1:
     print("empieza")
