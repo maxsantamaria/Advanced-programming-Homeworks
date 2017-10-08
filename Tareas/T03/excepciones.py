@@ -1,7 +1,7 @@
 
 class BadRequest(Exception):
     def __init__(self):
-        super().__init__("Error: Bad Request.Consulta no válida.")
+        super().__init__("Error: Bad Request. Consulta no válida.")
 
 
 class NotFound(Exception):
@@ -16,7 +16,7 @@ class NotAcceptable(Exception):
 
 class GenomeError(Exception):
     def __init__(self):
-        super().__init__("Error en genoma.")
+        super().__init__("Error: Genome Error. Error en genoma.")
 
 
 def determinar_notacceptable(respuesta):

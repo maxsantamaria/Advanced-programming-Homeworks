@@ -25,12 +25,8 @@ def procesar_linea(line):
     apellido, lim_superior = obtener_nombre(line)
     nombre = nombre + " " + apellido
     line = line[lim_superior:]
-    #letras = reduce(lambda x, y: x + y,
-    #                (char for char in line if char.isalpha()))
-    #tags = letras[:9 * 3]
-    #tags = [tags[i: i + 3] for i in range(len(tags)) if i % 3 == 0]
     caracteristicas2 = obtener_caracteristicas(line)
-    #print(list(caracteristicas2))
+
     ultimo_numero = line.rfind(caracteristicas2[-1])
     parte_caracteristicas = line[:ultimo_numero + len(caracteristicas2[-1])]
     tags = ["".join(x) for letra, x in
@@ -99,7 +95,7 @@ Persona_con_fenotipo = namedtuple("Persona", ["nombre", "apellido", "genoma",
                                               "pie", "vello","guata", "vision"
                                               ])
 
-#with open("fenotipos.txt", "w", encoding="utf-8") as file:
+#with open("fenotipos_nuevos.txt", "w", encoding="utf-8") as file:
 #    file.write("Nombre, ojos, pelos, narices, altura, pie, piel, guatas, vellos, vision\n")
 #    for args in zip(personas, ojos, pelos, narices, alturas, pies, pieles,
 #                guatas, vellos, visiones):
@@ -111,50 +107,23 @@ Persona_con_fenotipo = namedtuple("Persona", ["nombre", "apellido", "genoma",
 #        file.write("\n")
 
 
+#raise TypeError
 personas = [Persona_con_fenotipo(args[0].nombre, args[0].apellido,
                                  args[0].genoma, args[0].caracteristicas,
                                  *args[1:])
             for args in zip(personas, alturas, ojos, pelos, pieles, narices,
                             pies, vellos, guatas, visiones)]
 
-#print("\nGrado -1")
-parientes_grado_1 = map(determinar_grado_1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-#parientes_grado_1 = [parientes for lista in parientes_grado_1 for parientes in lista]
-#for parientes in parientes_grado_1:
-#    print(parientes)
+#parientes_grado_1 = map(determinar_grado_1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
 
-#print("\nGrado n")
-parientes_gradon = map(determinar_grado_n, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-#parientes_gradon = [parientes for lista in parientes_gradon for parientes in lista]
-#for parientes in parientes_gradon:
-#    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_gradon = map(determinar_grado_n, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
 
-#print("\nGrado 0")
-parientes_grado0 = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-#parientes_grado0 = [parientes for lista in parientes_grado0 for parientes in lista]
+#parientes_grado0 = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
 
-#for parientes in parientes_grado0:
-#    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_grado1 = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
 
-#print("\nGrado 1")
-parientes_grado1 = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-#parientes_grado1 = [parientes for lista in parientes_grado1 for parientes in lista]
-#for parientes in parientes_grado1:
-#    print(parientes[0].nombre, parientes[1].nombre)
+#parientes_grado2 = map(determinar_grado2, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
 
-#print("\nGrado 2")
-parientes_grado2 = map(determinar_grado2, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
-#parientes_grado2 = [parientes for lista in parientes_grado2 for parientes in lista]
-#for parientes in parientes_grado2:
-#    print(parientes[0].nombre, parientes[1].nombre)
-
-
-Persona_con_pariente = namedtuple("Persona", ["nombre", "apellido", "genoma",
-                                              "caracteristicas", "ojo", "pelo",
-                                              "nariz", "altura", "pie", "piel",
-                                              "guata", "vello", "vision",
-                                              "grado_1", "grado0", "grado1",
-                                              "grado2", "gradon"])
 
 
 

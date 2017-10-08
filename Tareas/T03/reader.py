@@ -19,6 +19,8 @@ def obtener_nombre(linea):
 def obtener_caracteristicas(line):
     caracteristicas = ["".join(x) for numero, x in
                        groupby(line, key=str.isdigit) if numero]
+    # son solo 9 numeros (pueden haber numeros en el genoma GenomeError)
+    caracteristicas = [caracteristicas[i] for i in range(9)]
     # numero es un booleano que dice si el elemento es o no un numero
     return caracteristicas
 
@@ -64,6 +66,6 @@ def conectar_genoma_listas2(id, genoma, listas):
     # genoma es un string con todas las letras
     subindices = listas[id]
     #genes = [genoma[i] for i in range(len(genoma)) if str(i) in subindices]
-    genes = [genoma[int(i)*3: int(i)*3 + 3] for i in subindices if i != ""]
+    genes = (genoma[int(i)*3: int(i)*3 + 3] for i in subindices if i != "")  # GENERADOR
     counter_genes = Counter(genes)
-    return genes
+    return counter_genes

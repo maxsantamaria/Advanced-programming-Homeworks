@@ -1,10 +1,12 @@
-from principal import *
+#from principal import *
+from fenotipo import *
 from math import sqrt
 from functools import reduce, wraps
 from itertools import count
 from collections import *
 from excepciones import *
 from inspect import signature
+from matplotlib import pyplot as plt
 
 # Decoradores
 def param_correctos(func):
@@ -20,6 +22,19 @@ def param_correctos(func):
             raise NotFound
         return func(*args)
     return _param_correctos
+
+
+def control_error_ascendencia(func):
+    @wraps(func)
+    def _control_error_ascendencia(persona):
+        personaa = filter(lambda x: x.nombre == persona, personas)
+        pers = next(personaa)
+        if pers.pelo is None or pers.vello is None or pers.nariz\
+                is None or pers.piel is None or pers.pie is None \
+                or pers.guata is None:
+            raise GenomeError
+        return func(persona)
+    return _control_error_ascendencia
 
 
 def parametro_correcto(parametro_entregado, parametro_funcion):
@@ -50,7 +65,7 @@ def obtener_parientes(grado):
         (persona, filter(lambda x: x != persona, personas)) for persona in
         personas))
     elif grado == "0":
-        parientes = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
+        parientes = map(determinar_grado0, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))  # cambiar esto
     elif grado == "1":
         parientes = map(determinar_grado1, ((persona, filter(lambda x: x != persona, personas)) for persona in personas))
     elif grado == "2":
@@ -83,6 +98,7 @@ def pariente_de(grado, persona):
 
 
 @param_correctos
+@control_error_ascendencia
 def ascendencia(persona):
     ascendencias = []
     #persona = list(perse for perse in personas if perse.nombre == persona)
@@ -106,10 +122,12 @@ def ascendencia(persona):
 def índice_de_tamaño(persona):
     personaa = filter(lambda x: x.nombre == persona, personas)
     persona = next(personaa)
-    genes_tamaño_altura = persona.caracteristicas["AAG"].count("AGT")
-    genes_tamaño_guata = persona.caracteristicas["TGG"].count("AGT")
-    opuestos_tamaño_altura = persona.caracteristicas["AAG"].count("ACT")
-    opuestos_tamaño_guata = persona.caracteristicas["TGG"].count("ACT")
+    if not persona.altura or not persona.guata:
+        raise GenomeError
+    genes_tamaño_altura = persona.caracteristicas["AAG"]["AGT"]
+    genes_tamaño_guata = persona.caracteristicas["TGG"]["AGT"]
+    opuestos_tamaño_altura = persona.caracteristicas["AAG"]["ACT"]
+    opuestos_tamaño_guata = persona.caracteristicas["TGG"]["ACT"]
     porcentaje_altura = genes_tamaño_altura / (genes_tamaño_altura +
                                                opuestos_tamaño_altura)
     porcentaje_guata = genes_tamaño_guata / (genes_tamaño_guata +
@@ -126,8 +144,8 @@ def contador_total(persona, otra_persona):
 
 
 def contador_por_caract(persona, otra_persona, caracteristica):
-    genes_persona = Counter(persona.caracteristicas[caracteristica])
-    genes_otra_persona = Counter(otra_persona.caracteristicas[caracteristica])
+    genes_persona = persona.caracteristicas[caracteristica] # Counter
+    genes_otra_persona = otra_persona.caracteristicas[caracteristica] # Counter
     contador_por_gen = (min(cantidad, genes_otra_persona[tag]) for tag, cantidad in genes_persona.items())
     try:
         contador = reduce(lambda x, y: x + y, contador_por_gen)
@@ -140,6 +158,7 @@ def contador_por_caract(persona, otra_persona, caracteristica):
 def gemelo_genético(persona):
     personaa = filter(lambda x: x.nombre == persona, personas)
     persona = next(personaa)
+    control_error_grado0()
     #lista = [(otra_persona, contador_total(persona, otra_persona))
     #         for otra_persona in personas if otra_persona != persona]
     # lista es una lista de tuplas con (persona, contador genes parecidos)
@@ -161,6 +180,9 @@ def valor_característica(tag_identificador, persona):
                        persona.guata, persona.vision)
     tags = ["AAG", "GTC", "GGA", "TCT", "GTA", "CTC", "CGA", "TGG", "TAG"]
     indice = tags.index(tag_identificador)
+
+    if caracteristicas[indice] == None:
+        raise GenomeError
     return caracteristicas[indice]
 
 
@@ -175,6 +197,7 @@ def min2(tag_caracteristica):
         return menos_frecuente
     else:
         print("Esta caracteristica no es valida para esta consulta")
+        raise NotFound
 
 
 @param_correctos
@@ -188,13 +211,16 @@ def max2(tag_caracteristica):
         return menos_frecuente
     else:
         print("Esta caracteristica no es valida para esta consulta")
+        raise NotFound
 
 
 def caso1(tag_caracteristica, tipo):
     # tipo es un string que dice si buscamos el maximo o el minimo
     tags = ["AAG", "GTC", "GGA", "TCT", "GTA", "CTC", "CGA", "TGG", "TAG"]
     indice = tags.index(tag_caracteristica) + 4
-    frecuencias_particular = (persona[indice] for persona in personas)
+    frecuencias_particular = [persona[indice] for persona in personas]
+    if None in frecuencias_particular:
+        raise GenomeError
     frecuencias_sistema = Counter(frecuencias_particular)
     #frecuencias_sistema = [(fenotipo, cantidad) for fenotipo, cantidad in
     #                       frecuencias_sistema.items()]
@@ -211,7 +237,9 @@ def caso1(tag_caracteristica, tipo):
 def caso2(tag_caracteristica, tipo):
     tags = ["AAG", "GTC", "GGA", "TCT", "GTA", "CTC", "CGA", "TGG", "TAG"]
     indice = tags.index(tag_caracteristica) + 4
-    frecuencias_particular = (persona[indice] for persona in personas)
+    frecuencias_particular = [persona[indice] for persona in personas]
+    if None in frecuencias_particular:
+        raise GenomeError
     if tipo == "min":
         return min(frecuencias_particular)
     elif tipo == "max":
@@ -223,11 +251,88 @@ def prom(tag_caracteristica):
     if tag_caracteristica == "AAG" or tag_caracteristica == "CTC":
         tags = ["AAG", "GTC", "GGA", "TCT", "GTA", "CTC", "CGA", "TGG", "TAG"]
         indice = tags.index(tag_caracteristica) + 4
-        frecuencias_particular = (persona[indice] for persona in personas)
+        frecuencias_particular = [persona[indice] for persona in personas]
+        if None in frecuencias_particular:
+            raise GenomeError
         suma = reduce(lambda x, y: x + y, frecuencias_particular)
         total = len(personas)
         promedio = suma / total
         return promedio
+    else:
+        raise NotFound
+
+def visualizar(tipo):
+    if tipo == "ojos":
+        bubble_chart_ojos()
+    elif tipo == "pelo":
+        bubble_chart_pelo()
+    else:
+        raise NotFound
+    return "BubbleChart"
+
+def bubble_chart_ojos():
+    colores = (persona.ojo for persona in personas)
+    contador = Counter(colores)
+    if None in contador.keys():
+        raise GenomeError
+    colores = [color for color in contador.keys()]
+    transformador_colores = {"azules": "b", "verdes": "g",
+                             "cafes": "tab:brown"}
+    cantidades = [amount * 10 for amount in contador.values()]
+    promedios_alturas = list(map(promedio_bubble, colores,
+                                 ("ojos" for i in range(len(colores))),
+                                 ("altura" for i in range(len(colores)))))
+    promedios_pies = list(map(promedio_bubble, colores,
+                              ("ojos" for i in range(len(colores))),
+                              ("pies" for i in range(len(colores)))))
+    colors = [transformador_colores[color] for color in colores]
+    plt.scatter(promedios_pies, promedios_alturas, s=cantidades, c=colors)
+    plt.xlabel("Promedio pies [talla]")
+    plt.ylabel("Promedio alturas [cm]")
+    plt.show()
+
+def bubble_chart_pelo():
+    colores = (persona.pelo for persona in personas)
+    contador = Counter(colores)
+    if None in contador.keys():
+        raise GenomeError
+    colores = [color for color in contador.keys()]
+    transformador_colores = {"negro": "k", "rubio": "y",
+                             "pelirrojo": "r"}
+    cantidades = [amount * 10 for amount in contador.values()]
+    promedios_alturas = list(map(promedio_bubble, colores,
+                                 ("pelo" for i in range(len(colores))),
+                                 ("altura" for i in range(len(colores)))))
+    promedios_pies = list(map(promedio_bubble, colores,
+                              ("pelo" for i in range(len(colores))),
+                              ("pies" for i in range(len(colores)))))
+    colors = [transformador_colores[color] for color in colores]
+    plt.scatter(promedios_pies, promedios_alturas, s=cantidades, c=colors)
+    plt.xlabel("Promedio pies [talla]")
+    plt.ylabel("Promedio alturas [cm]")
+    plt.show()
+
+
+
+def promedio_bubble(color, caract1, caract2):
+    if caract1 == "ojos":
+        if caract2 == "altura":
+            lista = [persona.altura for persona in personas
+                     if persona.ojo == color]
+        elif caract2 == "pies":
+            lista = [persona.pie for persona in personas
+                     if persona.ojo == color]
+    elif caract1 == "pelo":
+        if caract2 == "altura":
+            lista = [persona.altura for persona in personas
+                     if persona.pelo == color]
+        elif caract2 == "pies":
+            lista = [persona.pie for persona in personas
+                     if persona.pelo == color]
+    if None in lista:
+        raise GenomeError
+    suma = reduce(lambda x, y: x + y, lista)
+    return suma/len(lista)
 
 
 def num_consultas():
@@ -241,16 +346,20 @@ numeros = num_consultas()
 #print(pariente_de("2", "Stephanie Chau"))
 #print(pariente_de("0", "Hernán Valdivieso"))
 
+#print(valor_característica("GTA", "Sterling Archer"))  # GENOME ERROR
+#print(ascendencia("Sterling Archer"))  # GENOME ERROR
+#print(gemelo_genético("Stephanie Chau"))
+#raise TypeError
 
-print("ASCENDENCIAS")
-for persona in personas:
-    print(persona.nombre, ascendencia(persona.nombre))
-print("")
+#print("ASCENDENCIAS")
+#for persona in personas:
+#    print(persona.nombre, ascendencia(persona.nombre))
+#print("")
 
-print("INDICES")
-for persona in personas:
-    print(persona.nombre, índice_de_tamaño(persona.nombre))
-print("")
+#print("INDICES")
+#for persona in personas:
+#    print(persona.nombre, índice_de_tamaño(persona.nombre))
+#print("")
 
 #lista = [1, 2, 3, 1]
 #lista2= [1, 4, 5]
@@ -259,22 +368,22 @@ print("")
 
 #print(gemelo_genético("Jesús De Nazaret"))
 
-print(valor_característica("TGG", "Stephanie Chau"))
-print(min2("TCT"))
-print(min2("CTC"))
+#print(valor_característica("TGG", "Stephanie Chau"))
+#print(min2("TCT"))
+#print(min2("CTC"))
 
-print(max2("TCT"))
-print(max2("CTC"))
+#print(max2("TCT"))
+#print(max2("CTC"))
 
-print(prom("AAG"))
+#print(prom("AAG"))
 
 lista_consultas = [ascendencia, índice_de_tamaño, pariente_de, gemelo_genético,
-             valor_característica, min2, max2, prom]
+                   valor_característica, min2, max2, prom, visualizar]
 #print("a", lista_consultas[0].__name__)
 
-gen = (i for i in range(10))
+#gen = (i for i in range(10))
 
 
-print(gemelo_genético("Nebil Kawas"))
-print(valor_característica("TAG", "Rick Sánchez"))
-
+#print(gemelo_genético("Nebil Kawas"))
+#print(valor_característica("TAG", "Rick Sánchez"))
+#print(valor_característica("CGA", "Nicolás Balbontin"))
