@@ -356,3 +356,6 @@ numeros = num_consultas()
 
 lista_consultas = [ascendencia, índice_de_tamaño, pariente_de, gemelo_genético,
                    valor_característica, min2, max2, prom, visualizar]
+for persona in personas:
+    if persona.nombre == "Jesús De Nazaret" or persona.nombre == "Gabriel Lyon" or persona.nombre == "Germán Contreras":
+        print(persona.nombre, persona.altura, persona.pelo, persona.piel, persona.pie, persona.vision)

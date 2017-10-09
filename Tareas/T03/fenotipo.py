@@ -220,7 +220,7 @@ def determinar_grado1(args):  # namedtuple, list
                  if persona.ojo == pariente.ojo and
                  persona.pelo == pariente.pelo and
                  persona.nariz == pariente.nariz and
-                 abs(persona.altura - pariente.altura) <= 20 and
+                 abs(persona.altura - pariente.altura) <= 0.20 and
                  abs(persona.pie - pariente.pie) <= 2 and
                  persona.piel == pariente.piel and
                  persona.vision == pariente.vision]
@@ -233,7 +233,7 @@ def determinar_grado2(args):  # namedtuple, list of namedtuples
     control_error_grado2()
     parientes = [(persona, pariente) for pariente in resto_personas
                  if persona.pelo == pariente.pelo and
-                 abs(persona.altura - pariente.altura) <= 50 and
+                 abs(persona.altura - pariente.altura) <= 0.5 and
                  abs(persona.pie - pariente.pie) <= 4 and
                  persona.piel == pariente.piel and
                  persona.vision == pariente.vision]
@@ -347,10 +347,18 @@ def procesar_linea(line):
     # parte genoma:
     line = line[ultimo_numero + len(caracteristicas2[-1]):]
     caracteristicas = {tupla[0]: conectar_genoma_listas2(tupla[1],
-                                                        line,
-                                                        listas)
+                                                         line,
+                                                         listas)
                        for tupla in zip(tags, caracteristicas2)}
     return Persona(nombre, apellido, "", caracteristicas)
+
+
+def parser1(line):
+    return line.strip().split(";")
+
+
+def parser2(line):
+    return line.strip().split(",")
 
 
 parser_tag_caract = {"AAG": "Altura",
@@ -363,9 +371,6 @@ parser_tag_caract = {"AAG": "Altura",
                      "TGG": "Tamaño de la guata",
                      "TAG": "Problemas de visión"}
 
-
-parser1 = lambda line: line.strip().split(";")
-parser2 = lambda string: string.strip().split(",")
 with open("listas.txt", "r", encoding="utf-8") as file2:
     listas = {parser1(linea)[0]: parser2(parser1(linea)[1]) for linea in file2}
 

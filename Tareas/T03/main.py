@@ -46,7 +46,7 @@ class T03Window(MyWindow):
     def save_file(self, query_array):
         # Crea un archivo con la solucion. NO muestra los graficos!!
         num = 0
-        with open("results.txt", "w", encoding="utf-8") as results:
+        with open("resultados.txt", "w", encoding="utf-8") as results:
             for query in query_array:
                 num += 1
                 funcion = query[0]
