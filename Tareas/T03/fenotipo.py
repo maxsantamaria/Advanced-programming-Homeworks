@@ -383,10 +383,10 @@ Persona = namedtuple("Persona", ["nombre", "apellido",
 
 
 with open("genoma.txt", "r", encoding="utf-8") as file1:
-    print("empieza")
-    tiempo_empieza = time.time()
+    # print("empieza")
+    # tiempo_empieza = time.time()
     personas = list(map(procesar_linea, (line for line in file1)))
-    print("termina", time.time() - tiempo_empieza)
+    # print("termina", time.time() - tiempo_empieza)
 
 # FENOTIPO
 
