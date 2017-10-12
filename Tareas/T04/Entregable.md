@@ -1,0 +1,17 @@
+# Lista de Eventos
+- Miembro UC llega al campus | Ocurre desde las 11:00 con una distribución triangular. Una vez al día por miembro | Pueden comprar o no un snack
+- Decidir ir a comer | Depende de su hora de almuerzo y dentro de ella distribuye normal | Empiezan el recorrido desde la universidad hacia los puestos de comida
+- Llegar a los puestos de comida | Depende de su decisión por ir a comer y del tiempo T que se demora en llegar | Miran sus preferencias y se instalan en alguna cola de un puesto de comida. Se actualiza el tiempo actual
+- Se acaba el stock de algún puesto de comida | Ocurre cuando ya no le queda comida a un vendedor | Los que estaban esperando en la cola deben cambiarse a otra. Si es funcionario y ya se cambió 3 veces, va a comprar al Quick Debil. Se aumenta el contador de stock out del vendedor.
+- Se agota la paciencia de un alumno | Cuando el tiempo de espera en la cola supera el límite del alumno | Se cambia de cola
+- Miembro UC logra comprar | Cuando el cliente termina de ser atendido por un vendedor | Se actualiza el tiempo, la cola avanza. Si se cumplen las condiciones de enfermarse, se borra de la lista de preferencias. Disminuye la cantidad de productos del vendedor y el dinero del cliente. Se aumenta el contador de unidades vendidas del vendedor.
+- Vendedor instala puesto | Cada vendedor abre cerca de las 11:00 según una distribución normal | Se habilita la opción de comprar en ese lugar. Se actualiza el tiempo
+- Nueva mesada | Cada inicio de mes | Se actualiza la mesada de los alumnos
+- Temperaturas extremas en un día | Distribuye uniforme y puede ser frío o calor intenso | Para el frío disminuye la calidad y para el calor aumenta la putrefacción
+- Concha estéreo | Probabilidad constante de que se realice un viernes o a la quinta semana sin realizarse. Se controla al principio del día | Aumentan los precios
+- Lluvia de hamburguesas | Distribuye exponencial cada día dependiendo de la última temperatura extrema. Se controla al principio del día | No se consumen productos ese día y al siguiente hay mayor probabilidad de enfermarse por mala calidad
+- Llegada de policías | Llamadas de Devil que son exponencial una vez al día entre las 13:00 y las 13:40 hay control constante | Revisan puestos, actualiza el tiempo
+- Un carabinero decide un puesto a fiscalizar | Después de su llegada | Actualiza el tiempo. Se detienen las ventas de ese vendedor. Se pide el permiso, si no lo tiene, el vendedor no volverá en varios días. Si lo tiene o si engaña al carabinero, se procede a revisar toda la comida. Si está en mal estado algún producto, se confiscará su stock y no podrá seguir vendiendo ese día. Todo esto es instantáneo según el enunciado.
+- Miembro UC decide ir a comprar un snack | Puede ser a cualquier hora del día según una Exponencial | Disminuye la cantidad de productos del vendedor y el dinero del cliente
+- Termina un día | A las 15:00 de un día | Se actualiza el dinero diario de cada miembro. Se actualiza el stock de cada vendedor. Los miembros UC dejan la universidad. Se reinicia el tiempo a 0, pero se aumenta el contador del día. Se actualiza el contador de días sin ventas de cada vendedor.
+- Alumno se resigna | Cuando no tiene más opciones de compra en los puestos de afuera | Si le alcanza, compra en Quick Debil, sino no almuerza. Se actualiza los tiempos.
