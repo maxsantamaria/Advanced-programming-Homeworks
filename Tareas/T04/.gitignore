@@ -2,4 +2,6 @@ Enunciado.pdf
 escenarios.csv
 parametros_iniciales.csv
 personas.csv
+personas_old.csv
 productos.csv
+pruebas.py
