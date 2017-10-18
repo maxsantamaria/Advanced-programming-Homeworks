@@ -20,12 +20,14 @@ class MiembroUC(Persona):
         self.mesada = None
         self.pesos_diarios = None
         self.preferencias = []
+        self.preferencias_snack = []  # borrar despues
         self.colas_snack = []
         self.colas_almuerzo = []
         self.ind_cola_actual = 0
         self.tiempo_comienzo_atencion = None  # va a ir aumentando debido a la espera
         self._tiempo_llegada_a_puestos = None
         self.numero_de_rechazos = 0
+        self.quick = False  # True si es que come en quick devil
         # lista de puestos preferidos (mayor a menor) cuyos elementos son
         # colas (atributo de Vendedores)
 
@@ -174,6 +176,8 @@ class Vendedor(Persona):
         self.dias_sin_ventas = 0  # dias seguidos
         self.rapidez_atencion = None
         self.stock = None
+        self.fiscalizando = False  # True cuando está siendo fiscalizado
+        self.permiso = None  # True cuando lo tiene, False cuando no
 
     def entrega_cola(self):
         def _entrega_cola():
@@ -186,11 +190,17 @@ class Vendedor(Persona):
     def generar_stock(self, alpha, beta):
         self.stock = randint(alpha, beta)
 
+    def generar_permisos(self, prob_permiso):
+        prob = random()
+        if prob <= prob_permiso:
+            self.permiso = True
+        else:
+            self.permiso = False
+
     @property
     def tiempo_atencion_primer_cliente(self):
         primer_cliente = self.cola[0]
         return primer_cliente.tiempo_comienzo_atencion + self.rapidez_atencion
-
 
     def tiempo_atencion(self, tiempo_actual):
         return tiempo_actual + self.rapidez_atencion
@@ -205,7 +215,33 @@ class Carabinero(Persona):
         super().__init__(nombre, apellido, edad)
         self.personalidad = choice(["jekill", "hide"])
         self.vendedor_actual = None
+        self.tiempo_inicio = 120
+        self.fiscalizados = []
+        self.tasa_productos_revisar = None
+        self.prob_engaño = None
 
+    def generar_tasa_productos_revisar(self, tasa_jekyll, tasa_hyde):
+        if self.personalidad == "jekill":
+            self.tasa_productos_revisar = tasa_jekyll
+        elif self.personalidad == "hyde":
+            self.tasa_productos_revisar = tasa_hyde
+
+    def generar_prob_engaño(self, prob_jekyll, prob_hyde):
+        if self.personalidad == "jekill":
+            self.prob_engaño = prob_jekyll
+        elif self.personalidad == "hyde":
+            self.prob_engaño = prob_hyde
+
+    def fiscalizar(self, vendedor, tiempo):
+        vendedor.fiscalizando = True
+        self.vendedor_actual = vendedor
+        self.tiempo_inicio = tiempo
+        if not vendedor.permiso:
+            pass
+
+    def __str__(self):
+        imprimir = self.nombrecompleto + " " + self.personalidad
+        return imprimir
 
 
 
@@ -254,6 +290,7 @@ def union_vendedores_compradores():
         for vendedor in preferencias:
             if vendedor.tipo_de_comida == "Snack":
                 comprador.colas_snack.append(vendedor.entrega_cola())
+                comprador.preferencias_snack.append(vendedor.nombre)  # BORRAR DESPUES, SOLO PRUEBAS
             else:
                 comprador.colas_almuerzo.append(vendedor.entrega_cola())
 

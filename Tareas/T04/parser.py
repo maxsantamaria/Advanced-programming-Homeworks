@@ -40,7 +40,7 @@ def parsear_parametros():
     with open("parametros_iniciales.csv", newline="", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile, skipinitialspace=True)
         for row in reader:
-            print(row["limite_paciencia"])
+            print(row["probabilidad_permiso"])
             pass
         #print(row)
 
