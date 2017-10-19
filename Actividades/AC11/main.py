@@ -29,7 +29,7 @@ class Casino(formulario[0], formulario[1]):
         self.ultima_apuesta.setText(str(0))
         self.apuesta_actual.setText("500")
         self.up.clicked.connect(self.aumentar)
-        #self.down.clicked.connect(self.disminuir)
+        self.down.clicked.connect(self.disminuir)
 
 
     def aumentar(self):
