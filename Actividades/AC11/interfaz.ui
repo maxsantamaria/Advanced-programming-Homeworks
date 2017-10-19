@@ -61,8 +61,17 @@
      <height>91</height>
     </rect>
    </property>
+   <property name="maximumSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
+   </property>
    <property name="text">
     <string>TextLabel</string>
+   </property>
+   <property name="scaledContents">
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QLabel" name="imagen2">
@@ -74,11 +83,17 @@
      <height>91</height>
     </rect>
    </property>
+   <property name="maximumSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
+   </property>
    <property name="text">
     <string>TextLabel</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="imagen3">
    <property name="geometry">
     <rect>
      <x>180</x>
@@ -86,6 +101,12 @@
      <width>47</width>
      <height>91</height>
     </rect>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>100</width>
+     <height>100</height>
+    </size>
    </property>
    <property name="text">
     <string>TextLabel</string>
