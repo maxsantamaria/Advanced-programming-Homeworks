@@ -2,6 +2,7 @@ import sys
 from backend import verificar_usuario
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication
+from PyQt5.QtGui import QPixmap
 
 
 formulario = uic.loadUiType("interfaz.ui")
@@ -14,22 +15,29 @@ class Casino(formulario[0], formulario[1]):
         super().__init__()
         self.setupUi(self)
         self.nombre = nombre
+        self.imagen1.setPixmap(QPixmap("assets/0.png"))
+        self.imagen2.setPixmap(QPixmap("assets/0.png"))
+        self.imagen3.setPixmap(QPixmap("assets/0.png"))
         #self.usuario = verificar_usuario(nombre)
         self.saludo.setText("Hola " + self.nombre)
         #self.apuesta_actual.setText(str(self.usuario.saldo))
         #self.maximo_premio.setText(str(self.usuario.valor_maxima_apuesta))
         #self.ultima_apuesta.setText(str(self.usuario._valor_ultima_apuesta))
-        #self.apuesta = 500
+        self.apuesta = 500
         self.saldo_actual.setText(str(1500))
         self.maximo_premio.setText(str(0))
         self.ultima_apuesta.setText(str(0))
-
         self.apuesta_actual.setText("500")
         self.up.clicked.connect(self.aumentar)
         #self.down.clicked.connect(self.disminuir)
 
+
     def aumentar(self):
         self.apuesta += 1
+        self.apuesta_actual.setText(str(self.apuesta))
+
+    def disminuir(self):
+        self.apuesta -= 1
         self.apuesta_actual.setText(str(self.apuesta))
 
 
