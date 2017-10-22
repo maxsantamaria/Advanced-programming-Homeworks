@@ -1,0 +1,9 @@
+probabilidad_enfermarse = 0.35
+tiempo_irse_carabineros = 160  # en minutos desde las 11:00
+tiempo_llegada_carabineros = 120
+factor_concha = 1.25
+calidad_limite = 0.2
+putrefaccion_descompuesto = 0.9
+maximo_dias_sin_concha = 28  # 4 semanas, a la quinta se realiza
+dias_bancarrota = 20
+tiempo_maximo_dia = 4 * 60  # 15:00

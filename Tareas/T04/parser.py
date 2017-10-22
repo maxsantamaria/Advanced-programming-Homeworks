@@ -32,7 +32,8 @@ with open("personas.csv", newline="", encoding="utf-8") as csvfile:
         elif row["Entidad"] == "Carabinero":
             new_person = Carabinero(row["Nombre"],
                                     row["Apellido"],
-                                    row["Edad"])
+                                    row["Edad"],
+                                    row["Personalidad"])
         personas.append(new_person)
 #        return personas
 
@@ -40,7 +41,7 @@ def parsear_parametros():
     with open("parametros_iniciales.csv", newline="", encoding="utf-8") as csvfile:
         reader = csv.DictReader(csvfile, skipinitialspace=True)
         for row in reader:
-            print(row["probabilidad_permiso"])
+            print(row["personalidad_jekyll"], row["personalidad_hide"])
             pass
         #print(row)
 
