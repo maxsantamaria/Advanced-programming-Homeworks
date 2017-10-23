@@ -8,7 +8,7 @@ class MercadoUC:
                  alpha_stock, beta_stock, base_mesada, alpha_paciencia,
                  beta_paciencia, prob_permiso, distribucion_almuerzo, pconcha,
                  lambda_carabineros, quickdevil, personalidad_jekyll,
-                 personalidad_hyde):
+                 personalidad_hyde, dias_susto):
         # parametros
         self.c_llegada = c_llegada
         self.alpha_paciencia = alpha_paciencia
@@ -20,6 +20,7 @@ class MercadoUC:
         self.lambda_carabineros = lambda_carabineros
         self.personalidad_jekyll = personalidad_jekyll
         self.personalidad_hyde = personalidad_hyde
+        self.dias_susto = dias_susto
         # base de datos
         self.quickdevil = quickdevil
         self.personas = personas
@@ -87,6 +88,7 @@ class MercadoUC:
 
             elif isinstance(persona, Carabinero):
                 self.carabineros.append(persona)
+        self.posibles_vendedores = self.vendedores
         for i, miembro in enumerate(self.miembrosuc):
             porcentaje2 = distribucion_almuerzo[0] + distribucion_almuerzo[1]
             if i < len(self.miembrosuc) * distribucion_almuerzo[0]/100:
@@ -107,7 +109,7 @@ class MercadoUC:
     def comprobar_cambio_de_cola(self, persona):  # True si se cambia, False si no
         vendedor = next((ven for ven in self.vendedores if persona in
                          ven.cola))
-        if vendedor.fiscalizando or not vendedor.instalado:
+        if vendedor.fiscalizando or not vendedor.instalado or vendedor.ausente:
             print("Aun no se instala", vendedor)
             return True
         if vendedor.stock < vendedor.cola.index(persona) + 1:
@@ -136,11 +138,10 @@ class MercadoUC:
         compradores_en_cola = [compr for compr in cola
                                if isinstance(compr, Alumno)]
         for persona in compradores_en_cola:
-            #if self.comprobar_cambio_de_cola(persona):
-                #persona.numero_de_rechazos += 1
-            while self.comprobar_cambio_de_cola(persona):
-                self.abandonos_cola_dia += 1
+            if self.comprobar_cambio_de_cola(persona):  # solo la primera vale oomo cambio de cola
                 persona.numero_de_rechazos += 1
+                self.abandonos_cola_dia += 1
+            while self.comprobar_cambio_de_cola(persona):
                 if persona.cambiar_de_cola1() is not None:
                     print("La persona", persona,
                           "no tiene más opciones que ir a Quick Devil")
@@ -154,10 +155,10 @@ class MercadoUC:
         compradores_en_cola = [compr for compr in cola
                                if isinstance(compr, Alumno)]
         for persona in compradores_en_cola:
-
-            while self.comprobar_cambio_de_cola(persona):
-                self.abandonos_cola_dia += 1
+            if self.comprobar_cambio_de_cola(persona):  # solo la primera vale oomo cambio de cola
                 persona.numero_de_rechazos += 1
+                self.abandonos_cola_dia += 1
+            while self.comprobar_cambio_de_cola(persona):
                 if persona.cambiar_de_cola2() is not None:
                     print("La persona", persona,
                           "no tiene más opciones que ir a Quick Devil")
@@ -190,8 +191,11 @@ class MercadoUC:
         self.carabinero = choice(opciones)
         if self.carabinero.personalidad == "Mr. Hyde":
             self.carabinero.prob_engaño = self.personalidad_hyde[1]
+            self.carabinero.tasa_productos_revisar = self.personalidad_hyde[0]
         elif self.carabinero.personalidad == "Dr. Jekyll":
             self.carabinero.prob_engaño = self.personalidad_jekyll[1]
+            self.carabinero.tasa_productos_revisar = (self.
+                                                      personalidad_jekyll[0])
 
     def generar_proxima_temperatura_extrema(self):
         dias = randint(2, 20)
@@ -270,7 +274,6 @@ class MercadoUC:
         if self.tiempo_actual < tiempo_irse_carabineros and \
                         self.carabinero is not None:
             # if hour < 13:40
-            print("WOLA")
             return (self.carabinero, self.tiempo_llegada_carabinero)
         return (None, float("Inf"))
 
@@ -516,14 +519,15 @@ class MercadoUC:
         carabinero, tiempo = self.proximo_carabinero_llega
         self.tiempo_actual = tiempo
         if carabinero.vendedor_actual is not None:  # el anterior
-            
+            if carabinero.vendedor_actual.ausente:
+                carabinero.vendedor_actual.dias_ausente = self.dias_susto + 1
             carabinero.vendedor_actual.fiscalizando = False
             carabinero.fiscalizados.append(carabinero.vendedor_actual)
             print("Se terminó de fiscalizar a", carabinero.vendedor_actual)
         if len(self.vendedores) > len(carabinero.fiscalizados):
             vendedor = choice(list(set(self.vendedores) -
                                      set(carabinero.fiscalizados)))
-            carabinero.fiscalizar(vendedor)
+            carabinero.fiscalizar(vendedor, tiempo, self.calor_intenso)
             print("-" * 30, carabinero, "está fiscalizando a", vendedor)
             for comp in vendedor.cola:
                 print(comp)
@@ -552,12 +556,15 @@ class MercadoUC:
                                                          self.calor_intenso)
                         if producto.putrefaccion > putrefaccion_descompuesto:
                             self.productos_descompuestos += 1
+            self.cantidad_almuerzos12_dias.append(
+                self.cantidad_almuerzos12_dia)
+            self.cantidad_almuerzos13_dias.append(
+                self.cantidad_almuerzos13_dia)
+            self.cantidad_almuerzos14_dias.append(
+                self.cantidad_almuerzos14_dia)
         self.abandonos_cola_dia = 0
-        self.cantidad_almuerzos12_dias.append(self.cantidad_almuerzos12_dia)
         self.cantidad_almuerzos12_dia = 0
-        self.cantidad_almuerzos13_dias.append(self.cantidad_almuerzos13_dia)
         self.cantidad_almuerzos13_dia = 0
-        self.cantidad_almuerzos14_dias.append(self.cantidad_almuerzos14_dia)
         self.cantidad_almuerzos14_dia = 0
         mes_anterior = self.fechahora.strftime("%B")
         self.fechahora += timedelta(days=1)
@@ -602,6 +609,7 @@ class MercadoUC:
             persona.generar_pesos_diarios()
 
         self.vendedores_sin_stock = 0
+        self.posibles_vendedores = []
         for persona in self.vendedores:
             if persona.tipo_de_comida != "Snack":
                 for comprador in persona.cola:
@@ -611,10 +619,11 @@ class MercadoUC:
                 if cantidad == 0:
                     persona.contador_sin_ventas[producto] += 1
                 persona.unidades_vendidas[producto] = 0
-            persona.dias_sin_ventas += 1
+            if not persona.ausente:
+                persona.dias_sin_ventas += 1
             if persona.dias_sin_ventas == dias_bancarrota:
                 print(persona, "se fue a la BANCARROTA, no venderá más.")
-            if persona.stock == 0:
+            if persona.stock == 0 and not persona.confiscado:
                 persona.contador_stock_out += 1  # se reinicia a 0 cada mes
                 self.vendedores_sin_stock += 1
             if mes_anterior != self.fechahora.strftime("%B"):
@@ -633,7 +642,14 @@ class MercadoUC:
             persona.cola = deque()
             persona.generar_stock(self.alpha_stock, self.beta_stock)
             persona.instalado = False
+            persona.confiscado = False
             persona.generar_tiempo_instalacion()
+            if persona.ausente:
+                persona.dias_ausente -= 1
+                if persona.dias_ausente == 0:
+                    persona.ausente = False
+            if not persona.ausente:
+                self.posibles_vendedores.append(persona)
         if self.carabinero is not None:
             self.num_llamadas += 1
             self.carabinero.fiscalizados = []
@@ -717,6 +733,12 @@ class MercadoUC:
         print("Promedio abandono colas diario:", self.promedio_abandono_colas)
         print("Promedio vendedores sin stock diario:",
               self.promedio_vendedores_sin_stock)
+        print("Promedio dinero confiscado:", self.promedio_dinero_confiscado)
+        print("Cantidad confiscaciones Jekyll:",
+              self.confiscaciones_por_tipo[0],
+              "Hyde:", self.confiscaciones_por_tipo[1])
+        print("Cantidad de engaños Jekyll", self.engaños_por_tipo[0],
+              "Hyde", self.engaños_por_tipo[1])
 
     @property
     def productos_vendidos_durante_un_dia(self):
@@ -753,8 +775,41 @@ class MercadoUC:
                    / len(self.vendedores_sin_stock_dias)
         return promedio
 
+    @property
+    def promedio_dinero_confiscado(self):
+        suma = 0
+        total = 0
+        for carabinero in self.carabineros:
+            suma += sum(carabinero.cantidad_confiscada)
+            total += len(carabinero.cantidad_confiscada)
+        return suma / total
+
+    @property
+    def confiscaciones_por_tipo(self):
+        confiscaciones_jekyll = 0
+        confiscaciones_hyde = 0
+        for carabinero in self.carabineros:
+            if carabinero.personalidad == "Dr. Jekyll":
+                confiscaciones_jekyll += len(carabinero.cantidad_confiscada)
+            else:
+                confiscaciones_hyde += len(carabinero.cantidad_confiscada)
+        return confiscaciones_jekyll, confiscaciones_hyde
+
+    @property
+    def engaños_por_tipo(self):
+        engaños_jekyll = 0
+        engaños_hyde = 0
+        for carabinero in self.carabineros:
+            if carabinero.personalidad == "Dr. Jekyll":
+                engaños_jekyll += carabinero.engaños
+            else:
+                engaños_hyde += carabinero.engaños
+        return engaños_jekyll, engaños_hyde
+
+
+
 uc = MercadoUC(30, personas, 1, 3, 0.33, 80, 150, 3000, 20, 35, 0.5, (60, 20),
-               0.15, 0.0714, quickdevil, (0.25, 0.1), (0.1, 0.4))
+               0.15, 0.0714, quickdevil, (0.25, 0.1), (0.1, 0.4), 3)
 uc.run()
 
 

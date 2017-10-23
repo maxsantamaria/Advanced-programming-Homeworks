@@ -4,6 +4,7 @@
 - Tiempo que se demoran carabineros en fiscalizar no influye en tiempo maximo de espera
 - Para calcular la calidad promedio se tomo el valor de la calidad de los productos al ser comprados (los que no se compraban no se consideraban porque no iban a parar a nuestros queridos clientes)
 - Para estadísticas se asume descompuesto como putrefacción > 0.9
+- El día en que el vendedor se escapa por no tener permiso no cuenta como parte de los dias susto que no estará
 
 HACER:
 - Diferencias funcionarios y alumnos
@@ -12,5 +13,5 @@ HACER:
 - Recalcular precios al mes
 - Carabineros, dias susto
 - Bancarrota
-- Estadísticas
+- Estadísticas (falta la 1, 3, 15)
 - Hacer Quick Devil -> precios productos (si comprador no tiene plata no almuerza)

@@ -86,13 +86,15 @@ class MiembroUC(Persona):
 
     def generar_tiempo_llegada_a_puestos(self, lambda_traslado):
         traslado = expovariate(lambda_traslado)
-        if traslado > 3 * lambda_traslado:
-            traslado = 3 * lambda_traslado
+        if traslado > 3 * 1 / lambda_traslado:
+            traslado = 3 / lambda_traslado
         self._tiempo_llegada_a_puestos = self._tiempo_decidir_comprar_snack + \
                                          traslado
 
     def generar_tiempo_llegada_a_puestos2(self, lambda_traslado):
         traslado = expovariate(lambda_traslado)
+        if traslado > 3 * 1 / lambda_traslado:
+            traslado = 3 / lambda_traslado
         self._tiempo_llegada_a_puestos2 = self.tiempo_decidir_almorzar + \
                                           traslado
 
@@ -253,6 +255,8 @@ class Vendedor(Persona):
         self.stock = None
         self.fiscalizando = False  # True cuando está siendo fiscalizado
         self.ausente = False  # cuando se escapa
+        self.confiscado = False
+        self.dias_ausente = 0  # dice cuantos dias le quedan de ausente
         self.instalado = False
         self._tiempo_instalacion = None
         self.permiso = None  # True cuando lo tiene, False cuando no
@@ -278,6 +282,13 @@ class Vendedor(Persona):
 
     def generar_tiempo_instalacion(self):
         self.tiempo_instalacion = normalvariate(0, 30)
+
+    def promedio_precios_productos(self):
+        promedio = sum([prod.precio for prod in self.productos]) / \
+                   len(self.productos)
+        return promedio
+
+
 
     @property
     def tiempo_atencion_primer_cliente(self):
@@ -313,6 +324,8 @@ class Carabinero(Persona):
         self.fiscalizados = []
         self.tasa_productos_revisar = None
         self.prob_engaño = None
+        self.engaños = 0
+        self.cantidad_confiscada = []
 
     def generar_tasa_productos_revisar(self, tasa_jekyll, tasa_hyde):
         if self.personalidad == "jekill":
@@ -326,13 +339,35 @@ class Carabinero(Persona):
         elif self.personalidad == "hyde":
             self.prob_engaño = prob_hyde
 
-    def fiscalizar(self, vendedor):
+    def fiscalizar(self, vendedor, tiempo, calor_intenso):
         vendedor.fiscalizando = True
         self.vendedor_actual = vendedor
         p = random()
         if not vendedor.permiso and p > self.prob_engaño:
             # no lo engaño
+            print("Te pillamos po compadre", vendedor)
             vendedor.ausente = True
+        else:
+            print("Se revisarán los productos de", vendedor)
+            cantidad_a_revisar = round(self.tasa_productos_revisar * \
+                                       len(vendedor.productos))
+            if cantidad_a_revisar < 1:
+                cantidad_a_revisar = 1
+            aux = vendedor.productos
+            for _ in range(cantidad_a_revisar):
+                product = choice(aux)
+                product.actualizar_putrefaccion(tiempo, calor_intenso)
+                if product.putrefaccion > 0.9:  # esta descompuesto
+                    vendedor.confiscado = True
+                    precio = vendedor.promedio_precios_productos()
+                    self.cantidad_confiscada.append(precio * vendedor.stock)
+                    print("Se encontró un producto en mal estado", product,
+                          ". Se confisco:", precio * vendedor.stock)
+                    vendedor.stock = 0
+                    break
+        if not vendedor.permiso and p <= self.prob_engaño:
+            # lo engaño
+            self.engaños += 1
 
     def __str__(self):
         imprimir = self.nombrecompleto + " " + self.personalidad
