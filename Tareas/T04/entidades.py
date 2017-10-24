@@ -334,7 +334,9 @@ class Vendedor(Persona):
         self.contador_stock_out = 0  # cuenta cantidad de veces sin stock
         self.contador_sin_ventas = {}  # key = nombre, value = dias que no
         # se vendió, se reinicia al mes
+        self.contador_sin_ventas2 = 0
         self.unidades_vendidas = {}  # key = nombre, value = unid. vendidas,
+        self.unidades_vendidas2 = 0  # stock general
         # se reinicia al dia
         self.dias_sin_ventas = 0  # dias seguidos
         self.rapidez_atencion = None

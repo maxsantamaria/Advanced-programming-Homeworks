@@ -41,10 +41,11 @@ def parsear_parametros(archivo, comparacion, repeticiones, metrica):
                                     ["dinero_funcionarios"],
                                     alpha_stock=stock[0],
                                     beta_stock=stock[1])
+                mercado.imprimir = True
                 mercado.run()
                 mercado.mostrar_estadisticas()
             else:
-                print("\nAvance escenario: {}".format(row["escenario"]))
+                print("\n\nAvance escenario: {}".format(row["escenario"]))
                 sumatoria = 0
                 for _ in range(repeticiones):
                     personas = poblar_personas()
@@ -75,13 +76,16 @@ def parsear_parametros(archivo, comparacion, repeticiones, metrica):
                                         ["dinero_funcionarios"],
                                         alpha_stock=stock[0],
                                         beta_stock=stock[1])
+                    mercado.imprimir = False
                     mercado.run()
+
                     # mercado.mostrar_estadisticas()
                     sumatoria += mercado.estadisticas[metrica]
                 metricas_por_escenario.append(sumatoria)
         if comparacion:
             relacion = list(enumerate(metricas_por_escenario))
             ordenado = sorted(relacion, key=lambda x: x[1], reverse=True)
+            print("")
             for lugar in ordenado:
                 print("Escenario {} con métrica {}".format(lugar[0], lugar[1]))
 
@@ -119,21 +123,24 @@ def interaccion():
                   "13:00-13:59")
             print("13- Cantidad promedio de personas que almorzo entre las "
                   "14:00-14:59")
-            print("14- Cantidad de alumnos que no almorzaron por mes.")
-            print("15- Calidad promedio de productos de todos los vendedores"
+            print("14- Cantidad de alumnos que no almorzaron Marzo.")
+            print("15- Cantidad de alumnos que no almorzaron Abril.")
+            print("16- Cantidad de alumnos que no almorzaron Mayo.")
+            print("17- Cantidad de alumnos que no almorzaron Junio.")
+            print("18- Calidad promedio de productos de todos los vendedores"
                   " por escenario.")
-            print("16- Cantidad de MiembrosUC que se intoxicaron.")
-            print("17- Cantidad de Productos que se descompone.")
-            print("18- Cantidad promedio de miembros de la PUC que abandonaron"
+            print("19- Cantidad de MiembrosUC que se intoxicaron.")
+            print("20- Cantidad de Productos que se descompone.")
+            print("21- Cantidad promedio de miembros de la PUC que abandonaron"
                   " una cola de espera por dia.")
-            print("19. Cantidad promedio de vendedores por dia que se quedaron"
+            print("22. Cantidad promedio de vendedores por dia que se quedaron"
                   " sin stock.")
-            print("20- Cantidad de veces que se engaño a los carabineros de "
+            print("23- Cantidad de veces que se engaño a los carabineros de "
                   "personalidad Dr. Jekyll")
-            print("21- Cantidad de veces que se engaño a los carabineros de "
+            print("24- Cantidad de veces que se engaño a los carabineros de "
                   "personalidad Mr. Hyde")
             metrica = "mal"
-            while not isinstance(metrica, int) or metrica > 21:
+            while not isinstance(metrica, int) or metrica > 24:
                 metrica = int(input("Ingrese el número de la métrica a"
                                     " considerar: "))
             print("Ingrese la cantidad de repeticiones por escenario "

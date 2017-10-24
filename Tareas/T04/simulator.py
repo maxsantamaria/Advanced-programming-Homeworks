@@ -478,6 +478,7 @@ class MercadoUC:
         vendedor.stock -= 1
         vendedor.dias_sin_ventas = -1
         vendedor.unidades_vendidas[producto_comprado.nombre] += 1
+        # vendedor.unidades_vendidas2 += 1
         self.productos_vendidos_un_dia += 1
         # ahora se empieza a atender al siguiente
         if len(vendedor.cola) > 0:
@@ -494,11 +495,10 @@ class MercadoUC:
                 vendedor.enfermados += 1
                 if vendedor.tipo_de_comida == "Snack":
                     comprador.colas_snack.pop(comprador.ind_cola_actual)
-                    #comprador.preferencias_snack.remove(vendedor.nombre)  # BORRAR DESPUES
+
                 else:
                     comprador.colas_almuerzo.pop(comprador.ind_cola_actual2)
-                    # comprador.preferencias_almuerzo.remove(
-                    #    vendedor.nombre)  # BORRAR DESPUES
+
         if comprador.comprando:
             if vendedor.tipo_de_comida == "Snack":
                 comprador._tiempo_llegada_a_puestos2 = tiempo
@@ -588,8 +588,15 @@ class MercadoUC:
                 # print("\tNo tiene dinero para almorzar")
                 self.cantidad_no_almuerzan += 1
             else:
+
+                if fechahora.hour == 12:
+                    self.cantidad_almuerzos12_dia += 1
+                elif fechahora.hour == 13:
+                    self.cantidad_almuerzos13_dia += 1
+                elif fechahora.hour == 14:
+                    self.cantidad_almuerzos14_dia += 1
                 # print("\tTiene dinero para comprar en el local")
-                pass
+
 
         comprador.quick = False
         comprador._tiempo_llegada_a_puestos = None  # se reinicia
@@ -740,6 +747,9 @@ class MercadoUC:
                 if cantidad == 0:
                     persona.contador_sin_ventas[producto] += 1
                 persona.unidades_vendidas[producto] = 0
+            # if persona.unidades_vendidas2 == 0:
+                # persona.contador_sin_ventas2 += 1
+            # persona.unidades_vendidas2 = 0
             if not persona.ausente:
                 persona.dias_sin_ventas += 1
             if persona.dias_sin_ventas == DIAS_BANCARROTA:
@@ -755,12 +765,21 @@ class MercadoUC:
                 for producto in persona.productos:
                     P = producto.precio
                     N1 = persona.contador_sin_ventas[producto.nombre]
+                    #N1 = persona.contador_sin_ventas2
                     N2 = persona.contador_stock_out
-                    precio = P - P * 5 * N1 / 100 + P * 6 * N2 / 100
+                    precio = P - P  * N1 * FACTOR_DESCUENTO_PRECIO + \
+                             P * N2 * FACTOR_AUMENTO_PRECIO
                     if precio < producto.precio_minimo:
                         precio = producto.precio_minimo
-                    # print("El precio cambiaría de", P, "a", precio, N1, N2)
-                    # new = Producto()
+                    if self.imprimir:
+                        print("El precio cambiaría de", P, "a", precio,
+                              "para", producto, "del vendedor", persona)
+                    new = Producto(producto.nombre, producto.tipo,
+                                   producto.puesto_de_comida, precio,
+                                   producto.calorias, producto.
+                                   tasa_putrefaccion)
+                    nuevos_productos.append(new)
+                persona.productos = nuevos_productos
             self.vendedores_sin_stock_dias.append(self.vendedores_sin_stock)
             persona.cola = deque()
             persona.generar_stock(self.alpha_stock, self.beta_stock)
@@ -861,7 +880,10 @@ class MercadoUC:
                              self.promedio_horario_almuerzo[0],
                              self.promedio_horario_almuerzo[1],
                              self.promedio_horario_almuerzo[2],
-                             self.cantidad_no_almuerzan,
+                             self.cantidad_no_almuerzan["March"],
+                             self.cantidad_no_almuerzan["April"],
+                             self.cantidad_no_almuerzan["May"],
+                             self.cantidad_no_almuerzan["June"],
                              self.promedio_calidad,
                              self.enfermados,
                              self.productos_descompuestos,
