@@ -436,8 +436,6 @@ class MercadoUC:
         self.tiempo_actual = tiempo
         fechahora = self.fechahora + timedelta(minutes=tiempo)
         comprador = vendedor.cola.popleft()
-        # print(comprador, comprador.preferencias_almuerzo)
-        # print(comprador, comprador.preferencias_snack)
         for producto in vendedor.productos:
             producto.actualizar_putrefaccion(tiempo, self.calor_intenso)
             producto.actualizar_calidad(self.frio_intenso)
@@ -570,8 +568,13 @@ class MercadoUC:
                         # print("\tNo tiene dinero para almorzar")
                         self.cantidad_no_almuerzan += 1
                     else:
+                        if fechahora.hour == 12:
+                            self.cantidad_almuerzos12_dia += 1
+                        elif fechahora.hour == 13:
+                            self.cantidad_almuerzos13_dia += 1
+                        elif fechahora.hour == 14:
+                            self.cantidad_almuerzos14_dia += 1
                         # print("\tTiene dinero para comprar en el local")
-                        pass
                     comprador.quick = True
                     break
             if not comprador.quick and isinstance(comprador, Funcionario):
@@ -774,10 +777,12 @@ class MercadoUC:
                     if self.imprimir:
                         print("El precio cambiaría de", P, "a", precio,
                               "para", producto, "del vendedor", persona)
+                    minim = producto.precio_minimo
                     new = Producto(producto.nombre, producto.tipo,
                                    producto.puesto_de_comida, precio,
                                    producto.calorias, producto.
                                    tasa_putrefaccion)
+                    new.precio_minimo = minim
                     nuevos_productos.append(new)
                 persona.productos = nuevos_productos
             self.vendedores_sin_stock_dias.append(self.vendedores_sin_stock)

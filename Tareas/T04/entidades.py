@@ -22,8 +22,6 @@ class MiembroUC(Persona):
         self.mesada = None
         self.pesos_diarios = None
         self.preferencias = []
-        self.preferencias_snack = []  # borrar despues
-        self.preferencias_almuerzo = []  # borrar despues
         self.colas_snack = []
         self.colas_almuerzo = []
         self.ind_cola_actual = 0
@@ -590,11 +588,8 @@ def union_vendedores_compradores(personas):
         for vendedor in preferencias:
             if vendedor.tipo_de_comida == "Snack":
                 comprador.colas_snack.append(vendedor.entrega_cola())
-                comprador.preferencias_snack.append(vendedor.nombre)  # BORRAR DESPUES, SOLO PRUEBAS
             else:
                 comprador.colas_almuerzo.append(vendedor.entrega_cola())
-                comprador.preferencias_almuerzo.append(
-                    vendedor.nombre)  # BORRAR DESPUES, SOLO PRUEBAS
 
 
 def union_vendedores_productos(personas, productos, quickdevil):
