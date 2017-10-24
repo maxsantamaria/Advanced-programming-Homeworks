@@ -1,4 +1,4 @@
-from simulator2 import *
+from simulator import *
 
 
 def parsear_parametros(archivo, comparacion, repeticiones, metrica):
@@ -132,11 +132,16 @@ def interaccion():
                   "personalidad Dr. Jekyll")
             print("21- Cantidad de veces que se engaño a los carabineros de "
                   "personalidad Mr. Hyde")
-            metrica = input("Ingrese el número de la métrica a considerar: ")
+            metrica = "mal"
+            while not isinstance(metrica, int) or metrica > 21:
+                metrica = int(input("Ingrese el número de la métrica a"
+                                    " considerar: "))
             print("Ingrese la cantidad de repeticiones por escenario "
                   "(considere que hay una demora de aprox 35 segundos por "
                   "réplica)")
-            repeticiones = int(input("Numero de repeticiones: "))
+            repeticiones = 0
+            while not isinstance(repeticiones, int) or repeticiones <= 0:
+                repeticiones = int(input("Numero de repeticiones: "))
             parsear_parametros("escenarios.csv", True, repeticiones,
                                int(metrica))
 
