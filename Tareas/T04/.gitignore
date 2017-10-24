@@ -5,3 +5,6 @@ personas.csv
 personas_old.csv
 productos.csv
 pruebas.py
+simulator_viejo.py
+parser.py
+__pycache__
