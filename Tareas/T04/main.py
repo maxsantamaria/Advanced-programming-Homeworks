@@ -137,7 +137,7 @@ def interaccion():
                   "(considere que hay una demora de aprox 35 segundos por "
                   "réplica)")
             repeticiones = int(input("Numero de repeticiones: "))
-            parsear_parametros("escenarios_falso.csv", True, repeticiones,
+            parsear_parametros("escenarios.csv", True, repeticiones,
                                int(metrica))
 
 
