@@ -41,6 +41,7 @@ transformador = {"1": 12000,
 
 algoritmos = [algoritmo_1, algoritmo_2]
 
+print("Generando archivo...")
 
 with open("potato.potato", "rb") as file1:
     with open("herp.derp", "rb") as file2:
