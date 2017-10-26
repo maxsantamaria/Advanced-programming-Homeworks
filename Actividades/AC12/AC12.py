@@ -75,7 +75,6 @@ with open("potato.potato", "rb") as file1:
 
 with open("video.mp4", "wb") as resultado:
     largo_total = len(array_final)
-    print(largo_total, "LARGO")
     print("|{0: ^15s}|{1: ^15s}|{2: ^16s}|{3: ^16s}|".format("Total",
                                                              "Procesado",
                                                              "Sin procesar",
