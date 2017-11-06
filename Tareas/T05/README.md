@@ -1,16 +1,8 @@
-# Tareas
+Durante el tiempo (1 segundo) entre ataques, los personajes van a hacer sus movimientos de ataque, cuando dejen de hacerlos significa que se puede atacar de nuevo. Durante este tiempo se pueden mover, por ejemplo si el enemigo es de menor tamaño, va a intentar escapar en ese segundo. 
+Por ahora se pueden atravesar durante un ataque 
+Hay solo 1 safe zone por juego
+Al abrir la tienda se pausa el juego, por lo que al cerrarla hay que apretar el boton de pausa para seguir jugando. Eso le da tiempo al jugador de ver lo que estaba haciendo.
+Inventario se tiene que poder mostrar. Se puede mostrar pulsando la tienda
 
-Cada tarea debe estar contenida en una carpeta llamada `TXX` donde `XX` es el número de la tarea. Una vez avanzado el semestre, el contenido de esta carpeta debería verse más o menos así:
-
-* ...
-* `T02`
-* `T03`
-* `T04`
-* `T05`
-* ...
-
-Dentro de cada tarea **debes** entregar un archivo `README.md` (puedes usar [Markdown](https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet)) dentro de la carpeta correspondiente con información útil para el ayudante que corrija tu código. Algunos temas importantes que debes cubrir en tu `README.md` son:
-
-* Instrucciones de uso o archivo principal a ejecutar para correr la tarea
-* Librerías externas necesarias, en caso de que hayas utilizado alguna autorizada por los ayudantes
-* ... cualquier cosa extra que creas que el ayudante deba saber sobre tu tarea para poder corregirla
+Falta:
+	- ajustar velocidad
