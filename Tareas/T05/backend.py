@@ -259,7 +259,7 @@ class Enemy(QThread):
         self.victima.atacando = True
         daño_a_enemigo = self.victima.generar_ataque()
         self.vida_actual -= daño_a_enemigo
-        #time.sleep(1)
+        # time.sleep(1)
         self.victima.vida_actual -= self.generar_ataque()
         self.tiempo_inicio_ataque = time.time()
 

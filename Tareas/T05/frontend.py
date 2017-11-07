@@ -426,9 +426,9 @@ class MiVentana(QWidget):
                 if euclidean_distance(v1, v2) < RANGO_EXPLOSION:
                     enem.bombeado = True
                     enem.vida_actual = 0
-            if euclidean_distance(self.jug_principal.centro, bomba.centro) < RANGO_EXPLOSION:
+            if euclidean_distance(self.jug_principal.centro, bomba.centro)\
+                    < RANGO_EXPLOSION:
                 self.jug_principal.vida_actual = 0
-
 
     def update_pbar(self):
         porcentaje = self.jug_principal.vida_actual / \
