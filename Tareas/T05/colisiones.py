@@ -1,3 +1,17 @@
+import numpy
+
+
+def euclidean_distance(v1, v2):  # 2 tuplas
+    x1 = v1[0]
+    x2 = v2[0]
+    y1 = v1[1]
+    y2 = v2[1]
+    a = numpy.array((x1, y1))
+    b = numpy.array((x2, y2))
+    dist = numpy.linalg.norm(a - b)
+    return dist
+
+
 def check_collision(objeto1, objeto2):  # true if collides, false if not
     lim_izq1 = objeto1.x
     lim_der1 = objeto1.x + objeto1.image.width()

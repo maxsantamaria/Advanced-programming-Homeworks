@@ -7,7 +7,8 @@ from PyQt5.QtGui import QIcon, QPixmap, QTransform, QFont
 from PyQt5.QtWidgets import (QWidget, QApplication, QLabel, QLineEdit,
                              QPushButton, QProgressBar)
 from backend import Character, Enemy, check_collision, \
-    Bomba, check_click_on_label, registrar_puntaje, abrir_ranking
+    Bomba, check_click_on_label, registrar_puntaje, abrir_ranking, \
+    euclidean_distance
 from constantes import *
 from tienda import Tienda
 
@@ -292,7 +293,8 @@ class MiVentana(QWidget):
                                    22 + 7 * enemigo.tamaño)
             pixmap = pixmap.transformed(QTransform().
                                         rotate(enemigo.rotation))
-            label.setPixmap(QPixmap(pixmap))
+            if label is not None:
+                label.setPixmap(QPixmap(pixmap))
         self.numero += 1
         if self.numero >= 10:  # era 10
             self.numero = 2
@@ -415,6 +417,18 @@ class MiVentana(QWidget):
             pmap = QPixmap("Assets/bomba_explota.png")
             pmap = pmap.scaled(25, 25)
             bomba.image.setPixmap(pmap)
+        self.enemies = [enem for enem in self.enemies
+                        if enem.image is not None]
+        if bomba.contador == 0:
+            for enem in self.enemies:
+                v1 = bomba.centro
+                v2 = enem.centro
+                if euclidean_distance(v1, v2) < RANGO_EXPLOSION:
+                    enem.bombeado = True
+                    enem.vida_actual = 0
+            if euclidean_distance(self.jug_principal.centro, bomba.centro) < RANGO_EXPLOSION:
+                self.jug_principal.vida_actual = 0
+
 
     def update_pbar(self):
         porcentaje = self.jug_principal.vida_actual / \

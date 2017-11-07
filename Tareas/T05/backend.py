@@ -6,7 +6,7 @@ import numpy
 from PyQt5.QtCore import pyqtSignal, QThread, Qt, QTimer
 from constantes import *
 from colisiones import check_collision, check_collision_with_label, \
-    check_click_on_label
+    check_click_on_label, euclidean_distance
 import csv
 import os
 
@@ -26,7 +26,7 @@ class Character:
         self.c = 0  # bonificaciones
         self.bonificacion = 0
         self.vida_actual = self.vida_maxima
-        self._experiencia = 900   # parte en 0
+        self._experiencia = 0   # parte en 0
         self.puntaje = PUNTAJE_INICIO
         self.timer_puntaje = QTimer()
         self.timer_puntaje.timeout.connect(self.aumentar_puntaje)
@@ -197,6 +197,7 @@ class Enemy(QThread):
         Enemy.id += 1
         self.tiempo_inicio_ataque = 0
         self.progressbar = None
+        self.bombeado = False  # True cuando muere por bomba
 
     @property
     def vida_maxima(self):
@@ -352,7 +353,8 @@ class Enemy(QThread):
                 if prob < 0.25:
                     self.rotation = randint(0, 360)
                 # FIN INTELIGENCIA
-        self.victima.ganar_experiencia(self.tamaño)
+        if not self.bombeado:
+            self.victima.ganar_experiencia(self.tamaño)
         self.victima.atacando = False  # cuando muere, deja de atacar
         self.quit()
         self.image.deleteLater()
@@ -408,36 +410,6 @@ class Enemy(QThread):
         return str(self.id)
 
 
-def euclidean_distance(v1, v2):  # 2 tuplas
-    x1 = v1[0]
-    x2 = v2[0]
-    y1 = v1[1]
-    y2 = v2[1]
-    a = numpy.array((x1, y1))
-    b = numpy.array((x2, y2))
-    dist = numpy.linalg.norm(a - b)
-    return dist
-
-
-def registrar_puntaje(nombre, puntaje):
-    if os.path.exists("ranking.csv"):
-        header = True
-    else:
-        header = False
-    with open("ranking.csv", "a", newline="") as file:
-        writer = csv.writer(file)
-        if not header:
-            writer.writerow(["Nombre", "Puntaje"])
-        writer.writerow([nombre, str(puntaje)])
-
-
-def abrir_ranking():
-    with open("ranking.csv", "r") as file:
-        reader = csv.DictReader(file)
-        lista = sorted(reader, key=lambda x: int(x["Puntaje"]), reverse=True)
-        return lista
-
-
 class Bomba(QThread):
     def __init__(self, parent, x, y):
         super().__init__()
@@ -448,6 +420,12 @@ class Bomba(QThread):
         self.contador = 3
         self.x = x
         self.y = y
+
+    @property
+    def centro(self):
+        self._centro = (self.x + self.image.width() / 2,
+                        self.y + self.image.height() / 2)
+        return self._centro
 
     def run(self):
         while True:
@@ -471,3 +449,22 @@ class Bomba(QThread):
             self.contador -= 1
         self.label_contador.deleteLater()
         self.image.deleteLater()
+
+
+def registrar_puntaje(nombre, puntaje):
+    if os.path.exists("ranking.csv"):
+        header = True
+    else:
+        header = False
+    with open("ranking.csv", "a", newline="") as file:
+        writer = csv.writer(file)
+        if not header:
+            writer.writerow(["Nombre", "Puntaje"])
+        writer.writerow([nombre, str(puntaje)])
+
+
+def abrir_ranking():
+    with open("ranking.csv", "r") as file:
+        reader = csv.DictReader(file)
+        lista = sorted(reader, key=lambda x: int(x["Puntaje"]), reverse=True)
+        return lista
