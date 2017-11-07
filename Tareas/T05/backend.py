@@ -1,10 +1,12 @@
 import time
 from math import cos, sin, radians
-from threading import Thread, Condition, Lock
+from threading import Condition, Lock
 from random import random, randint, choice
 import numpy
 from PyQt5.QtCore import pyqtSignal, QThread, Qt, QTimer
 from constantes import *
+from colisiones import check_collision, check_collision_with_label, \
+    check_click_on_label
 import csv
 import os
 
@@ -24,7 +26,7 @@ class Character:
         self.c = 0  # bonificaciones
         self.bonificacion = 0
         self.vida_actual = self.vida_maxima
-        self._experiencia = 0   # parte en 0
+        self._experiencia = 900   # parte en 0
         self.puntaje = PUNTAJE_INICIO
         self.timer_puntaje = QTimer()
         self.timer_puntaje.timeout.connect(self.aumentar_puntaje)
@@ -51,13 +53,8 @@ class Character:
         return self._velocidad
 
     def avanzar2(self, QKeyEvent):
-        #print(self.image.width(), self.image.height())
-        #print(self.image.pixmap().width(), self.image.pixmap().height())
-        #print(self.diag)
         if QKeyEvent.text() == "w":
             # time.sleep(0.05)  # para ajustar velocidad
-            #self.x -= (11-self.tamaño)/5*cos(radians(self.rotation))
-            #self.y -= (11-self.tamaño)/5*sin(radians(self.rotation))
             self.x -= self.velocidad*cos(radians(self.rotation))
             self.y -= self.velocidad*sin(radians(self.rotation))
 
@@ -80,7 +77,7 @@ class Character:
 
         for label in self.parent.puntajes_extra:
             if check_collision_with_label(self, label):
-                print("GANO 1000")
+                # print("GANO 1000")
                 self.puntaje += 1000
                 label.setVisible(False)
         self.parent.puntajes_extra = [lab for lab in self.parent.puntajes_extra
@@ -88,7 +85,7 @@ class Character:
 
         for label in self.parent.vidas_extra:
             if check_collision_with_label(self, label):
-                print("GANO VIDA")
+                # print("GANO VIDA")
                 self.vida_actual = self.vida_maxima
                 label.setVisible(False)
         self.parent.vidas_extra = [lab for lab in self.parent.vidas_extra
@@ -174,6 +171,7 @@ class Character:
 
 class Enemy(QThread):
     id = 0
+
     def __init__(self, parent, x, y, tamaño=1):
         super().__init__()
         self.parent = parent
@@ -200,7 +198,6 @@ class Enemy(QThread):
         self.tiempo_inicio_ataque = 0
         self.progressbar = None
 
-
     @property
     def vida_maxima(self):
         self._vida_maxima = self.tamaño * 20 + 100
@@ -220,7 +217,7 @@ class Enemy(QThread):
 
     @property
     def rango_vision(self):
-        self._rango_vision = self.tamaño * RANGO_VISION  # es por 30 normalmente
+        self._rango_vision = self.tamaño * RANGO_VISION  # es por 30 normalmte
         return self._rango_vision
 
     @property
@@ -250,8 +247,9 @@ class Enemy(QThread):
             if other != self and check_collision(other, self):  # ENEM-ENEM
                 self.x = initx
                 self.y = inity
-                #self.rotation = randint(0, 360)
-                #self.avanzar()
+                # print("choque")
+                if not self.esta_acercando or self.esta_escapando:
+                    self.rotation = choice([0, 90, 180, 270])
                 break
         self.trigger.emit(self)
 
@@ -294,58 +292,53 @@ class Enemy(QThread):
                 if self.paused:
                     self.state.wait()
             # time.sleep(0.1)
-            #print(self.centro, self.victima.centro )
-            #print("DISTANCE", euclidean_distance(self.centro, self.victima.centro),
-            #      "\nRANGO", self.rango_vision)
             if time.time() - self.tiempo_inicio_ataque >= 1:
                 self.atacando = False
                 self.victima.atacando = False
-            if check_collision(self, self.victima):
-                print("COLISION")
+            # if check_collision(self, self.victima):
+                # print("COLISION")
             if not self.victima.zona_segura and \
                     (euclidean_distance(self.centro,
-                                       self.victima.
-                                       centro) < self.rango_vision or
+                                        self.victima.
+                                        centro) < self.rango_vision or
                      check_collision(self, self.victima)):
-                # print("DISTANCE", euclidean_distance(self.centro, self.victima.centro))
 
                 if check_collision(self, self.victima) and not self.atacando:
-                #if euclidean_distance(self.centro,
-                #                      self.victima.centro) < (self.image.width()/3 + self.victima.image.width()/3)\
-                #        and not self.atacando:
-                    print("ACA EMPEZARIA EL ATAQUE")
+                    # print("ACA EMPEZARIA EL ATAQUE")
                     self.ataque()
                 else:
                     # INTELIGENCIA
-                    if self.tamaño < self.victima.tamaño:
-                        print("Esta escapando!!")
+                    if self.tamaño < self.victima.tamaño or \
+                            self.esta_escapando:
+                        # print("Esta escapando!!")
                         self.esta_escapando = True
                         self.escape()  # aca avanza
-                    elif self.tamaño == self.victima.tamaño:
+                    elif self.tamaño == self.victima.tamaño and \
+                            not self.esta_acercando:
                         p = random()
                         if p < 0.5:
-                            print("El enemigo se acerca!!")
+                            # print("El enemigo se acerca!!")
                             self.esta_acercando = True
                             self.acercarse()
                         else:
-                            print("Esta escapando!!")
+                            # print("Esta escapando!!")
                             self.esta_escapando = True
                             self.escape()
                     else:
-                        print("El enemigo se acerca!!")
+                        # print("El enemigo se acerca!!")
                         self.esta_acercando = True
                         self.acercarse()
             elif euclidean_distance(self.centro,
                                     self.victima.centro) < self.rango_escape \
                     and not self.victima.zona_segura and self.esta_escapando:
 
-                print("DEBERIA SEGUIR ESCAPANDO")
+                # print("DEBERIA SEGUIR ESCAPANDO")
                 self.escape()
             elif euclidean_distance(self.centro,
                                     self.victima.centro) < self.rango_escape \
                     and not self.victima.zona_segura and self.esta_acercando:
 
-                print("DEBERIA SEGUIR ACERCANDOSE")
+                # print("DEBERIA SEGUIR ACERCANDOSE")
                 self.acercarse()
 
             else:
@@ -365,7 +358,6 @@ class Enemy(QThread):
         self.image.deleteLater()
         self.progressbar.deleteLater()
         self.image = None
-
 
     def resume(self):
         with self.state:
@@ -399,10 +391,6 @@ class Enemy(QThread):
             self._y = 30
             if not self.esta_escapando and not self.esta_acercando:
                 self.rotation = 0
-            #if self.x == 0:
-            #    self.rotation = choice([0, 180])
-            #elif self.x == 1000 - self.image.width():
-            #    self.rotation = choice([90, -90])
         elif posicion + self.image.height() > self.parent.height() - 30:
             self._y = self.parent.height() - 30 - self.image.height()
             if self.x == 0:
@@ -420,7 +408,6 @@ class Enemy(QThread):
         return str(self.id)
 
 
-
 def euclidean_distance(v1, v2):  # 2 tuplas
     x1 = v1[0]
     x2 = v2[0]
@@ -430,52 +417,6 @@ def euclidean_distance(v1, v2):  # 2 tuplas
     b = numpy.array((x2, y2))
     dist = numpy.linalg.norm(a - b)
     return dist
-
-
-def check_collision(objeto1, objeto2):  # true if collides, false if not
-    lim_izq1 = objeto1.x
-    lim_der1 = objeto1.x + objeto1.image.width()
-    lim_sup1 = objeto1.y
-    lim_inf1 = objeto1.y + objeto1.image.height()
-    lim_izq2 = objeto2.x
-    lim_der2 = objeto2.x + objeto2.image.width()
-    lim_sup2 = objeto2.y
-    lim_inf2 = objeto2.y + objeto2.image.height()
-
-    if (lim_izq1 <= lim_izq2 <= lim_der1 or lim_izq1 <= lim_der2 <= lim_der1) \
-            and (lim_sup1 <= lim_sup2 <= lim_inf1 or
-                 lim_sup1 <= lim_inf2 <= lim_inf1):
-        if isinstance(objeto1, Enemy) and isinstance(objeto2, Enemy):
-            print(lim_izq1, lim_der1, lim_sup1, lim_inf1, "|", lim_izq2, lim_der2, lim_sup2, lim_inf2)
-        return True
-    else:
-        return False
-
-
-def check_collision_with_label(objeto1, label):  # true if collides, false if not
-    lim_izq1 = objeto1.x
-    lim_der1 = objeto1.x + objeto1.image.width()
-    lim_sup1 = objeto1.y
-    lim_inf1 = objeto1.y + objeto1.image.height()
-    lim_izq2 = label.x()
-    lim_der2 = label.x() + label.width()
-    lim_sup2 = label.y()
-    lim_inf2 = label.y() + label.height()
-
-    if (lim_izq1 <= lim_izq2 <= lim_der1 or lim_izq1 <= lim_der2 <= lim_der1) \
-            and (lim_sup1 <= lim_sup2 <= lim_inf1 or
-                 lim_sup1 <= lim_inf2 <= lim_inf1):
-        return True
-    else:
-        return False
-
-
-def check_click_on_label(mouse, label):
-    if label.x() <= mouse.x() <= label.x() + label.width() and \
-            label.y() <= mouse.y() <= label.y() + label.height():
-        return True
-    else:
-        return False
 
 
 def registrar_puntaje(nombre, puntaje):
@@ -494,7 +435,6 @@ def abrir_ranking():
     with open("ranking.csv", "r") as file:
         reader = csv.DictReader(file)
         lista = sorted(reader, key=lambda x: int(x["Puntaje"]), reverse=True)
-        print(lista)
         return lista
 
 
@@ -517,13 +457,13 @@ class Bomba(QThread):
                                    if en.image is not None]
             for enemy in self.parent.enemies:
                 if check_collision(enemy, self):
-                    print("Bomba explota")
+                    # print("Bomba explota")
                     colision = True
                     break
             if colision:
                 break
             if check_collision(self.parent.jug_principal, self):
-                print("Bomba explota")
+                # print("Bomba explota")
                 break
         while self.contador > -1:
             self.trigger.emit(self)
@@ -531,4 +471,3 @@ class Bomba(QThread):
             self.contador -= 1
         self.label_contador.deleteLater()
         self.image.deleteLater()
-

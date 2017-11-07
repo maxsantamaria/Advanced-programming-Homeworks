@@ -1,13 +1,13 @@
-import time
 import sys
 import os
+import time
 from random import expovariate, randint, uniform, triangular
 from PyQt5.QtCore import pyqtSignal, QThread, Qt, QTimer
 from PyQt5.QtGui import QIcon, QPixmap, QTransform, QFont
 from PyQt5.QtWidgets import (QWidget, QApplication, QLabel, QLineEdit,
                              QPushButton, QProgressBar)
-from threading import Thread
-from backend import Character, Enemy, check_collision, Bomba, check_click_on_label, registrar_puntaje, abrir_ranking
+from backend import Character, Enemy, check_collision, \
+    Bomba, check_click_on_label, registrar_puntaje, abrir_ranking
 from constantes import *
 from tienda import Tienda
 
@@ -21,7 +21,6 @@ class Inicio(QWidget):
         self.label_fondo.resize(self.width(), self.height())
         pmap = QPixmap("Assets/fondo1.jpg")
         pmap = pmap.scaled(self.width(), self.height())
-        #pmap.scaled(self.label_fondo.width(), self.label_fondo.height())
         self.label_fondo.setPixmap(QPixmap(pmap))
 
         self.label_logo = QLabel(self)
@@ -34,7 +33,8 @@ class Inicio(QWidget):
         self.label_titulo.move(400, 250)
         font = QFont("Times", 64, QFont.Bold)
         self.label_titulo.setFont(font)
-        self.label_titulo.setStyleSheet("QLabel {background-color : darkgreen}")
+        self.label_titulo.setStyleSheet("QLabel "
+                                        "{background-color : darkgreen}")
 
         self.label_titulo2 = QLabel("ATTACK", self)
         self.label_titulo2.move(650, 340)
@@ -57,9 +57,9 @@ class Inicio(QWidget):
         self.boton_ranking.clicked.connect(self.mostrar_ranking)
         self.boton_ranking.setFont(QFont("Courier", 18, QFont.Black))
         self.boton_ranking.setStyleSheet("QPushButton {background-color: "
-                                          "orange; border-width: 4px;"
-                                          "border-color: orange;"
-                                          "border-style: outset}")
+                                         "orange; border-width: 4px;"
+                                         "border-color: orange;"
+                                         "border-style: outset}")
         self.boton_ranking.resize(self.boton_ranking.sizeHint())
         self.boton_ranking.move(50, 500)
 
@@ -67,7 +67,6 @@ class Inicio(QWidget):
 
     def comenzar_juego(self):
         self.juego = MiVentana()
-        #self.juego.show()
         self.close()
 
     def mostrar_ranking(self):
@@ -87,7 +86,6 @@ class Inicio(QWidget):
             self.label_ranking.setText(string)
             self.label_ranking.setGeometry(450, 150, 500, 500)
             self.label_ranking.show()
-            #label_ranking.setVisible(True)
 
 
 class MiVentana(QWidget):
@@ -104,8 +102,6 @@ class MiVentana(QWidget):
         self.nivel = 1
 
         self.init_GUI()
-        # Definimos la geometría de la ventana.
-
 
     def init_GUI(self):
         # geometria de ventana
@@ -126,73 +122,54 @@ class MiVentana(QWidget):
         pmap = QPixmap("Assets/fondo2.jpg")
         pmap = pmap.scaled(self.width() - 60, self.height() - 60)
         self.label_fondo.setPixmap(QPixmap(pmap))
-
-        self.label1 = QLabel('Texto:', self)
-        self.label1.move(10, 15)
-
-        self.label2 = QLabel('Variable', self)
-        self.label2.move(200, 15)
-
-        #self.edit1 = QLineEdit('', self)
-        #self.edit1.setGeometry(45, 15, 100, 20)
+        # FIN GEOMETRIA VENTANA
 
         # BOTONES
-        self.boton1 = QPushButton('Presiona', self)
-        self.boton1.clicked.connect(self.boton_apretado)
-        self.boton1.resize(self.boton1.sizeHint())
-        self.boton1.move(5.5, 70)
-
         self.boton_pausa = QPushButton('PAUSA', self)
         self.boton_pausa.clicked.connect(self.pausar)
         self.boton_pausa.resize(self.boton_pausa.sizeHint())
         self.boton_pausa.move(30, 575)
         self.boton_pausa.setStyleSheet("QPushButton {background-color: "
-                                          "orange; border-width: 4px;"
-                                          "border-color: orange;"
-                                          "border-style: outset;"
+                                       "orange; border-width: 4px;"
+                                       "border-color: orange;"
+                                       "border-style: outset;"
                                        "font-weight: bold;"
                                        "font-family: Courier}")
-
 
         self.boton_tienda = QPushButton('TIENDA', self)
         self.boton_tienda.clicked.connect(self.abrir_tienda)
         self.boton_tienda.resize(self.boton_tienda.sizeHint())
         self.boton_tienda.move(120, 575)
         self.boton_tienda.setStyleSheet("QPushButton {background-color: "
-                                       "orange; border-width: 4px;"
-                                       "border-color: orange;"
-                                       "border-style: outset;"
-                                       "font-weight: bold;"
-                                       "font-family: Courier;}")
-
-        self.boton_salir = QPushButton('SALIR', self)
-        self.boton_salir.clicked.connect(self.salir)
-        self.boton_salir.resize(self.boton_salir.sizeHint())
-        self.boton_salir.move(890, 575)
-        self.boton_salir.setStyleSheet("QPushButton {background-color: "
                                         "orange; border-width: 4px;"
                                         "border-color: orange;"
                                         "border-style: outset;"
                                         "font-weight: bold;"
                                         "font-family: Courier;}")
 
+        self.boton_salir = QPushButton('SALIR', self)
+        self.boton_salir.clicked.connect(self.salir)
+        self.boton_salir.resize(self.boton_salir.sizeHint())
+        self.boton_salir.move(890, 575)
+        self.boton_salir.setStyleSheet("QPushButton {background-color: "
+                                       "orange; border-width: 4px;"
+                                       "border-color: orange;"
+                                       "border-style: outset;"
+                                       "font-weight: bold;"
+                                       "font-family: Courier;}")
+        # FIN BOTONES
+
         # Images Jugador Principal
         self.jug_principal = Character(self, 200, 200)
         self.jug_principal.image = QLabel(self)
         pixmap = QPixmap("Assets/bowser/bowser_02.png")
-        #pixmap = pixmap.scaled(256 / 2, 256 / 2)
         pixmap = pixmap.scaled(22 + 7 * self.jug_principal.tamaño,
                                22 + 7 * self.jug_principal.tamaño)
 
-        #pixmap = pixmap.scaled(pixmap.width()/(14-self.jug_principal.tamaño),
-        #                       pixmap.height()/(14-self.jug_principal.tamaño))
-        print(pixmap.width(), pixmap.height())
         diag = (pixmap.width()**2 + pixmap.height()**2)**0.5
         self.jug_principal.image.setMinimumSize(diag, diag)
-        #self.jug_principal.image.setGeometry(200, 200, 256 * 2, 256 * 2)  # 120, 114
         self.jug_principal.image.setAlignment(Qt.AlignCenter)
         self.jug_principal.image.move(200, 200)
-        #pixmap = QPixmap("Assets/main_player/jugador_principal_01.png")
 
         self.jug_principal.image.setPixmap(QPixmap(pixmap))
         self.jug_principal.image.show()
@@ -200,8 +177,8 @@ class MiVentana(QWidget):
 
         self.pbar = QProgressBar(self)
         self.pbar.setGeometry(250, 575, 400, 20)
-        self.pbar.setStyleSheet("QProgressBar {text-align: center; font-weight: bold}")
-        #self.pbar.setStyleSheet("QProgressBar::chunk {background-color: red; width: 20px; text-align: right}")
+        self.pbar.setStyleSheet("QProgressBar {text-align: center; "
+                                "font-weight: bold}")
         self.timer_pbar = QTimer()
         self.timer_pbar.timeout.connect(self.update_pbar)
         self.timer_pbar.start(100)
@@ -213,15 +190,20 @@ class MiVentana(QWidget):
                                          "font-size: 18px}")
 
         self.pbar_exp = QProgressBar(self)
-        #self.pbar_exp.setGeometry(985, 200, 400, 20)
         self.pbar_exp.setMinimumSize(20, 400)
         self.pbar_exp.move(975, 100)
         self.pbar_exp.setOrientation(Qt.Vertical)
-        self.pbar_exp.setTextDirection(QProgressBar.BottomToTop)
+        self.label_nivel = QLabel("LVL\n " + str(self.nivel), self)
+        self.label_nivel.move(975, 60)
+        self.label_nivel.setStyleSheet("QLabel {font-size: 12px;"
+                                       "font-weight: bold}")
+
+        # self.pbar_exp.setTextDirection(QProgressBar.BottomToTop)
+        # self.pbar_exp.setTextVisible(True)
+
         #self.pbar_exp.setInvertedAppearance(True)
 
-
-        # Thread
+        # Threads y Timers
         self.timer1 = QTimer(self)  # sprites
         self.timer1.timeout.connect(self.update_movimiento)
         self.numero = 2
@@ -256,9 +238,6 @@ class MiVentana(QWidget):
         self.timer_bomba = QTimer(self)
         self.timer_bomba.timeout.connect(self.aparece_bomba)
         self.timer_bomba.start(uniform(1, 30) * 1000)
-
-        #self.label_image.setPixmap(pixmap)
-        #self.label_image.show()
 
     @property
     def lambda_aparicion(self):
@@ -298,11 +277,6 @@ class MiVentana(QWidget):
         self.jug_principal.image.setMinimumSize(diag, diag)
         pixmap = pixmap.transformed(QTransform().
                                     rotate(self.jug_principal.rotation))
-        #pixmap = pixmap.scaled(pixmap.width()/(14-self.jug_principal.tamaño),
-        #                       pixmap.height()/(14-self.jug_principal.tamaño))
-        #pixmap = pixmap.scaled(pixmap.width(), pixmap.height())
-
-        #pixmap = pixmap.scaled(256/2, 256/2)
         self.jug_principal.image.setPixmap(QPixmap(pixmap))
         self.enemies = [enem for enem in self.enemies
                         if enem.image is not None]
@@ -312,13 +286,10 @@ class MiVentana(QWidget):
             else:
                 index = self.numero
             label = enemigo.image
-            pixmap = QPixmap("Assets/clubba/clubba_" + "{:0>2d}".format(index) +
-                             ".png")
-            #pixmap = pixmap.scaled(256 / 4, 256 / 4)
+            pixmap = QPixmap("Assets/clubba/clubba_" + "{:0>2d}".format(index)
+                             + ".png")
             pixmap = pixmap.scaled(22 + 7 * enemigo.tamaño,
-                                   22 + 7 * enemigo.tamaño )
-            #pixmap = pixmap.scaled(530 / (16-enemigo.tamaño),
-            #                       530 / (16-enemigo.tamaño))
+                                   22 + 7 * enemigo.tamaño)
             pixmap = pixmap.transformed(QTransform().
                                         rotate(enemigo.rotation))
             label.setPixmap(QPixmap(pixmap))
@@ -327,23 +298,18 @@ class MiVentana(QWidget):
             self.numero = 2
         self.i += 1
         if self.i >= 14:
-           self.i = 10  # era 9
+            self.i = 10  # era 9
 
     def new_enemy(self):
         tamaño = int(triangular(self.a, self.b, self.c))
         enemy = Enemy(self, 0, 0, tamaño)
-        #enemy.setDaemon(True)
         label = QLabel(self)
-        ##label.setGeometry(enemy.x, enemy.y, 100, 100)  # 120, 114
         label.setAlignment(Qt.AlignCenter)
         pixmap = QPixmap("Assets/clubba/clubba_02.png")
         pixmap = pixmap.transformed(QTransform().
                                     rotate(enemy.rotation))
-        #pixmap = pixmap.scaled(256 / 4, 256 / 4)
         pixmap = pixmap.scaled(22 + 7 * enemy.tamaño,
                                22 + 7 * enemy.tamaño)
-        #pixmap = pixmap.scaled(530/(16-enemy.tamaño),
-        #                       530/(16-enemy.tamaño))
         diag = (pixmap.width() ** 2 + pixmap.height() ** 2) ** 0.5
 
         label.setMinimumSize(diag, diag)
@@ -371,17 +337,10 @@ class MiVentana(QWidget):
         enemy.progressbar = progressbar
         enemy.start()
 
-
         self.enemies.append(enemy)
         self.timer2.stop()
-        #if len(self.enemies) < 4:
+        # if len(self.enemies) < 4:
         self.timer2.start(expovariate(self.lambda_aparicion) * 1000)
-
-    def boton_apretado(self):
-        print('Se apretó')
-        sender = self.sender()
-        self.label2.setText('Presionando boton {}'.format(sender.text()))
-        self.label2.resize(self.label2.sizeHint())
 
     def pausar(self):
         if not self.paused:
@@ -418,29 +377,27 @@ class MiVentana(QWidget):
         elif QKeyEvent.modifiers() == Qt.ControlModifier and \
                 QKeyEvent.key() == 84:
             self.abrir_tienda()
-        #print('Presionaron la tecla {}'.format(QKeyEvent.text()))
-        if QKeyEvent.text() == "a":
+        # print('Presionaron la tecla {}'.format(QKeyEvent.text()))
+        if QKeyEvent.text() == "a" and not self.paused:
             i = GRADOS_ROTACION
             pixmap = self.jug_principal.image.pixmap().transformed(QTransform()
                                                                    .rotate(-i
                                                                            ))
-
             self.jug_principal.rotation -= i
             self.jug_principal.image.setPixmap(QPixmap(pixmap))
-
-
-        elif QKeyEvent.text() == "d":
+        elif QKeyEvent.text() == "d" and not self.paused:
             i = GRADOS_ROTACION
             pixmap = self.jug_principal.image.pixmap().transformed(QTransform()
                                                                    .rotate(i))
             self.jug_principal.image.setPixmap(QPixmap(pixmap))
             self.jug_principal.rotation += i
-        elif QKeyEvent.text() == "f":
+        elif QKeyEvent.text() == "f" and not self.paused:
             self.ataque = True
-        elif QKeyEvent.text() == "g":
+        elif QKeyEvent.text() == "g" and not self.paused:
             self.ataque = False
 
-        self.jug_principal.avanzar2(QKeyEvent)
+        if not self.paused:
+            self.jug_principal.avanzar2(QKeyEvent)
         self.jug_principal.image.move(self.jug_principal.x,
                                       self.jug_principal.y)
 
@@ -474,13 +431,17 @@ class MiVentana(QWidget):
         porcentaje2 = self.jug_principal.experiencia / 1000
         valor2 = float(str(porcentaje2)[:7]) * 100
         self.pbar_exp.setValue(valor2)
-        self.pbar_exp.setFormat("Lvl " + str(self.nivel))
+        self.pbar_exp.setTextDirection(QProgressBar.BottomToTop)
+        self.pbar_exp.setTextVisible(True)
+
+        # self.pbar_exp.setFormat("Lvl " + str(self.nivel))
         if valor2 >= 50:
             self.jug_principal.tamaño = self.nivel * 2 + 1
         else:
             self.jug_principal.tamaño = self.nivel * 2
         if valor2 == 100:
             self.nivel += 1
+            self.label_nivel.setText("LVL\n " + str(self.nivel))
             self.jug_principal.subir_nivel(self.nivel)
 
         self.label_puntaje.setText("Puntaje actual: " +
@@ -553,12 +514,13 @@ class MiVentana(QWidget):
         self.tienda.timer_puntaje.start(0.1)
 
     def salir(self):
-        print("hola")
         if not self.paused:
             self.pausar()
+        time.sleep(1)
         self.close()
         self.final = Final(self.jug_principal)
         self.final.show()
+
 
 class Final(QWidget):
     def __init__(self, personaje):
@@ -585,8 +547,8 @@ class Final(QWidget):
         self.ingresa = QLabel("Ingresa tu nombre: ", self)
         self.ingresa.move(250, 330)
         self.ingresa.setStyleSheet("QLabel {font-size: 24px; "
-                                  "font-family: Courier;"
-                                  "font-width: bold}")
+                                   "font-family: Courier;"
+                                   "font-width: bold}")
 
         self.nombre = QLineEdit(self)
         self.nombre.setGeometry(550, 330, 200, 30)
@@ -601,7 +563,6 @@ class Final(QWidget):
         self.inicio = Inicio()
 
 
-
 if __name__ == '__main__':
     def hook(type, value, traceback):
         print(type)
@@ -611,5 +572,4 @@ if __name__ == '__main__':
     sys.__excepthook__ = hook
     app = QApplication(sys.argv)
     menu = Inicio()
-    #window = MiVentana()
     sys.exit(app.exec_())

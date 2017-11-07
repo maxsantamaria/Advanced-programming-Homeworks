@@ -5,8 +5,6 @@ from constantes import *
 from backend import *
 
 
-
-
 class Tienda(QWidget):
     def __init__(self, jug_principal):
         super().__init__()
@@ -64,7 +62,7 @@ class Tienda(QWidget):
         self.poderes = [None, None, None, None, None]
         for i in range(5):
             label = QLabel(self)
-            label.setGeometry(60 + i*100, 250, 80, 100 )
+            label.setGeometry(60 + i*100, 250, 80, 100)
             label.setStyleSheet(DISEÑO_LABEL_INVENTARIO)
             self.labels_inventario.append(label)
 
@@ -74,16 +72,16 @@ class Tienda(QWidget):
             self.temporal.move(QMouseEvent.x(), QMouseEvent.y())
             for inv in self.labels_inventario:
                 if check_click_on_label(QMouseEvent, inv):
-                    self.temporal.move(inv.x()+ 5, inv.y() + 5)
+                    self.temporal.move(inv.x() + 5, inv.y() + 5)
                     if self.arrastre1:
                         self.poderes[self.labels_inventario.
                                      index(inv)] = "movimiento"
                     elif self.arrastre2:
                         self.poderes[self.labels_inventario.
-                            index(inv)] = "ataque"
+                                     index(inv)] = "ataque"
                     elif self.arrastre3:
                         self.poderes[self.labels_inventario.
-                            index(inv)] = "vida"
+                                     index(inv)] = "vida"
 
                     break
 
