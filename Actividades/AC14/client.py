@@ -20,11 +20,6 @@ class Client:
             thread = threading.Thread(target=self.listen_thread)
             thread.start()
             print("Escuchando al servidor...")
-            #self.thread2 = threading.Thread(target=self.enviar_posicion,
-            #                           )
-            #self.thread2.start()
-
-
 
         except ConnectionRefusedError:
             # Si la conexión es rechazada, entonces se 'cierra' el socket
@@ -72,18 +67,6 @@ class Client:
             print("Conexión terminada")
             self.socket_cliente.close()
             sys.exit()
-
-
-    def enviar_posicion(self):
-        while True:
-            posicion = input("Ingresa la posición a atacar o "
-                             "exit para salir: ")
-            if posicion != "exit":
-                msg = {"status": "ataque", "data": posicion}
-            else:
-                msg = {"status": "exit", "data": None}
-            self.send(msg)
-
 
     def send(self, msg):
         #print("send")

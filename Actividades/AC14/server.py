@@ -7,9 +7,9 @@ from battleship import Battleship
 
 class Server:
     def __init__(self):
-        self.game = Battleship(boardsize=5, max_ships=2, loaded=False)
-        self.game.add_ships('P1', ['a1', 'b2'])
-        self.game.add_ships('P2', ['a1', 'b3'])
+        self.game = Battleship(boardsize=5, max_ships=2, loaded=True)
+        #self.game.add_ships('P1', ['a1', 'b2'])
+        #self.game.add_ships('P2', ['a1', 'b3'])
         self.habilitado = False  # False juega player 1
 
         self.host = "localhost"
@@ -62,7 +62,6 @@ class Server:
         while True:
 
             response_bytes_length = client_socket.recv(4)
-            print("recibe")
             response_length = int.from_bytes(response_bytes_length,
                                              byteorder="big")
 
@@ -81,7 +80,6 @@ class Server:
 
     # Los json tiene la forma {'status': % , 'data': %}
     def handle_command(self, received, client_socket):
-        #print(received)
         if received["status"] == "ataque":
             if self.jugadores[client_socket] == "jugador_1":
                 self.game.attack("P1", received["data"])
