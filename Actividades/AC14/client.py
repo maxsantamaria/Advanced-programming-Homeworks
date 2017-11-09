@@ -58,10 +58,10 @@ class Client:
             if posicion != "exit":
                 msg = {"status": "ataque", "data": posicion}
             else:
-                msg = {"status": "exit", "data": None}
+                msg = {"status": "exit"}
             self.send(msg)
         elif decoded["status"] == "no_te_toca":
-            print("Espera")
+            print("Espera...")
 
         elif decoded["status"] == "termino" or decoded["status"] == "exit":
             print("Conexión terminada")
