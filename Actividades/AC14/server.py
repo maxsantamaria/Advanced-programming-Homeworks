@@ -71,7 +71,6 @@ class Server:
                 response += client_socket.recv(256)
 
             response = response.decode()
-            print(response)
             decoded = json.loads(response)
 
             # Para evitar hacer muy largo este método, el manejo del mensaje se
@@ -98,7 +97,6 @@ class Server:
             msg_jug_2 = {"status": "exit", "data": "Un jugador se salio"}
 
 
-        print(self.game.game_over())
         if self.game.game_over():
             ganador = self.game.get_winner()
             if ganador == "P2":
