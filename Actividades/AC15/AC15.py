@@ -97,3 +97,4 @@ if __name__ == "__main__":
         print("- Sonrisa: {}".format(persona.sonrisa))
         print("- Edad: {}".format(persona.edad))
         print(persona.descripcion)
+        print(persona.url)
