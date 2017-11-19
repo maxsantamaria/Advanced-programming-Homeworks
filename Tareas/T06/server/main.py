@@ -1,0 +1,182 @@
+import threading
+import socket
+import json
+import pickle
+from handle_image import Image, leer_estructura_chunk
+import time
+import zlib
+
+
+# HOST = '192.168.2.104'
+HOST = 'localhost'
+PORT = 1234
+
+
+class Server:
+
+    def __init__(self):
+        print("Inicializando servidor...")
+
+        self.socket_servidor = socket.socket(socket.AF_INET,
+                                             socket.SOCK_STREAM)
+
+        self.socket_servidor.bind((HOST, PORT))
+        print("Dirección y puerto enlazados..")
+
+        self.usuarios = {}  # usuarios en linea
+        self.sockets = []
+        # despues va a ser con un for de las imagenes en carpeta image
+        self.editando_imagenes = {"MickeyMouse": False,
+                                  "Mushroom": False,
+                                  "DragonBall": False,
+                                  "Knightmare": False}
+
+        self.socket_servidor.listen(2)
+        print("Servidor escuchando en {}:{}...".format(HOST, PORT))
+
+        thread = threading.Thread(target=self.accept_connections_thread)
+        thread.start()
+        print("Servidor aceptando conexiones...")
+
+        # Finalmente, se inicializan un conjunto de estructuras para la lógica del juego
+
+    def accept_connections_thread(self):
+
+        while True:
+            client_socket, _ = self.socket_servidor.accept()
+
+            print("Servidor conectado a un nuevo cliente...")
+
+            self.sockets.append(client_socket)
+            self.enviar_imagenes(client_socket)
+
+            listening_client_thread = threading.Thread(
+                target=self.listen_client_thread,
+                args=(client_socket,),
+                daemon=True
+            )
+            listening_client_thread.start()
+
+    def enviar_imagenes(self, client_socket):
+        # for image in server/image
+        with open("image/MickeyMouse.png", "rb") as file:
+            info = file.read()
+            mensaje = {'status': 'ingresar_imagen0', 'data': info,
+                       'nombre': 'MickeyMouse'}
+            self.send(mensaje, client_socket)
+            time.sleep(0.1)
+        with open("image/Mushroom.png", "rb") as file2:
+            info = file2.read()
+            mensaje = {'status': 'ingresar_imagen1', 'data': info,
+                       'nombre': 'Mushroom'}
+            self.send(mensaje, client_socket)
+            time.sleep(0.1)
+        with open("image/Knightmare.png", "rb") as file3:
+            info = file3.read()
+            mensaje = {'status': 'ingresar_imagen2', 'data': info,
+                       'nombre': 'Knightmare'}
+            self.send(mensaje, client_socket)
+            time.sleep(0.1)
+        with open("image/DragonBall.png", "rb") as file4:
+            info = file4.read()
+            mensaje = {'status': 'ingresar_imagen3', 'data': info,
+                       'nombre': 'DragonBall'}
+            self.send(mensaje, client_socket)
+
+    def listen_client_thread(self, client_socket):
+        while True:
+            response_bytes_length = client_socket.recv(4)
+            response_length = int.from_bytes(response_bytes_length,
+                                             byteorder="big")
+            response = bytearray()
+            while len(response) < response_length:
+                response += client_socket.recv(256)
+            decoded = pickle.loads(response)
+            self.handle_command(decoded, client_socket)
+
+    def handle_command(self, received, client_socket):
+        #print("RECIBI LA IMAGEN ACTUALIZADA")
+        if received["status"] == "actualizar_imagen":
+            with open("image/" + received["nombre"] + ".png", "rb") as file:
+                bytes_png = file.read()
+                nuevos_bytes_png = cambiar_idat(bytes_png, received["data"])  # esto lo voy a usar para guardarla
+                mensaje = {'status': 'actualizar_galeria',
+                           'data': received['data'],
+                           'nombre': received['nombre']}
+                for c_socket in self.sockets:
+                    self.send(mensaje, c_socket)
+        elif received["status"] == "nombre_usuario":
+            mensaje = {'status': 'usuario_entra',
+                       'data': received["data"]}
+            for c_socket in self.usuarios.values():  # era self.sockets
+                self.send(mensaje, c_socket)
+            self.usuarios[received["data"]] = client_socket
+            time.sleep(0.1)
+            for name in self.usuarios.keys():
+                mensaje['data'] = name
+                self.send(mensaje, client_socket)
+        elif received["status"] == "usuario_sale":
+            mensaje = {'status': 'usuario_sale',
+                       'data': received["data"]}
+            for c_socket in self.usuarios.values():
+                self.send(mensaje, c_socket)
+            del self.usuarios[received["data"]]
+
+
+        elif received["status"] == "empieza_edicion":
+            if self.editando_imagenes[received["nombre"]]:
+                mensaje = {'status': 'espectador',
+                           'nombre': received["nombre"]}
+            else:
+                mensaje = {'status': 'editor',
+                           'nombre': received["nombre"]}
+                self.editando_imagenes[received["nombre"]] = True
+            self.send(mensaje, client_socket)
+        elif received["status"] == "fin_edicion":
+            self.editando_imagenes[received["nombre"]] = False
+
+    def send(self, msg, client_socket):
+        mensaje_pickle = pickle.dumps(msg)
+
+        msg_length = len(mensaje_pickle).to_bytes(4, byteorder="big")
+        client_socket.send(msg_length + mensaje_pickle)
+
+
+def cambiar_idat(bytes_png, nueva_informacion_idat):
+    header = bytes_png[:8]
+    body = bytes_png[8:]
+    i = 0
+
+    while True:
+        largo_informacion = int.from_bytes(body[i:i + 4], byteorder="big")
+        tipo_de_bloque = body[i + 4: i + 8].decode()
+        if tipo_de_bloque == "IEND":
+            iend = body[i: i + 12 + largo_informacion]
+            break
+        elif tipo_de_bloque == "IHDR":
+            ihdr = body[i: i + 12 + largo_informacion]
+        i += 12 + largo_informacion
+    total = bytearray()
+    total += header
+    total += ihdr
+    largo_informacion_idat = len(nueva_informacion_idat)
+    total += largo_informacion_idat.to_bytes(4, byteorder="big")
+    tipo = "IDAT".encode()
+    total += tipo
+    total += nueva_informacion_idat
+    idat_crc = zlib.crc32(tipo + nueva_informacion_idat)
+    crc = idat_crc.to_bytes(4, byteorder="big")
+    total += crc
+    total += iend
+    return total
+
+
+
+if __name__ == "__main__":
+
+
+    server = Server()
+
+    # Mantenemos al server corriendo
+    while True:
+        pass
