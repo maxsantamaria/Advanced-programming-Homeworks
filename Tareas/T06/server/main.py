@@ -5,10 +5,12 @@ import pickle
 from handle_image import Image, leer_estructura_chunk
 import time
 import zlib
+import os
+import random
 
 
 # HOST = '192.168.2.104'
-HOST = 'localhost'
+HOST = '192.168.2.104'
 PORT = 1234
 
 
@@ -26,12 +28,16 @@ class Server:
         self.usuarios = {}  # usuarios en linea
         self.sockets = []
         # despues va a ser con un for de las imagenes en carpeta image
-        self.editando_imagenes = {"MickeyMouse": False,
-                                  "Mushroom": False,
-                                  "DragonBall": False,
-                                  "Knightmare": False}
+        self.editando_imagenes = {}
+        for image in os.listdir("image"):
+            nombre = os.path.splitext(image)[0]
+            self.editando_imagenes[nombre] = False
+        #self.editando_imagenes = {"MickeyMouse": False,
+        #                          "Mushroom": False,
+        #                          "DragonBall": False,
+        #                          "Knightmare": False}
 
-        self.socket_servidor.listen(2)
+        self.socket_servidor.listen(10)
         print("Servidor escuchando en {}:{}...".format(HOST, PORT))
 
         thread = threading.Thread(target=self.accept_connections_thread)
@@ -48,7 +54,7 @@ class Server:
             print("Servidor conectado a un nuevo cliente...")
 
             self.sockets.append(client_socket)
-            self.enviar_imagenes(client_socket)
+            #self.enviar_imagenes(client_socket)
 
             listening_client_thread = threading.Thread(
                 target=self.listen_client_thread,
@@ -58,30 +64,60 @@ class Server:
             listening_client_thread.start()
 
     def enviar_imagenes(self, client_socket):
-        # for image in server/image
-        with open("image/MickeyMouse.png", "rb") as file:
-            info = file.read()
-            mensaje = {'status': 'ingresar_imagen0', 'data': info,
-                       'nombre': 'MickeyMouse'}
+        #for image in server/image
+        folder = "image"
+        i = 0
+        imagenes = os.listdir(folder)
+        while i < 6 and len(imagenes) > 0:
+        #for image in os.listdir(folder):
+            image = random.choice(imagenes)
+            imagenes.remove(image)
+            nombre = os.path.splitext(image)[0]
+            with open(os.path.join(folder, image), "rb") as file:
+                info = file.read()
+                status = 'ingresar_imagen' + str(i)
+                mensaje = {'status': status, 'data': info,
+                           'nombre': nombre, 'comments': []}
+            if not os.path.exists(os.path.join("comments", nombre + ".txt")):
+                if not os.path.exists("comments"):
+                    os.makedirs("comments")
+                with open(os.path.join("comments", nombre + ".txt"), "w") as file:
+                    pass
+            else:
+                with open(os.path.join("comments", nombre + ".txt"), "r") as file:
+                    comentarios = []
+                    for line in file:
+                        comentarios.append(line.split(","))
+                    mensaje["comments"] = comentarios
+
             self.send(mensaje, client_socket)
             time.sleep(0.1)
-        with open("image/Mushroom.png", "rb") as file2:
-            info = file2.read()
-            mensaje = {'status': 'ingresar_imagen1', 'data': info,
-                       'nombre': 'Mushroom'}
-            self.send(mensaje, client_socket)
-            time.sleep(0.1)
-        with open("image/Knightmare.png", "rb") as file3:
-            info = file3.read()
-            mensaje = {'status': 'ingresar_imagen2', 'data': info,
-                       'nombre': 'Knightmare'}
-            self.send(mensaje, client_socket)
-            time.sleep(0.1)
-        with open("image/DragonBall.png", "rb") as file4:
-            info = file4.read()
-            mensaje = {'status': 'ingresar_imagen3', 'data': info,
-                       'nombre': 'DragonBall'}
-            self.send(mensaje, client_socket)
+            i += 1
+
+
+        #with open("image/MickeyMouse.png", "rb") as file:
+        #    info = file.read()
+        #    mensaje = {'status': 'ingresar_imagen0', 'data': info,
+        #               'nombre': 'MickeyMouse'}
+        #    self.send(mensaje, client_socket)
+        #    time.sleep(0.1)
+        #with open("image/Mushroom.png", "rb") as file2:
+        #    info = file2.read()
+        #    mensaje = {'status': 'ingresar_imagen1', 'data': info,
+        #               'nombre': 'Mushroom'}
+        #    self.send(mensaje, client_socket)
+        #    time.sleep(0.1)
+        #with open("image/Knightmare.png", "rb") as file3:
+        #    info = file3.read()
+        #    mensaje = {'status': 'ingresar_imagen2', 'data': info,
+        #               'nombre': 'Knightmare'}
+        #    self.send(mensaje, client_socket)
+        #    time.sleep(0.1)
+        #with open("image/DragonBall.png", "rb") as file4:
+        #    info = file4.read()
+        #    mensaje = {'status': 'ingresar_imagen3', 'data': info,
+        #               'nombre': 'DragonBall'}
+        #    self.send(mensaje, client_socket)
 
     def listen_client_thread(self, client_socket):
         while True:
@@ -93,6 +129,10 @@ class Server:
                 response += client_socket.recv(256)
             decoded = pickle.loads(response)
             self.handle_command(decoded, client_socket)
+            if decoded["status"] == "usuario_sale":
+                print("Usuario se ha desconectado exitosamente")
+                client_socket.close()
+                break
 
     def handle_command(self, received, client_socket):
         #print("RECIBI LA IMAGEN ACTUALIZADA")
@@ -105,22 +145,32 @@ class Server:
                            'nombre': received['nombre']}
                 for c_socket in self.sockets:
                     self.send(mensaje, c_socket)
+            with open(os.path.join("image", received["nombre"] + ".png"), "wb") as file:
+                file.write(nuevos_bytes_png)
         elif received["status"] == "nombre_usuario":
-            mensaje = {'status': 'usuario_entra',
-                       'data': received["data"]}
-            for c_socket in self.usuarios.values():  # era self.sockets
-                self.send(mensaje, c_socket)
-            self.usuarios[received["data"]] = client_socket
-            time.sleep(0.1)
-            for name in self.usuarios.keys():
-                mensaje['data'] = name
+            if received["data"] not in self.usuarios.keys():
+                self.enviar_imagenes(client_socket)
+                time.sleep(0.1)
+                mensaje = {'status': 'usuario_entra',
+                           'data': received["data"]}
+                for c_socket in self.usuarios.values():  # era self.sockets
+                    self.send(mensaje, c_socket)
+                self.usuarios[received["data"]] = client_socket
+                time.sleep(0.1)
+                for name in self.usuarios.keys():
+                    mensaje['data'] = name
+                    self.send(mensaje, client_socket)
+            else:
+                mensaje = {'status': 'ya_existe'}
                 self.send(mensaje, client_socket)
+
         elif received["status"] == "usuario_sale":
             mensaje = {'status': 'usuario_sale',
                        'data': received["data"]}
             for c_socket in self.usuarios.values():
                 self.send(mensaje, c_socket)
             del self.usuarios[received["data"]]
+            self.sockets.remove(client_socket)
 
 
         elif received["status"] == "empieza_edicion":
@@ -134,6 +184,20 @@ class Server:
             self.send(mensaje, client_socket)
         elif received["status"] == "fin_edicion":
             self.editando_imagenes[received["nombre"]] = False
+        elif received["status"] == "nuevo_comentario":
+            archivo = received["nombre"] + ".txt"
+            with open(os.path.join("comments", archivo), "a") as file:
+                file.write(",".join(received["data"]))
+            mensaje = {'status': 'nuevo_comentario',
+                       'data': received["data"],
+                       'nombre': received["nombre"]}
+            for c_socket in self.usuarios.values():
+                self.send(mensaje, c_socket)
+        elif received["status"] == "nueva_imagen":
+            self.editando_imagenes[received["nombre"]] = False
+            archivo = received["nombre"] + ".png"
+            with open(os.path.join("image", archivo), "wb") as file:
+                file.write(received["data"])
 
     def send(self, msg, client_socket):
         mensaje_pickle = pickle.dumps(msg)
