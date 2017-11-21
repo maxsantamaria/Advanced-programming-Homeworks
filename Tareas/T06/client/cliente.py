@@ -64,7 +64,6 @@ class Client(QObject):
     def listen_thread(self):
         while self.connected:
             response_bytes_length = self.socket_cliente.recv(4)
-            print("LLEGO LA IMAGEN")
             response_length = int.from_bytes(response_bytes_length,
                                              byteorder="big")
             response = bytearray()

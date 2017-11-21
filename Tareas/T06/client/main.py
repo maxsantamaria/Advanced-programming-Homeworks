@@ -124,8 +124,6 @@ class Dashboard(QWidget):
         self.file.fileSelected.connect(self.mandar_archivo)
 
     def mandar_archivo(self):
-        print(self.file.selectedFiles()[0])
-        print(os.path.basename(self.file.selectedFiles()[0]))
         self.trigger_nuevo_archivo.emit(self.file.selectedFiles()[0])
 
     def show_galeria(self, event):
@@ -152,7 +150,6 @@ class Dashboard(QWidget):
         self.images[event.num_imagen] = new_image
 
     def actualizar_galeria(self, event):
-        print("ACA ACTUALIZO GALERIA")
         for indice, image in enumerate(self.images):
             if image is not None and image.nombre == event.nombre:
                 image.idat.informacion = event.new_idat_info
@@ -175,7 +172,6 @@ class Dashboard(QWidget):
         if self.cliente.editor is not None:
             if self.edicion.isVisible() and \
                     self.edicion.imagen.nombre == event.nombre:
-                print("ACTUALIZA LO Q QUIERO")
                 self.edicion.actualizar_comentario()
 
     def usuarios_online(self, event):
@@ -366,7 +362,6 @@ class Editor(QWidget):
         self.herramienta_blurry = True
 
     def actualizar_imagen(self):
-        print("ACTUALIZANDOOOOOOOOOOOOOOO")
         self.imagen = self.parent.images[self.numero_imagen]
         pmap = QPixmap()
         pmap.loadFromData(bytes(self.imagen.bytes_archivo), "PNG")

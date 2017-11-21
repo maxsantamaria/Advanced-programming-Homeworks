@@ -305,7 +305,6 @@ def format_comentarios(comentario):
     return formateado
 
 
-
 if __name__ == "__main__":
     header, body = separar_imagen("MickeyMouse.png")
     imagen = leer_estructura_chunk(body)
