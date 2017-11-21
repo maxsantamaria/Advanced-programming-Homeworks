@@ -1,22 +1,20 @@
-import pickle
-import socket
-import threading
 from handle_image import Image, leer_estructura_chunk
 from PyQt5.QtCore import pyqtSignal, QObject
 from eventos import ActualizarImagenEvent, ImagenEditadaEvent, \
     CambioUsuariosEvent, CambiarBotonEditarEvent, ActualizarComentarioEvent
-import sys
+import pickle
+import socket
+import threading
 import time
 import os
 
-# HOST = '192.168.2.104'
+# HOST = 'localhost'
 HOST = '192.168.2.104'
 PORT = 1234
 
 
 class Client(QObject):
 
-    #trigger_resultados = pyqtSignal(bytearray)
     trigger_resultados = pyqtSignal(ActualizarImagenEvent)
     trigger_resultados2 = pyqtSignal(ImagenEditadaEvent)
     trigger_usuarios_conectados = pyqtSignal(CambioUsuariosEvent)
@@ -72,12 +70,10 @@ class Client(QObject):
             response = bytearray()
             while len(response) < response_length:
                 response += self.socket_cliente.recv(256)
-            #response = response.decode()
             decoded = pickle.loads(response)
-            #print(decoded)
+            # print(decoded)
             self.handlecommand(decoded)  # era decoded
 
-    # hay que cambiar el comportamiento del decoded porque ahora es undi
     def handlecommand(self, decoded):
         if "ingresar_imagen" in decoded["status"]:
             num = decoded["status"][-1]
@@ -113,7 +109,6 @@ class Client(QObject):
             evento = ActualizarComentarioEvent(decoded["nombre"],
                                                decoded["data"])
             self.trigger_comentario.emit(evento)
-
 
     def enviar_actualizacion(self, event):
         mensaje = {'status': 'actualizar_imagen',
@@ -160,4 +155,4 @@ class Client(QObject):
 
 if __name__ == "__main__":
 
-    client = Client()
+    client = Client("Max")

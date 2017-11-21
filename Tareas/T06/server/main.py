@@ -1,15 +1,13 @@
 import threading
 import socket
-import json
 import pickle
-from handle_image import Image, leer_estructura_chunk
 import time
 import zlib
 import os
 import random
 
 
-# HOST = '192.168.2.104'
+# HOST = 'localhost'
 HOST = '192.168.2.104'
 PORT = 1234
 
@@ -18,6 +16,8 @@ class Server:
 
     def __init__(self):
         print("Inicializando servidor...")
+        if not os.path.exists("image"):
+            os.makedirs("image")
 
         self.socket_servidor = socket.socket(socket.AF_INET,
                                              socket.SOCK_STREAM)
@@ -32,19 +32,12 @@ class Server:
         for image in os.listdir("image"):
             nombre = os.path.splitext(image)[0]
             self.editando_imagenes[nombre] = False
-        #self.editando_imagenes = {"MickeyMouse": False,
-        #                          "Mushroom": False,
-        #                          "DragonBall": False,
-        #                          "Knightmare": False}
-
         self.socket_servidor.listen(10)
         print("Servidor escuchando en {}:{}...".format(HOST, PORT))
 
         thread = threading.Thread(target=self.accept_connections_thread)
         thread.start()
         print("Servidor aceptando conexiones...")
-
-        # Finalmente, se inicializan un conjunto de estructuras para la lógica del juego
 
     def accept_connections_thread(self):
 
@@ -54,7 +47,7 @@ class Server:
             print("Servidor conectado a un nuevo cliente...")
 
             self.sockets.append(client_socket)
-            #self.enviar_imagenes(client_socket)
+            # self.enviar_imagenes(client_socket)
 
             listening_client_thread = threading.Thread(
                 target=self.listen_client_thread,
@@ -64,12 +57,10 @@ class Server:
             listening_client_thread.start()
 
     def enviar_imagenes(self, client_socket):
-        #for image in server/image
         folder = "image"
         i = 0
         imagenes = os.listdir(folder)
         while i < 6 and len(imagenes) > 0:
-        #for image in os.listdir(folder):
             image = random.choice(imagenes)
             imagenes.remove(image)
             nombre = os.path.splitext(image)[0]
@@ -81,10 +72,12 @@ class Server:
             if not os.path.exists(os.path.join("comments", nombre + ".txt")):
                 if not os.path.exists("comments"):
                     os.makedirs("comments")
-                with open(os.path.join("comments", nombre + ".txt"), "w") as file:
+                with open(os.path.join("comments", nombre + ".txt"), "w") as \
+                        file:
                     pass
             else:
-                with open(os.path.join("comments", nombre + ".txt"), "r") as file:
+                with open(os.path.join("comments", nombre + ".txt"), "r") as \
+                        file:
                     comentarios = []
                     for line in file:
                         comentarios.append(line.split(","))
@@ -93,31 +86,6 @@ class Server:
             self.send(mensaje, client_socket)
             time.sleep(0.1)
             i += 1
-
-
-        #with open("image/MickeyMouse.png", "rb") as file:
-        #    info = file.read()
-        #    mensaje = {'status': 'ingresar_imagen0', 'data': info,
-        #               'nombre': 'MickeyMouse'}
-        #    self.send(mensaje, client_socket)
-        #    time.sleep(0.1)
-        #with open("image/Mushroom.png", "rb") as file2:
-        #    info = file2.read()
-        #    mensaje = {'status': 'ingresar_imagen1', 'data': info,
-        #               'nombre': 'Mushroom'}
-        #    self.send(mensaje, client_socket)
-        #    time.sleep(0.1)
-        #with open("image/Knightmare.png", "rb") as file3:
-        #    info = file3.read()
-        #    mensaje = {'status': 'ingresar_imagen2', 'data': info,
-        #               'nombre': 'Knightmare'}
-        #    self.send(mensaje, client_socket)
-        #    time.sleep(0.1)
-        #with open("image/DragonBall.png", "rb") as file4:
-        #    info = file4.read()
-        #    mensaje = {'status': 'ingresar_imagen3', 'data': info,
-        #               'nombre': 'DragonBall'}
-        #    self.send(mensaje, client_socket)
 
     def listen_client_thread(self, client_socket):
         while True:
@@ -135,17 +103,19 @@ class Server:
                 break
 
     def handle_command(self, received, client_socket):
-        #print("RECIBI LA IMAGEN ACTUALIZADA")
+        # print("RECIBI LA IMAGEN ACTUALIZADA")
         if received["status"] == "actualizar_imagen":
             with open("image/" + received["nombre"] + ".png", "rb") as file:
                 bytes_png = file.read()
-                nuevos_bytes_png = cambiar_idat(bytes_png, received["data"])  # esto lo voy a usar para guardarla
+                # esto lo voy a usar para guardarla
+                nuevos_bytes_png = cambiar_idat(bytes_png, received["data"])
                 mensaje = {'status': 'actualizar_galeria',
                            'data': received['data'],
                            'nombre': received['nombre']}
                 for c_socket in self.sockets:
                     self.send(mensaje, c_socket)
-            with open(os.path.join("image", received["nombre"] + ".png"), "wb") as file:
+            with open(os.path.join("image", received["nombre"] + ".png"),
+                      "wb") as file:
                 file.write(nuevos_bytes_png)
         elif received["status"] == "nombre_usuario":
             if received["data"] not in self.usuarios.keys():
@@ -171,7 +141,6 @@ class Server:
                 self.send(mensaje, c_socket)
             del self.usuarios[received["data"]]
             self.sockets.remove(client_socket)
-
 
         elif received["status"] == "empieza_edicion":
             if self.editando_imagenes[received["nombre"]]:
@@ -235,10 +204,7 @@ def cambiar_idat(bytes_png, nueva_informacion_idat):
     return total
 
 
-
 if __name__ == "__main__":
-
-
     server = Server()
 
     # Mantenemos al server corriendo

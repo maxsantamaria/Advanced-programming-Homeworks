@@ -1,4 +1,3 @@
-import sys
 from PyQt5.QtWidgets import QWidget, QLabel, QLineEdit, QApplication, \
     QPushButton, QProgressBar, QScrollArea, QColorDialog, QFileDialog
 from PyQt5.QtCore import Qt, QByteArray, pyqtSignal, QThread
@@ -6,8 +5,8 @@ from PyQt5.QtGui import QPixmap
 from cliente import Client
 from handle_image import *
 from eventos import ImagenEditadaEvent, ActualizarComentarioEvent
-import sys
 from threading import Thread
+import sys
 import os
 
 
@@ -17,9 +16,9 @@ class Inicio(QWidget):
         self.setGeometry(200, 100, 1000, 600)
         self.setWindowTitle("Ventana de Ingreso")
 
-        ##self.cliente = Client()
+        # self.cliente = Client()
         self.lab_nombre = QLabel("Ingresa tu nombre sin espacios ni carácteres"
-                                 " especiales:\nMínimo 2 caract.",self)
+                                 " especiales:\nMínimo 2 caract.", self)
 
         self.lab_nombre.move(200, 300)
         self.nombre = QLineEdit(self)
@@ -29,7 +28,6 @@ class Inicio(QWidget):
         self.warning.setGeometry(500, 300, 400, 100)
         self.warning.setStyleSheet("QLabel {color: red}")
         self.warning.setAlignment(Qt.AlignCenter)
-
 
         self.show()
 
@@ -90,10 +88,10 @@ class Dashboard(QWidget):
                 label.move(100 + (i * 250), 20)
                 self.boton.setGeometry(100 + (i * 250), 230, 200, 40)
             self.boton.setVisible(False)
-            #self.boton.clicked.connect(lambda : self.abrir_editor(i))
+            # self.boton.clicked.connect(lambda : self.abrir_editor(i))
             self.botones.append(self.boton)
             self.labels.append(label)
-        self.botones[0].clicked.connect(lambda : self.abrir_editor(0))
+        self.botones[0].clicked.connect(lambda: self.abrir_editor(0))
         self.botones[1].clicked.connect(lambda: self.abrir_editor(1))
         self.botones[2].clicked.connect(lambda: self.abrir_editor(2))
         self.botones[3].clicked.connect(lambda: self.abrir_editor(3))
@@ -108,7 +106,6 @@ class Dashboard(QWidget):
         self.boton_salir = QPushButton("Salir", self)
         self.boton_salir.move(900, 550)
         self.boton_salir.clicked.connect(self.salir)
-
 
         self.scroll_usuarios = QScrollArea(self)
         self.scroll_usuarios.setGeometry(900, 50, 100, 100)
@@ -134,8 +131,8 @@ class Dashboard(QWidget):
     def show_galeria(self, event):
         pmap = QPixmap()
         pmap.loadFromData(bytes(event.data), "PNG")
-        #label = QLabel(self)
-        #label.move(0, 0)
+        # label = QLabel(self)
+        # label.move(0, 0)
         pmap = pmap.scaled(200, 200)
         label = self.labels[event.num_imagen]
         label.setPixmap(pmap)
@@ -143,8 +140,6 @@ class Dashboard(QWidget):
         label.show()
         boton = self.botones[event.num_imagen]
         boton.setVisible(True)
-
-        #boton.setText("Alguien está editando...")
 
         # imagen
         header = event.data[0:8]
@@ -163,12 +158,11 @@ class Dashboard(QWidget):
                 image.idat.informacion = event.new_idat_info
                 image.idat.largo_informacion = len(event.new_idat_info)
                 image.generar_matriz_rgb()
-                im = image
                 pmap = QPixmap()
                 pmap.loadFromData(bytes(image.bytes_archivo), "PNG")
                 pmap = pmap.scaled(200, 200)
                 self.labels[indice].setPixmap(pmap)
-        if self.cliente.editor == False:
+        if self.cliente.editor is not None and not self.cliente.editor:
             if self.edicion.isVisible() and \
                     self.edicion.imagen.nombre == event.nombre:
                 self.edicion.actualizar_imagen()
@@ -193,7 +187,8 @@ class Dashboard(QWidget):
         self.label_usuarios.setText("\n".join(self.usuarios))
         self.scroll_usuarios.setWidget(self.label_usuarios)
 
-    def boton_editar(self, event):  # se puede usar para mostrar que alguien esta editando
+    def boton_editar(self, event):
+        # se puede usar para mostrar que alguien esta editando
         for imagen in self.images:
             if imagen.nombre == event.nombre:
                 indice = self.images.index(imagen)
@@ -203,7 +198,6 @@ class Dashboard(QWidget):
                 else:
                     boton.setText("Editar")
                 break
-
 
     def abrir_editor(self, numero_imagen):
         self.trigger_inicio_edicion.emit(self.images[numero_imagen].nombre)
@@ -223,11 +217,11 @@ class Dashboard(QWidget):
 
         self.cliente.connected = False
         self.cliente.avisar_salida()
-        #self.cliente.socket_cliente.close()
+        # self.cliente.socket_cliente.close()
 
         self.close()
         self.nuevo_inicio = Inicio()
-        #sys.exit()
+        # sys.exit()
 
     def closeEvent(self, QCloseEvent):  # no vuelve al inicio
         self.cliente.connected = False
@@ -251,17 +245,27 @@ class Editor(QWidget):
         self.label.move(0, 0)
 
         self.label_comentarios = QLabel(self)
-        mostrar = ""
+        mostrar = "<html>"
         for comentario in self.imagen.comentarios:
-            mostrar += comentario[0] + " por " + comentario[1] + " | " + \
-                      comentario[2]
+            #mostrar += comentario[0] + " por " + comentario[1] + " | " + \
+            #          comentario[2]
+            form = format_comentarios(comentario)
+            mostrar += form
+            #mostrar += comentario[0] + " <b>por " + comentario[1] +\
+            #           "</b> | " + comentario[2] + "<img src=emojis/emot_09.png style=width:5px;height:5px;> " + "<br/>"
+        mostrar += "</html>"
         self.label_comentarios.setText(mostrar)
         self.scroll_comentarios = QScrollArea(self)
-        self.scroll_comentarios.setGeometry(pmap.width(), 330, 190, 150)
+        self.scroll_comentarios.setGeometry(pmap.width(), 340, 190, 150)
         self.scroll_comentarios.setWidget(self.label_comentarios)
         self.escribir_comentario = QLineEdit(self)
-        self.escribir_comentario.setGeometry(pmap.width(), 480, 190, 20)
+        self.escribir_comentario.setGeometry(pmap.width(), 490, 190, 20)
         self.escribir_comentario.returnPressed.connect(self.comentar)
+        self.comm = QLabel("COMENTARIOS", self)
+        self.comm.setStyleSheet("QLabel {font-weight: bold; font-size: 10px;"
+                                "font-family: Courier}")
+        self.comm.move(pmap.width(), 325)
+
 
         # botones
         self.boton_cursor = QPushButton("Cursor", self)
@@ -370,10 +374,11 @@ class Editor(QWidget):
 
     def actualizar_comentario(self):
         self.imagen = self.parent.images[self.numero_imagen]
-        mostrar = ""
+        mostrar = "<html>"
         for comentario in self.imagen.comentarios:
-            mostrar += comentario[0] + " por " + comentario[1] + " | " + \
-                       comentario[2]
+            form = format_comentarios(comentario)
+            mostrar += form
+        mostrar += "</html>"
         self.label_comentarios = QLabel(self)
         self.label_comentarios.setText(mostrar)
         self.scroll_comentarios.setWidget(self.label_comentarios)
@@ -398,13 +403,9 @@ class Editor(QWidget):
                 self.recuadro.move(QMouseEvent.x(),
                                    self.recuadro.y())
 
-
-
             self.recuadro.resize(abs(QMouseEvent.x() - self.pos_inicial.x()),
                                  abs(QMouseEvent.y() - self.pos_inicial.y()))
             self.recuadro.show()
-
-            #print(QMouseEvent.pos())
 
     def mouseReleaseEvent(self, QMouseEvent):
         if self.herramienta_recorte:
@@ -421,14 +422,15 @@ class Editor(QWidget):
                         v2[1] <= self.label.height():
                     self.imagen = recortar_imagen(self.imagen, v1, v2)
                     self.actualizar_label()
+                self.recuadro.deleteLater()
 
     def mousePressEvent(self, QMouseEvent):
         if self.herramienta_balde:
             posicion = [QMouseEvent.x(), QMouseEvent.y()]
             if posicion[0] < self.label.width() and \
                     posicion[1] < self.label.height():
-                #self.imagen = balde_azul(self.imagen, posicion)
-                #self.actualizar_label()
+                # self.imagen = balde_azul(self.imagen, posicion)
+                # self.actualizar_label()
                 self.aviso = QLabel("Se está realizando operacion\n"
                                     "de balde, no hacer nada más...", self)
                 self.aviso.move(self.label.width(), 260)
@@ -445,7 +447,7 @@ class Editor(QWidget):
             self.pbar.show()
             self.thread_blurry = Thread(target=blurry, args=(self.imagen,
                                                              self))
-            #self.imagen = blurry(self.imagen, self.pbar)
+            # self.imagen = blurry(self.imagen, self.pbar)
             self.thread_blurry.start()
 
     def actualizar_label(self):
@@ -453,19 +455,18 @@ class Editor(QWidget):
         pmap.loadFromData(bytes(self.imagen.bytes_archivo))
         self.label.setPixmap(pmap)
         self.parent.trigger_edicion.emit(ImagenEditadaEvent
-                                            (self.imagen.nombre,
-                                             self.imagen.idat.
-                                             informacion))
+                                         (self.imagen.nombre,
+                                          self.imagen.idat.
+                                          informacion))
 
     def eligio_color(self):
         color_byte = bytearray()
-        color_byte += self.colores.selectedColor().red().to_bytes(1,
-                                                                  byteorder="big")
-        color_byte += self.colores.selectedColor().green().to_bytes(1,
-                                                                    byteorder="big")
-        color_byte += self.colores.selectedColor().blue().to_bytes(1,
-                                                                   byteorder="big")
-        print(color_byte)
+        color_byte += self.colores.selectedColor().red().\
+            to_bytes(1, byteorder="big")
+        color_byte += self.colores.selectedColor().green().\
+            to_bytes(1, byteorder="big")
+        color_byte += self.colores.selectedColor().blue().\
+            to_bytes(1, byteorder="big")
         self.color_balde = color_byte
 
     def closeEvent(self, QCloseEvent):
